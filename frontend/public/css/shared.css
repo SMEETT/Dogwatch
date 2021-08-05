@@ -19,6 +19,7 @@ BUTTONS
 	border-radius: 5px;
 	font-size: 1.5rem;
 	align-items: center;
+	justify-content: center;
 }
 
 .btn-regular:hover {
