@@ -404,18 +404,14 @@ const Mutation = new GraphQLObjectType({
 		logoutUser: {
 			type: GraphQLBoolean,
 			async resolve(parent, args, { req, res, maxSessionAge }) {
-				if (!req.user) {
-					throw new Error(`User not logged in (therefor can't logout)`);
-				} else {
-					req.logout(req.user, (error) => (error ? error : user));
-					let options = {
-						maxAge: maxSessionAge - 10000,
-						// signed: true, // Indicates if the cookie should be signed
-					};
-					res.cookie("isAuthenticated", "false", options);
-					console.log("request.user: ---------------------------> ", req.user);
-					return true;
-				}
+				req.logout(req.user, (error) => (error ? error : user));
+				let options = {
+					maxAge: maxSessionAge - 10000,
+					// signed: true, // Indicates if the cookie should be signed
+				};
+				res.cookie("isAuthenticated", "false", options);
+				console.log("request.user: ---------------------------> ", req.user);
+				return true;
 			},
 		},
 		// ----------------------------------------------------
