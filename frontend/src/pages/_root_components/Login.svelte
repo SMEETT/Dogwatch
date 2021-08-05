@@ -1,16 +1,21 @@
 <!-- routify:options reset -->
 <script>
-	import { metatags } from "@roxi/routify";
+	import { metatags, goto } from "@roxi/routify";
 	metatags.title = "Dogwatch / Login";
 	metatags.description = "Description coming soon...";
+	import { isAuthenticated, authenticating, checkAuthCookie } from "../../stores/state";
+
 	import { login } from "../../stores/state";
 
 	let email;
 	let password;
 
-	function handleSubmit() {
-		console.log(document.cookie);
-		login(email, password);
+	async function handleSubmit() {
+		if (await login(email, password)) {
+			$goto("/appointments");
+		} else {
+			console.log("login failed");
+		}
 	}
 </script>
 

@@ -38,7 +38,7 @@ export const checkAuthCookie = () => {
 	}
 };
 
-export const login = (email, password) => {
+export const login = async (email, password) => {
 	authenticating.set(true);
 	async function loginUser() {
 		const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
@@ -54,13 +54,22 @@ export const login = (email, password) => {
 
 		const data = await graphQLClient.request(mutation);
 		if (data.loginUser.status === 200) {
-			authenticating.set(false);
 			isAuthenticated.set(true);
-		} else {
-			console.log(data.loginUser.message);
 			authenticating.set(false);
+			console.log(JSON.stringify(data, undefined, 2));
+			return true;
+		} else {
+			throw new Error("Login Failed");
 		}
-		console.log(JSON.stringify(data, undefined, 2));
 	}
-	loginUser().catch((error) => console.error(error));
+
+	return loginUser()
+		.then(() => {
+			return true;
+		})
+		.catch((error) => {
+			console.log(error);
+			isAuthenticated.set(false);
+			return false;
+		});
 };

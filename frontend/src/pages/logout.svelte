@@ -2,6 +2,7 @@
 <script>
 	import { metatags, redirect, goto } from "@roxi/routify";
 	import BottomBar from "./_root_components/BottomBar.svelte";
+	import { isAuthenticated, authenticating, checkAuthCookie } from "../stores/state";
 
 	import { GraphQLClient, gql } from "graphql-request";
 	console.log("Logout");
@@ -25,6 +26,7 @@
 		$goto("/login");
 	}
 
+	isAuthenticated.set(false);
 	main().catch((error) => console.error(error));
 </script>
 

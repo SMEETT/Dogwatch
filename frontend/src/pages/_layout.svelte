@@ -25,10 +25,16 @@
 {#if $authenticating}
 	authenticating...
 {:else if $isAuthenticated || checkAuthCookie()}
+	<p>slot</p>
 	<slot />
 {:else}
 	<Login />
 {/if}
+
+<!-- {#if $isAuthenticated}
+	<p>isAuth</p>
+	{$authenticating}
+{/if} -->
 
 <StatusModal />
 <BottomBar />
