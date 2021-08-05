@@ -5,7 +5,9 @@
 	metatags.description = "Description coming soon...";
 	import Login from "../_root_components/Login.svelte";
 	import BottomBar from "../_root_components/BottomBar.svelte";
+	import StatusModal from "../_root_components/StatusModal.svelte";
 </script>
 
 <Login />
-<BottomBar />
+<!-- <BottomBar /> -->
+<StatusModal />

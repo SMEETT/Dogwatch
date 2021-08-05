@@ -3,7 +3,7 @@
 	import { metatags, goto } from "@roxi/routify";
 	metatags.title = "Dogwatch / Login";
 	metatags.description = "Description coming soon...";
-	import { isAuthenticated, authenticating, checkAuthCookie } from "../../stores/state";
+	import { isAuthenticated, authenticating, checkAuthCookie, statusModalMessages } from "../../stores/state";
 
 	import { login } from "../../stores/state";
 
@@ -13,8 +13,10 @@
 	async function handleSubmit() {
 		if (await login(email, password)) {
 			$goto("/appointments");
+			statusModalMessages.set({ code: 200, message: "Login erfolgreich" });
 		} else {
 			console.log("login failed");
+			$statusModalMessages = { code: 400, message: "Login fehlgeschlagen" };
 		}
 	}
 </script>
