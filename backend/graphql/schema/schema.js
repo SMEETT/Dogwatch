@@ -1,0 +1,719 @@
+const graphql = require("graphql");
+const { GraphQLObjectType, GraphQLSchema } = graphql;
+const { GraphQLString, GraphQLID, GraphQLInt, GraphQLBoolean, GraphQLNonNull, GraphQLList } = graphql;
+const { GraphQLJSON, GraphQLJSONObject } = require("graphql-type-json");
+const User = require("../../sequelize/models/User");
+const Dog = require("../../sequelize/models/Dog");
+const Appointment = require("../../sequelize/models/Appointment");
+const db = require("../../config/database");
+
+const { validatePassword, genPassword } = require("../../misc/passwordUtils");
+const { Op } = require("sequelize");
+
+// ***********************************************************
+// GQL TYPES
+// ***********************************************************
+const UserType = new GraphQLObjectType({
+	name: "User",
+	fields: () => ({
+		id: { type: GraphQLID },
+		username: { type: GraphQLString },
+		email: { type: GraphQLString },
+		// email: {
+		// 	type: GraphQLString,
+		// 	resolve(parent, args, { req, res }) {
+		// 		if (req.user.id === parent.id) {
+		// 			return parent.email;
+		// 		} else {
+		// 			return null;
+		// 		}
+		// 	},
+		// },
+		metadata: {
+			type: GraphQLJSONObject,
+			resolve(parent, args, { req, res }) {
+				if (req.user.id === parent.id) {
+					return parent.metadata;
+				} else {
+					return null;
+				}
+			},
+		},
+		preferences: {
+			type: GraphQLJSONObject,
+			resolve(parent, args, { req, res }) {
+				if (req.user.id === parent.id) {
+					return parent.preferences;
+				} else {
+					return null;
+				}
+			},
+		},
+		dogs: {
+			type: new GraphQLList(DogType),
+			async resolve(parent, args, { req, res }) {
+				if (req.user.id === parent.id) {
+					return await Dog.findAll({ where: { userId: req.user.id } });
+				} else {
+					return null;
+				}
+			},
+		},
+		contacts: {
+			type: new GraphQLList(UserType),
+			async resolve(parent, args, { req, res }) {
+				if (req.user.id === parent.id) {
+					const user = await User.findOne({ where: { id: req.user.id } });
+					const users = await user.getUsers({});
+					const contacts = await user.getContacts({});
+
+					// put all found connections into a single array
+					const combinedArray = [...contacts, ...users];
+					// filter out the id's
+					const combinedIds = combinedArray.map((el) => el.id);
+					// filter out all Id's that are not duplicates (we want duplicates!)
+					const filteredIds = combinedIds.filter((el, index) => {
+						return combinedIds.indexOf(el) !== index;
+					});
+					// final array of established contacts
+					const actualContacts = [];
+					// use filtered Id's to get the User instances && make sure each user only gets added once
+					combinedArray.forEach((user) => {
+						if (filteredIds.includes(user.id) && !actualContacts.find((el) => el.id === user.id)) {
+							// user.email = null;
+							actualContacts.push(user);
+						}
+					});
+					return actualContacts;
+				} else {
+					return null;
+				}
+			},
+		},
+		appointments: {
+			args: {
+				id: { type: GraphQLInt },
+				start_of_range: { type: GraphQLString },
+				end_of_range: { type: GraphQLString },
+			},
+			type: new GraphQLList(AppointmentType),
+			async resolve(parent, args, { req, res }) {
+				if (req.user.id === parent.id) {
+					const appointments = await Appointment.findAll({
+						where: {
+							userId: req.user.id,
+							[Op.not]: {
+								[Op.or]: [
+									{
+										start_date: {
+											[Op.gt]: args.end_of_range,
+										},
+									},
+									{
+										end_date: {
+											[Op.lt]: args.start_of_range,
+										},
+									},
+								],
+							},
+						},
+					});
+					return appointments;
+				} else {
+					return null;
+				}
+			},
+		},
+		caredates: {
+			args: {
+				id: { type: GraphQLInt },
+				start_of_range: { type: GraphQLString },
+				end_of_range: { type: GraphQLString },
+			},
+			type: new GraphQLList(AppointmentType),
+			async resolve(parent, args, { req, res }) {
+				if (req.user.id === parent.id) {
+					const user = await User.findOne({ where: { id: req.user.id } });
+					const caredates = await user.getCaredates({
+						where: {
+							[Op.not]: {
+								[Op.or]: [
+									{
+										start_date: {
+											[Op.gt]: args.end_of_range,
+										},
+									},
+									{
+										end_date: {
+											[Op.lt]: args.start_of_range,
+										},
+									},
+								],
+							},
+						},
+					});
+					return caredates;
+				} else {
+					return null;
+				}
+			},
+		},
+		status: { type: GraphQLJSON },
+	}),
+});
+
+const DogType = new GraphQLObjectType({
+	name: "Dog",
+	fields: () => ({
+		id: { type: GraphQLID },
+		name: { type: GraphQLString },
+		image: { type: GraphQLString },
+		birthday: { type: GraphQLString },
+		race: { type: GraphQLString },
+		gender: { type: GraphQLString },
+		weight: { type: GraphQLInt },
+		food_amount: { type: GraphQLInt },
+		medications: { type: GraphQLList(GraphQLString) },
+		walk_duration: { type: GraphQLInt },
+		walktimes: { type: GraphQLList(GraphQLString) },
+		feedtimes: { type: GraphQLList(GraphQLString) },
+		notes: { type: GraphQLString },
+		status: { type: GraphQLJSON },
+	}),
+});
+
+const AppointmentType = new GraphQLObjectType({
+	name: "Appointment",
+	fields: () => ({
+		id: { type: GraphQLID },
+		creator: {
+			type: UserType,
+			resolve(parent, args) {
+				return User.findOne({ where: { id: parent.userId } });
+			},
+		},
+		start_date: { type: GraphQLString },
+		end_date: { type: GraphQLString },
+		dogs: {
+			type: new GraphQLList(DogType),
+			async resolve(parent, args) {
+				const apptInstance = await Appointment.findOne({ where: { id: parent.id } });
+				return await apptInstance.getDogs();
+			},
+		},
+		caretakers: {
+			type: new GraphQLList(UserType),
+			async resolve(parent, args) {
+				const apptInstance = await Appointment.findOne({ where: { id: parent.id } });
+				return await apptInstance.getCaretakers();
+			},
+		},
+		notes: { type: GraphQLString },
+		status: { type: GraphQLJSON },
+	}),
+});
+
+// ***********************************************************
+// ROOT QUERIES
+// ***********************************************************
+
+const RootQuery = new GraphQLObjectType({
+	name: "RootQueryType",
+	fields: {
+		// ----------------------------------------------------
+		// GET USER INFO
+		// ----------------------------------------------------
+		getUser: {
+			type: UserType,
+			args: {
+				id: { type: GraphQLInt },
+			},
+			async resolve(parent, args, { req, res }) {
+				if (!req.isAuthenticated()) {
+					return { status: 401, message: "Unauthorized", node: null };
+				}
+				if (args.id) {
+					const user = await User.findOne({ where: { id: args.id } });
+					return user;
+				}
+				const user = await User.findOne({ where: { id: req.user.id } });
+				return user;
+			},
+		},
+		getDog: {
+			type: DogType,
+			args: {
+				id: { type: GraphQLInt },
+			},
+			async resolve(parent, args, { req, res }) {
+				if (!req.isAuthenticated()) {
+					return { status: 401, message: "Unauthorized", node: null };
+				}
+				const dog = await Dog.findOne({ where: { userId: req.user.id, id: args.id } });
+				return dog;
+			},
+		},
+		getAppointment: {
+			type: AppointmentType,
+			args: {
+				id: { type: GraphQLInt },
+			},
+			async resolve(parent, args, { req, res }) {
+				if (!req.isAuthenticated()) {
+					return { status: 401, message: "Unauthorized", node: null };
+				}
+				const appointment = await Appointment.findOne({ where: { userId: req.user.id, id: args.id } });
+				return appointment;
+			},
+		},
+		getAppointments: {
+			type: GraphQLList(AppointmentType),
+			args: {
+				start_of_range: { type: GraphQLString },
+				end_of_range: { type: GraphQLString },
+			},
+			async resolve(parent, args, { req, res }) {
+				// if (!req.isAuthenticated()) {
+				// 	return { status: 401, message: "Unauthorized", node: null };
+				// }
+				const appointments = await Appointment.findAll({
+					where: {
+						[Op.not]: {
+							[Op.or]: [
+								{
+									start_date: {
+										[Op.gt]: args.end_of_range,
+									},
+								},
+								{
+									end_date: {
+										[Op.lt]: args.start_of_range,
+									},
+								},
+							],
+						},
+					},
+				});
+				return appointments;
+			},
+		},
+		getAuthStatus: {
+			type: GraphQLBoolean,
+			resolve(parent, args, { req, res }) {
+				console.log("getAuthStatus");
+				if (req.isAuthenticated()) {
+					return true;
+				} else {
+					return false;
+				}
+			},
+		},
+		// ----------------------------------------------------
+		// FIND CONTACT
+		// ----------------------------------------------------
+		findContact: {
+			type: UserType,
+			args: {
+				searchterm: { type: new GraphQLNonNull(GraphQLString) },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const user = await User.findOne({ where: { [Op.or]: [{ email: args.searchterm }, { username: args.searchterm }] } });
+					return user;
+				}
+			},
+		},
+	},
+});
+
+// ***********************************************************
+// MUTATIONS
+// ***********************************************************
+
+const Mutation = new GraphQLObjectType({
+	name: "Mutation",
+	fields: {
+		// ----------------------------------------------------
+		// REGISTER
+		// ----------------------------------------------------
+		registerUser: {
+			type: UserType,
+			args: {
+				username: { type: new GraphQLNonNull(GraphQLString) },
+				email: { type: new GraphQLNonNull(GraphQLString) },
+				password: { type: new GraphQLNonNull(GraphQLString) },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				const saltHash = genPassword(args.password);
+				const salt = saltHash.salt;
+				const hash = saltHash.hash;
+
+				const newUser = User.build({
+					username: args.username,
+					email: args.email,
+					metadata: {
+						calendarLastViewed: { year: 2021, month: 0 },
+					},
+					hash: hash,
+					salt: salt,
+				});
+				return newUser
+					.save()
+					.then((user) => {
+						console.log(user);
+						return user;
+					})
+					.catch((err) => {
+						console.log("Registering User Failed: ", err);
+					});
+			},
+		},
+		// ----------------------------------------------------
+		// LOGIN
+		// ----------------------------------------------------
+		loginUser: {
+			type: GraphQLJSON,
+			args: {
+				email: { type: new GraphQLNonNull(GraphQLString) },
+				password: { type: new GraphQLNonNull(GraphQLString) },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				const user = await User.findOne({ where: { email: args.email } });
+				if (!user || !validatePassword(args.password, user.hash, user.salt)) {
+					return { status: 403, message: "Forbidden", node: false };
+				} else {
+					req.login(user, (error) => (error ? error : user));
+					// cookie is unsecure and only used to help the frontend routing
+					// since the auth-cookie is HTTP only
+					let cookieOptions = {
+						maxAge: maxSessionAge - 10000,
+						sameSite: "none",
+						secure: true,
+						// signed: true, // Indicates if the cookie should be signed
+					};
+					res.cookie("isAuthenticated", "true", cookieOptions);
+					return { status: 200, message: "OK", node: true };
+				}
+			},
+		},
+		// ----------------------------------------------------
+		// LOGOUT
+		// ----------------------------------------------------
+		logoutUser: {
+			type: GraphQLBoolean,
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.user) {
+					throw new Error(`User not logged in (therefor can't logout)`);
+				} else {
+					req.logout(req.user, (error) => (error ? error : user));
+					let options = {
+						maxAge: maxSessionAge - 10000,
+						// signed: true, // Indicates if the cookie should be signed
+					};
+					res.cookie("isAuthenticated", "false", options);
+					console.log("request.user: ---------------------------> ", req.user);
+					return true;
+				}
+			},
+		},
+		// ----------------------------------------------------
+		// ADD CONTACT
+		// ----------------------------------------------------
+		addContact: {
+			type: GraphQLString,
+			args: {
+				contactId: { type: new GraphQLNonNull(GraphQLInt) },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const user = await User.findOne({ where: { id: req.user.id } });
+					const userToAdd = await User.findOne({ where: { id: args.contactId } });
+
+					await user.addContact(userToAdd);
+					await userToAdd.addContact(user);
+
+					return `User with Id ${req.user.id} added User Id ${args.contactId} as a contact`;
+				}
+			},
+		},
+		// ----------------------------------------------------
+		// REMOVE CONTACT
+		// ----------------------------------------------------
+		removeContact: {
+			type: GraphQLString,
+			args: {
+				contactId: { type: new GraphQLNonNull(GraphQLInt) },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const user = await User.findOne({ where: { id: req.user.id } });
+					const contactToDelete = await User.findOne({ where: { id: args.contactId } });
+
+					await user.removeContact(contactToDelete);
+					await contactToDelete.removeContact(user);
+
+					return `User with Id ${req.user.id} removed User with Id ${args.contactId} as a contact`;
+				}
+			},
+		},
+		// ----------------------------------------------------
+		// ADD APPOINTMENT
+		// ----------------------------------------------------
+		addAppointment: {
+			type: AppointmentType,
+			args: {
+				dogs: { type: GraphQLList(GraphQLInt) },
+				caretakers: { type: GraphQLList(GraphQLInt) },
+				start_date: { type: GraphQLString },
+				end_date: { type: GraphQLString },
+				notes: { type: GraphQLString },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const newAppointment = Appointment.build({
+						start_date: args.start_date,
+						end_date: args.end_date,
+						notes: args.notes,
+					});
+
+					const t = await db.transaction();
+
+					try {
+						await newAppointment.save({ transaction: t });
+						const appointmentCreator = await User.findOne({ where: { id: req.user.id }, transaction: t });
+						const caretakers = await User.findAll({ where: { id: args.caretakers }, transaction: t });
+						const dogs = await Dog.findAll({ where: { id: args.dogs } });
+
+						await newAppointment.setUser(appointmentCreator, { transaction: t });
+						await newAppointment.addDogs(dogs, { transaction: t });
+						await newAppointment.addCaretakers(caretakers, { transaction: t });
+						await t.commit();
+						console.log("Transaction successful (Appointmend Add)");
+						newAppointment.status = { code: 200, message: "OK" };
+						return newAppointment;
+					} catch (err) {
+						console.log("Transaction failed (Appointmend Add)", err);
+						await t.rollback();
+					}
+				}
+			},
+		},
+		// ----------------------------------------------------
+		// UPDATE APPOINTMENT
+		// ----------------------------------------------------
+		updateAppointment: {
+			type: AppointmentType,
+			args: {
+				id: { type: GraphQLInt },
+				dogs: { type: GraphQLList(GraphQLInt) },
+				caretakers: { type: GraphQLList(GraphQLInt) },
+				start_date: { type: GraphQLString },
+				end_date: { type: GraphQLString },
+				notes: { type: GraphQLString },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const appointmentToUpdate = await Appointment.findOne({ where: { id: args.id, userId: req.user.id } });
+					console.log(appointmentToUpdate);
+					appointmentToUpdate.start_date = args.start_date;
+					appointmentToUpdate.end_date = args.end_date;
+					appointmentToUpdate.notes = args.notes;
+					appointmentToUpdate.setDogs(null);
+					appointmentToUpdate.setCaretakers(null);
+
+					const t = await db.transaction();
+
+					try {
+						await appointmentToUpdate.save({ transaction: t });
+						const caretakers = await User.findAll({ where: { id: args.caretakers }, transaction: t });
+						const dogs = await Dog.findAll({ where: { id: args.dogs } });
+
+						await appointmentToUpdate.addDogs(dogs, { transaction: t });
+						await appointmentToUpdate.addCaretakers(caretakers, { transaction: t });
+						await t.commit();
+						console.log("Transaction successful (Appointment Update)");
+						appointmentToUpdate.status = { code: 200, message: "OK" };
+						return appointmentToUpdate;
+					} catch (err) {
+						console.log("Transaction failed (Appointment Update)", err);
+						await t.rollback();
+					}
+				}
+			},
+		},
+		// ----------------------------------------------------
+		// DELETE APPOINTMENT
+		// ----------------------------------------------------
+		deleteAppointment: {
+			type: AppointmentType,
+			args: {
+				id: { type: GraphQLInt },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const appointmentToDelete = await Appointment.findOne({ where: { id: args.id, userId: req.user.id } });
+					return appointmentToDelete
+						.destroy()
+						.then((appointment) => {
+							appointment.status = { code: 200, message: "OK" };
+							return appointmentToDelete;
+						})
+						.catch((err) => {
+							console.log("Error: couldn't delete Appointment from DB", err);
+							return;
+						});
+				}
+			},
+		},
+
+		// ----------------------------------------------------
+		// ADD DOG
+		// ----------------------------------------------------
+		addDog: {
+			type: DogType,
+			args: {
+				name: { type: GraphQLString },
+				image: { type: GraphQLString },
+				birthday: { type: GraphQLString },
+				race: { type: GraphQLString },
+				gender: { type: GraphQLString },
+				weight: { type: GraphQLInt },
+				food_amount: { type: GraphQLInt },
+				medications: { type: GraphQLList(GraphQLString) },
+				walk_duration: { type: GraphQLInt },
+				walktimes: { type: GraphQLList(GraphQLString) },
+				feedtimes: { type: GraphQLList(GraphQLString) },
+				notes: { type: GraphQLString },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const checkIfExists = await Dog.findOne({ where: { name: args.name, userId: req.user.id } });
+					if (checkIfExists) {
+						return { status: { code: 409, message: "Already Exists" } };
+					}
+					console.log(args);
+					const newDog = Dog.build({
+						name: args.name,
+						image: args.image,
+						birthday: args.birthday,
+						race: args.race,
+						gender: args.gender,
+						weight: args.weight,
+						food_amount: args.food_amount,
+						medications: args.medications,
+						walk_duration: args.walk_duration,
+						walktimes: args.walktimes,
+						feedtimes: args.feedtimes,
+						notes: args.notes,
+						userId: req.user.id,
+					});
+					return newDog
+						.save()
+						.then((dog) => {
+							dog.status = { code: 200, message: "OK" };
+							return dog;
+						})
+						.catch((err) => {
+							console.log("Error: couldn't save Dog to DB", err);
+							return;
+						});
+				}
+			},
+		},
+		updateDog: {
+			type: DogType,
+			args: {
+				id: { type: GraphQLInt },
+				name: { type: GraphQLString },
+				image: { type: GraphQLString },
+				birthday: { type: GraphQLString },
+				race: { type: GraphQLString },
+				gender: { type: GraphQLString },
+				weight: { type: GraphQLInt },
+				food_amount: { type: GraphQLInt },
+				medications: { type: GraphQLList(GraphQLString) },
+				walk_duration: { type: GraphQLInt },
+				walktimes: { type: GraphQLList(GraphQLString) },
+				feedtimes: { type: GraphQLList(GraphQLString) },
+				notes: { type: GraphQLString },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					// const checkIfExists = await Dog.findOne({ where: { name: args.name, userId: req.user.id } });
+					// if (checkIfExists) {
+					// 	return { status: { code: 409, message: "Already Exists" } };
+					// }
+					const dogToUpdate = await Dog.findOne({ where: { id: args.id, userId: req.user.id } });
+
+					dogToUpdate.name = args.name;
+					dogToUpdate.image = args.image;
+					dogToUpdate.birthday = args.birthday;
+					dogToUpdate.race = args.race;
+					dogToUpdate.gender = args.gender;
+					dogToUpdate.weight = args.weight;
+					dogToUpdate.food_amount = args.food_amount;
+					dogToUpdate.medications = args.medications;
+					dogToUpdate.walk_duration = args.walk_duration;
+					dogToUpdate.walktimes = args.walktimes;
+					dogToUpdate.feedtimes = args.feedtimes;
+					dogToUpdate.notes = args.notes;
+
+					return dogToUpdate
+						.save()
+						.then((dog) => {
+							dog.status = { code: 200, message: "OK" };
+							return dog;
+						})
+						.catch((err) => {
+							console.log("Error: couldn't save Dog to DB", err);
+							return;
+						});
+				}
+			},
+		},
+		deleteDog: {
+			type: DogType,
+			args: {
+				id: { type: GraphQLInt },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const dogToDelete = await Dog.findOne({ where: { id: args.id, userId: req.user.id } });
+					return dogToDelete
+						.destroy()
+						.then((dog) => {
+							dog.status = { code: 200, message: "OK" };
+							return dogToDelete;
+						})
+						.catch((err) => {
+							console.log("Error: couldn't delete Dog from DB", err);
+							return;
+						});
+				}
+			},
+		},
+	},
+});
+
+module.exports = new GraphQLSchema({
+	query: RootQuery,
+	mutation: Mutation,
+});

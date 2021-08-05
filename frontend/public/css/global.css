@@ -1,0 +1,137 @@
+:root {
+	/* colors */
+	/* --dark: red;
+	--light: blue;
+	--bright: yellow;
+	--bg-color: white; */
+
+	/* colors */
+
+	--dark: #535353;
+	--contrast: #b3b3b3;
+	--light: #7f7d7f;
+	--bright: rgb(245, 245, 245);
+	--inactive: #b6b6b6;
+	--bg-color: white;
+
+	--color-menu: var(--bright);
+	--color-headline: var(--dark);
+	--color-headline-bg: var(--bg-color);
+
+	/* typography */
+	font-family: "Nunito", sans-serif;
+	--line-height-copy: 125%;
+
+	--bottombar-height: 7rem;
+	--headline-height: 7rem;
+}
+
+/* UTILITY */
+
+.color-dark {
+	color: var(--dark) !important;
+}
+
+.color-light {
+	color: var(--light) !important;
+}
+
+.color-bright {
+	color: var(--bright) !important;
+}
+
+.color-inactive {
+	color: var(--inactive) !important;
+}
+
+.color-headline {
+	color: var(--color-headline) !important;
+}
+
+.line-height-125 {
+	line-height: 125%;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html {
+	font-size: 62.5%;
+	line-height: 100%;
+	background-color: black;
+	height: 100%;
+}
+
+body {
+	padding: 2.4rem;
+	padding-top: calc(var(--headline-height) + 2rem);
+	padding-bottom: calc(var(--bottombar-height) + 3rem);
+	min-height: 100%;
+	/* border-radius: 40px; */
+
+	background-color: var(--bg-color);
+	/* border: 1px solid var(--light); */
+	overflow: scroll;
+}
+
+/* GENERAL */
+
+h1 {
+	font-size: 3rem;
+	font-weight: 700;
+	margin: 1rem;
+	color: var(--bright);
+}
+
+.h1 {
+	font-size: 3rem;
+	font-weight: 700;
+	color: var(--dark);
+}
+
+h2 {
+	font-size: 2rem;
+	font-weight: 700;
+	color: var(--dark);
+}
+
+.label {
+	font-size: 1.2rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	color: var(--dark);
+}
+
+.headline-label {
+	font-size: 1.2rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	color: var(--color-headline);
+}
+
+.regular-text {
+	font-size: 1.5rem;
+	font-weight: 400;
+	color: var(--dark);
+}
+
+.regular-text-light {
+	font-size: 1.5rem;
+	font-weight: 400;
+	color: var(--light);
+}
+
+.regular-text-inactive {
+	font-size: 1.5rem;
+	font-weight: 400;
+	color: var(--inactive);
+}
+
+.form-validation-error {
+	color: red;
+	font-size: 1.5rem;
+	font-weight: 400;
+}

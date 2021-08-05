@@ -1,0 +1,158 @@
+::-webkit-input-placeholder {
+	color: var(--inactive);
+}
+
+::-moz-placeholder {
+	color: var(--inactive);
+	opacity: 1;
+}
+
+::-ms-placeholder {
+	color: var(--inactive);
+}
+
+::placeholder {
+	color: var(--inactive);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+input[type="number"] {
+	-moz-appearance: textfield;
+}
+
+.image-upload > input {
+	display: none;
+}
+
+.image-upload {
+	margin-top: 1rem;
+}
+
+input {
+	outline: 0;
+	background-color: transparent;
+	border-width: 0 0 1px;
+	border-color: var(--inactive);
+	width: 100%;
+	height: 3.2rem;
+	color: var(--light);
+	font-family: "Nunito", sans-serif;
+	font-size: 1.5rem;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: textfield;
+	margin: 0;
+}
+
+.appearance-none {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: textfield;
+	margin: 0;
+}
+
+.selected {
+	color: var(--dark);
+	border-color: var(--dark);
+}
+
+select {
+	height: 3.2rem;
+	min-width: 5rem;
+	padding-right: 0.4rem;
+	padding-left: 0.4rem;
+	border-radius: 0;
+	outline: none;
+	background-color: transparent;
+	border: 1px solid var(--dark);
+	color: var(--inactive);
+	text-justify: left;
+	text-align: left;
+	font-family: "Nunito", sans-serif;
+	font-size: 1.5rem;
+	border-radius: 5px;
+	/* color: var(--light); */
+}
+
+select:focus {
+	border-color: var(--dark);
+	color: var(--dark);
+}
+
+input + .sib {
+	border-bottom: 1px solid var(--inactive);
+}
+
+input + .sib:hover {
+	fill: red;
+}
+
+input:focus + .sib {
+	border-bottom: 1px solid var(--dark);
+}
+
+input:focus {
+	border-color: var(--dark);
+}
+
+.notes {
+	width: 100%;
+	height: 15rem;
+	box-sizing: border-box;
+	font-family: "Nunito";
+	font-size: 1.5rem;
+	color: var(--dark);
+	background-color: transparent;
+	border-radius: 5px;
+}
+
+/* select:focus + .sib {
+	border-color: var(--dark);
+	color: var(--dark);
+} */
+
+.datepicker-toggle {
+	display: inline-block;
+	position: relative;
+	width: 100%;
+	height: 3.2rem;
+}
+.datepicker-toggle-button {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	/* border: 1px solid red; */
+	border-bottom: 1px solid var(--inactive);
+	display: flex;
+	color: var(--inactive);
+	font-size: 1.5rem;
+	align-items: center;
+}
+
+.datepicker-input {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+.datepicker-input::-webkit-calendar-picker-indicator {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	cursor: pointer;
+}

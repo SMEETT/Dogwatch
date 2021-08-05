@@ -1,0 +1,16 @@
+version: "3"
+services:
+  dw-postgres:
+    image: dw-postgres
+    ports:
+     - 5432:5432
+    environment: 
+     - POSTGRES_PASSWORD=secret
+     - POSTGRES_USER=admin
+     - POSTGRES_DB=db_dogwatch
+    volumes:
+     - dw-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  dw-postgres-data:
+    driver: local
