@@ -26,7 +26,7 @@
 		$goto("/login");
 	}
 
-	$isAuthenticated.set(false);
+	isAuthenticated.set(false);
 	main().catch((error) => console.error(error));
 </script>
 

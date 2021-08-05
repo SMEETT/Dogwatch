@@ -2,12 +2,15 @@
 	import { statusModalMessages } from "../../stores/state";
 	import { fade } from "svelte/transition";
 
+	let timer;
+
 	function closeStatusModal() {
 		statusModalMessages.set({});
+		clearTimeout(timer);
 	}
 
 	function autoClose() {
-		setTimeout(() => {
+		timer = setTimeout(() => {
 			closeStatusModal();
 		}, 10000);
 	}
@@ -15,7 +18,7 @@
 
 {#if $statusModalMessages.code}
 	<div
-		transition:fade={{ duration: 100 }}
+		transition:fade={{ duration: 200 }}
 		class="wrapper regular-text line-height-125"
 		class:bg-green={$statusModalMessages.code === 200}
 		class:bg-red={$statusModalMessages.code !== 200}
@@ -54,19 +57,20 @@
 		align-items: center;
 		justify-content: center;
 		transition: 0.3s;
-		width: 100%;
+		width: 98%;
 		height: auto;
 		min-height: 8rem;
 		position: fixed;
 		bottom: 8.4rem;
-		left: 0%;
-		right: 5%;
+		left: 1%;
+		right: 1%;
 		z-index: 2;
 		font-size: 1.6rem;
 		background-color: red;
+		border-radius: 10px;
 		color: var(--bright);
-		box-shadow: 0 1.4px 1px rgba(0, 0, 0, 0.043), 0 3.6px 2.4px rgba(0, 0, 0, 0.062), 0 7.4px 5px rgba(0, 0, 0, 0.078), 0 15.3px 10.2px rgba(0, 0, 0, 0.097),
-			0 42px 28px rgba(0, 0, 0, 0.14);
+		/* box-shadow: 0 1.4px 1px rgba(0, 0, 0, 0.043), 0 3.6px 2.4px rgba(0, 0, 0, 0.062), 0 7.4px 5px rgba(0, 0, 0, 0.078), 0 15.3px 10.2px rgba(0, 0, 0, 0.097), */
+		/* 0 42px 28px rgba(0, 0, 0, 0.14); */
 	}
 
 	button {
