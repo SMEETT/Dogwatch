@@ -6,7 +6,7 @@ export const lastSelectedDay = writable({});
 
 export const menuStatus = writable({ context: null, idToUse: null });
 export const menuActive = writable(null);
-export const menuAction = writable(null);
+export const bottomBarAction = writable(null);
 
 export const statusModalMessages = writable({ code: null, message: null });
 export const liveValidation = writable(false);

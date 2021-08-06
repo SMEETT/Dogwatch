@@ -1,17 +1,21 @@
 <script>
-	import { statusModalMessages, menuAction } from "../../stores/state";
+	import { statusModalMessages, bottomBarAction } from "../../stores/state";
 	import { fade } from "svelte/transition";
 	import { createEventDispatcher } from "svelte";
 
 	function closeModal() {
-		$menuAction = "";
+		$bottomBarAction = "";
 	}
 
 	const dispatch = createEventDispatcher();
 
 	function dispatchDelete() {
-		console.log("deleteEntity clicked");
 		dispatch("deleteEntity");
+	}
+
+	function dispatchCloseModal() {
+		console.log("dispatched closeModal");
+		dispatch("closeModal");
 	}
 </script>
 
@@ -29,11 +33,11 @@
 		</div>
 		<div class="bottom-row">
 			<button class="btn-delete" on:click={dispatchDelete}>LÖSCHEN</button>
-			<button class="btn-abort" on:click={closeModal}>ABBRECHEN</button>
+			<button class="btn-abort" on:click={closeModal} on:click={dispatchCloseModal}>ABBRECHEN</button>
 		</div>
 	</div>
 </div>
-<div transition:fade={{ duration: 100 }} on:click={closeModal} class="shadow-box" />
+<div transition:fade={{ duration: 100 }} on:click={closeModal} on:click={dispatchCloseModal} class="shadow-box" />
 
 <style>
 	.btn-delete {

@@ -7,7 +7,7 @@
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuActive, menuStatus, menuAction, liveValidation, statusModalMessages, lastSelectedDay } from "../../../stores/state";
+	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages, lastSelectedDay } from "../../../stores/state";
 	import { leadingZero } from "../../../_helpers/helperFunctions";
 
 	let extractedYear;
@@ -79,7 +79,7 @@
 		if ($lastSelectedDay.dayId) {
 			menuActive.set("appointments");
 			menuStatus.set({ context: "add_appointment" });
-			menuAction.set("");
+			bottomBarAction.set("");
 			liveValidation.set(false);
 			console.log("on mount");
 			if (formContext === "add") {
@@ -501,9 +501,9 @@
 	}
 
 	$: {
-		if ($menuAction === "writeAppointment") {
+		if ($bottomBarAction === "writeAppointment") {
 			console.log("trying to write Appointment to DB...");
-			$menuAction = "";
+			$bottomBarAction = "";
 			if (formContext === "add") {
 				writeAppointmentToDB();
 			}

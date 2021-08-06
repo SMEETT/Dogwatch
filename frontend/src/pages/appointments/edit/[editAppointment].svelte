@@ -6,7 +6,7 @@
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuActive, menuStatus, lastSelectedDay, menuAction, liveValidation, statusModalMessages } from "../../../stores/state";
+	import { menuActive, menuStatus, lastSelectedDay, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
 
 	import FormAppointment from "../_components/FormAppointment.svelte";
 

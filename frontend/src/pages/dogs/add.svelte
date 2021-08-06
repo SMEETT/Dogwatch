@@ -6,7 +6,7 @@
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuActive, menuStatus, menuAction, liveValidation, statusModalMessages } from "../../stores/state";
+	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages } from "../../stores/state";
 	import { leadingZero } from "../../_helpers/helperFunctions";
 
 	import FormDog from "./_components/FormDog.svelte";

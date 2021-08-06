@@ -1,6 +1,6 @@
 <script>
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuActive, menuStatus, menuAction } from "../../stores/state";
+	import { menuActive, menuStatus, statusModalMessages } from "../../stores/state";
 	import { onDestroy, onMount } from "svelte";
 	import { metatags, goto, url } from "@roxi/routify";
 	import { fade } from "svelte/transition";
@@ -8,6 +8,8 @@
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
 
 	let contactFetchPromise = new Promise((resolve, reject) => {});
+
+	let showDeleteModal = false;
 
 	onMount(() => {
 		menuActive.set("contacts");
@@ -41,19 +43,27 @@
 		$goto("/contacts/search");
 	}
 
-	async function removeContact(id) {
-		console.log(id);
+	let contactToDelete = null;
+	function removeContactThroughModal(contact) {
+		showDeleteModal = true;
+		contactToDelete = contact;
+		console.log("toDelete", contactToDelete);
+	}
+
+	async function handleDeleteContact() {
 		const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
 		const graphQLClient = new GraphQLClient(endpoint, {
 			credentials: "include",
 			mode: "cors",
 		});
 		const mutation = gql`
-			mutation { removeContact (contactId: ${id})}
+			mutation { removeContact (contactId: ${contactToDelete.id})}
 		`;
 		const data = await graphQLClient.request(mutation);
 		console.log(JSON.stringify(data, undefined, 2));
 		fetchContacts();
+		$statusModalMessages = { code: 200, message: "Kontakt erfolgreich entfernt" };
+		showDeleteModal = false;
 	}
 
 	onDestroy(() => {});
@@ -84,11 +94,17 @@
 			<div class="wrapper-contact">
 				<p class="name">{contact.username}</p>
 				<p class="email">{contact.email}</p>
-				<button on:click={removeContact(contact.id)} class="btn btn-regular mt-8">Entfernen</button>
+				<button on:click={removeContactThroughModal(contact)} class="btn btn-regular mt-8">Entfernen</button>
 			</div>
 		{/each}
 	{/await}
 </div>
+
+{#if showDeleteModal}
+	<DeleteModal on:deleteEntity={handleDeleteContact} on:closeModal={() => (showDeleteModal = false)}>
+		"{contactToDelete.username}"
+	</DeleteModal>
+{/if}
 
 <style>
 	.wrapper {

@@ -6,7 +6,7 @@
 	import { onMount, createEventDispatcher, onDestroy } from "svelte";
 	import { fade } from "svelte/transition";
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuActive, menuStatus, menuAction, lastSelectedDay, user } from "../../stores/state";
+	import { menuActive, menuStatus, bottomBarAction, lastSelectedDay, user } from "../../stores/state";
 	import { leadingZero, extractTimeOfDay, parseDateToString, calculateAge, dateFromDayId } from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
 	import Prefetcher from "@roxi/routify/runtime/Prefetcher.svelte";
@@ -543,7 +543,7 @@
 				}
 			`;
 			const data = await graphQLClient.request(mutation);
-			$menuAction = "";
+			$bottomBarAction = "";
 			// console.log(JSON.stringify(data, undefined, 2));
 			return data.deleteAppointment;
 		}
@@ -800,7 +800,7 @@
 		{/await}
 	</div>
 </div>
-{#if $menuAction === "delete_appointment"}
+{#if $bottomBarAction === "delete_appointment"}
 	<DeleteModal on:deleteEntity={handleDeleteAppointment}>
 		"{selectedAppointment.start_date}"
 	</DeleteModal>

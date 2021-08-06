@@ -1,7 +1,7 @@
 <script>
 	import { params, redirect } from "@roxi/routify";
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuActive, menuStatus, menuAction } from "../../stores/state";
+	import { menuActive, menuStatus, bottomBarAction } from "../../stores/state";
 	import { onDestroy, onMount } from "svelte";
 	import { metatags, goto, url } from "@roxi/routify";
 	import { fade } from "svelte/transition";
@@ -123,7 +123,7 @@
 				}
 			`;
 			const data = await graphQLClient.request(mutation);
-			$menuAction = "";
+			$bottomBarAction = "";
 			// console.log(JSON.stringify(data, undefined, 2));
 			return data.deleteDog;
 		}
@@ -257,7 +257,7 @@
 			</button>
 		</div> -->
 	</div>
-	{#if $menuAction === "delete_dog"}
+	{#if $bottomBarAction === "delete_dog"}
 		<DeleteModal on:deleteEntity={handleDeleteDog}>
 			"{currentDog.name}"
 		</DeleteModal>

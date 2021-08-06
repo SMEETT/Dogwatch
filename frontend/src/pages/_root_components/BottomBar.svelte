@@ -1,5 +1,5 @@
 <script>
-	import { menuStatus, menuActive, menuAction, liveValidation, lastSelectedDay } from "../../stores/state";
+	import { menuStatus, menuActive, bottomBarAction, liveValidation, lastSelectedDay } from "../../stores/state";
 	import { onMount, onDestroy } from "svelte";
 	import { url, goto } from "@roxi/routify";
 	import { fade } from "svelte/transition";
@@ -51,7 +51,7 @@
 		$goto(`/appointments/edit/${$menuStatus.idToUse}`);
 	}
 	function deleteAppointment() {
-		menuAction.set("delete_appointment");
+		bottomBarAction.set("delete_appointment");
 		console.log("clicked delete appointment");
 	}
 	function addAppointment() {
@@ -61,7 +61,7 @@
 	function saveAppointment() {
 		console.log("clicked save appointment");
 		liveValidation.set(true);
-		menuAction.set("writeAppointment");
+		bottomBarAction.set("writeAppointment");
 	}
 
 	// ----------------------------------------------
@@ -72,7 +72,7 @@
 		$goto(`/dogs/edit/${$menuStatus.idToUse}`);
 	}
 	function deleteDog() {
-		menuAction.set("delete_dog");
+		bottomBarAction.set("delete_dog");
 		console.log("clicked delete dog");
 	}
 	function addDog() {
@@ -82,7 +82,7 @@
 	function saveDog() {
 		console.log("clicked save dog");
 		liveValidation.set(true);
-		menuAction.set("writeDog");
+		bottomBarAction.set("writeDog");
 	}
 </script>
 

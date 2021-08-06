@@ -10,7 +10,7 @@
 	import Resizer from "react-image-file-resizer";
 	const resize = Resizer.imageFileResizer;
 
-	import { menuActive, menuStatus, menuAction, liveValidation, statusModalMessages } from "../../../stores/state";
+	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
 	import { leadingZero } from "../../../_helpers/helperFunctions";
 
 	let image;
@@ -303,9 +303,9 @@
 	}
 
 	$: {
-		if ($menuAction === "writeDog") {
+		if ($bottomBarAction === "writeDog") {
 			console.log("trying to write Appointment to DB...");
-			$menuAction = "";
+			$bottomBarAction = "";
 			if (formContext === "add") {
 				writeDogToDB();
 			}

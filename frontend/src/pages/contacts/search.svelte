@@ -1,6 +1,6 @@
 <script>
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuActive, menuStatus, menuAction } from "../../stores/state";
+	import { menuActive, menuStatus, bottomBarAction, statusModalMessages } from "../../stores/state";
 	import { onDestroy, onMount } from "svelte";
 	import { metatags, goto, url } from "@roxi/routify";
 	import { fade } from "svelte/transition";
@@ -55,13 +55,15 @@
 			credentials: "include",
 			mode: "cors",
 		});
-		const query = gql`
+		const mutation = gql`
 			mutation {
 				addContact (contactId: ${id} )
 				}
 
 		`;
-		const data = await graphQLClient.request(query);
+		const data = await graphQLClient.request(mutation);
+		$statusModalMessages = { code: 200, message: "Kontakt erfolgreich hinzugefuegt" };
+		$goto("/contacts/list");
 		console.log(data);
 		// console.log(JSON.stringify(data.contacts, undefined, 2));
 		console.log(searchResultPromise);
