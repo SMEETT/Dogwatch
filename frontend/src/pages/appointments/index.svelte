@@ -28,6 +28,16 @@
 			ctx = "no_day_selected";
 		}
 		menuStatus.set({ context: ctx });
+
+		if (localStorage.getItem("appointmentSwitchStatus") === "caretaker") {
+			switchToggle.checked = true;
+			userIsCaretaker = true;
+			$menuStatus.context = "caretaker";
+		} else if (localStorage.getItem("appointmentSwitchStatus") === "creator") {
+			switchToggle.checked = false;
+			userIsCaretaker = false;
+			$menuStatus.context = "day";
+		}
 	});
 
 	// global variable that contains all fetched data
@@ -511,8 +521,6 @@
 				allAppointmentsForSelectedDay.push(foundAppointment);
 			});
 		}
-		$menuStatus.context = "day";
-		// setActiveState();
 	}
 
 	// ----------------------------------------------
@@ -556,9 +564,52 @@
 	onDestroy(() => {
 		console.log("APPOINTMENTS DESTROYED!");
 	});
+
+	let switchToggle;
+	function switchTheSwitch() {
+		console.log(switchToggle);
+		switchToggle.checked = true;
+		userIsCaretaker = !userIsCaretaker;
+	}
 </script>
 
 <div class="wrapper">
+	<div class="headline">
+		<div class="wrapper-switcher">
+			<button class="btn" on:click|stopPropagation={prevMonth}>
+				<svg width="26" height="40" viewBox="0 0 30 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M2 22L28 2V42L2 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
+				</svg>
+			</button>
+			<button class="ml-16 mr-8 btn" on:click|stopPropagation={nextMonth}>
+				<svg width="26" height="40" viewBox="0 0 30 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M28 22L2 2V42L28 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
+				</svg>
+			</button>
+			<h1 class="color-headline">{currentMonthDisplay}</h1>
+		</div>
+		<p class="headline-label">{currentYearDisplay}</p>
+		<!-- <p class="label">Termine</p> -->
+		<button on:click={switchTheSwitch}>Switch</button>
+		<label class="switch">
+			<input
+				bind:this={switchToggle}
+				type="checkbox"
+				on:click={() => {
+					userIsCaretaker = !userIsCaretaker;
+					if ($menuStatus.context === "day") {
+						$menuStatus.context = "caretaker";
+						localStorage.setItem("appointmentSwitchStatus", "caretaker");
+					} else if ($menuStatus.context === "caretaker") {
+						$menuStatus.context = "day";
+						localStorage.setItem("appointmentSwitchStatus", "creator");
+					}
+				}}
+			/>
+			<span class="slider round" />
+		</label>
+	</div>
+	<div style="margin-top: -2rem" class="separator" />
 	<div class="wrapper-calendar debug-border">
 		{#await promise}
 			<div class="wrapper-spinner">
@@ -570,34 +621,6 @@
 				</div>
 			</div>
 		{:then allDays}
-			<div class="headline">
-				<div class="wrapper-switcher">
-					<button class="btn" on:click|stopPropagation={prevMonth}>
-						<svg width="26" height="40" viewBox="0 0 30 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M2 22L28 2V42L2 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
-						</svg>
-					</button>
-					<button class="ml-16 mr-8 btn" on:click|stopPropagation={nextMonth}>
-						<svg width="26" height="40" viewBox="0 0 30 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M28 22L2 2V42L28 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
-						</svg>
-					</button>
-					<h1 class="color-headline">{currentMonthDisplay}</h1>
-				</div>
-				<p class="headline-label">{currentYearDisplay}</p>
-				<!-- <p class="label">Termine</p> -->
-				<label class="switch">
-					<input
-						type="checkbox"
-						on:click={() => {
-							userIsCaretaker = !userIsCaretaker;
-						}}
-					/>
-					<span class="slider round" />
-				</label>
-			</div>
-			<div style="margin-top: -2rem" class="separator" />
-
 			<div in:fade class="wrapper-days">
 				{#each weekdayNames as weekdayName, index}
 					<p class="weekday-name">{weekdayName}</p>

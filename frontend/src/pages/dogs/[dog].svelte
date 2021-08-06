@@ -8,7 +8,6 @@
 
 	import { extractTimeOfDay, calculateAge } from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
-	import { resolveUrl } from "@roxi/routify/runtime/utils";
 
 	// call function "main" when the parameter 'dog' changes (on visiting another route /dogs/[dog])
 	$: main($params.dog);
