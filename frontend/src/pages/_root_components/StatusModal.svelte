@@ -102,7 +102,7 @@
 		padding: 1rem 2rem;
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: left;
 	}
 
 	.bg-red {

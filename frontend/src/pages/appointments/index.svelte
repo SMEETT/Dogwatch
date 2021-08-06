@@ -6,7 +6,7 @@
 	import { onMount, createEventDispatcher, onDestroy } from "svelte";
 	import { fade } from "svelte/transition";
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuActive, menuStatus, bottomBarAction, lastSelectedDay, user } from "../../stores/state";
+	import { menuActive, menuStatus, bottomBarAction, lastSelectedDay, statusModalMessages } from "../../stores/state";
 	import { leadingZero, extractTimeOfDay, parseDateToString, calculateAge, dateFromDayId } from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
 	import Prefetcher from "@roxi/routify/runtime/Prefetcher.svelte";
@@ -618,9 +618,11 @@
 					if ($menuStatus.context === "day") {
 						$menuStatus.context = "caretaker";
 						localStorage.setItem("appointmentSwitchStatus", "caretaker");
+						$statusModalMessages = { code: 200, message: "Angezeigte Termine: als Aufpasser" };
 					} else if ($menuStatus.context === "caretaker") {
 						$menuStatus.context = "day";
 						localStorage.setItem("appointmentSwitchStatus", "creator");
+						$statusModalMessages = { code: 200, message: "Angezeigte Termine: als Ersteller" };
 					}
 				}}
 			/>
