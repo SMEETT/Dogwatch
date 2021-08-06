@@ -17,6 +17,9 @@
 	let currentlySelectedDay = null;
 	let currentDayDisplay = null;
 
+	let switchToggle;
+	let showDeleteModal = false;
+
 	// ----------------------------------------------
 	// INIT, GLOBALS AND LIFECYCLE METHODS
 	// ----------------------------------------------
@@ -533,6 +536,13 @@
 		currentDayDisplay = dateFromDayId(e.target.dataset.dayId);
 	}
 
+	let appointmentToDelete = null;
+	function deleteAppointmentThroughModal(appointment) {
+		showDeleteModal = true;
+		appointmentToDelete = appointment;
+		console.log("toDelete", appointment);
+	}
+
 	// ----------------------------------------------
 	// DELETE APPOINTMENT
 	// ----------------------------------------------
@@ -545,7 +555,7 @@
 			});
 			const mutation = gql`
 				mutation {
-					deleteAppointment(id: ${parseInt($lastSelectedDay.apptId)}) {
+					deleteAppointment(id: ${parseInt(appointmentToDelete.id)}) {
 						id
 					}
 				}
@@ -557,20 +567,29 @@
 		}
 		await deleteAppointment().catch((error) => console.error(error));
 		selectedAppointment = null;
-		$lastSelectedDay = { dayId: null, apptId: null };
+		// $lastSelectedDay = { dayId: null, apptId: null };
+		console.log(allAppointmentsForSelectedDay);
+		const filteredAppointments = allAppointmentsForSelectedDay.filter((appointment) => {
+			return appointment.id !== appointmentToDelete.id;
+		});
+		allAppointmentsForSelectedDay = filteredAppointments;
+		console.log(allAppointmentsForSelectedDay);
+		showDeleteModal = false;
+		// allAppointmentsForSelectedDay = [];
 		promise = generateCalendar(selectedYear, selectedMonth);
+	}
+
+	async function handleEditAppointment(appointment) {
+		console.log(appointment);
+		console.log($lastSelectedDay);
+		// $lastSelectedDay = { dayId: id };
+		$goto(`/appointments/edit/${appointment.id}`);
+		console.log(id);
 	}
 
 	onDestroy(() => {
 		console.log("APPOINTMENTS DESTROYED!");
 	});
-
-	let switchToggle;
-	function switchTheSwitch() {
-		console.log(switchToggle);
-		switchToggle.checked = true;
-		userIsCaretaker = !userIsCaretaker;
-	}
 </script>
 
 <div class="wrapper">
@@ -590,7 +609,6 @@
 		</div>
 		<p class="headline-label">{currentYearDisplay}</p>
 		<!-- <p class="label">Termine</p> -->
-		<button on:click={switchTheSwitch}>Switch</button>
 		<label class="switch">
 			<input
 				bind:this={switchToggle}
@@ -659,6 +677,26 @@
 								)}`}</button
 							>
 							<div class="panel" id="rootpanel">
+								{#if $menuStatus.context === "day"}
+									<div class="wrapper-context-icons">
+										<button in:fade class="icon" on:click|stopPropagation={deleteAppointmentThroughModal(selectedAppointment)}>
+											<svg width="25" height="30" viewBox="0 0 32 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path
+													d="M19.1429 30.2449H20.8571C21.0845 30.2449 21.3025 30.153 21.4632 29.9894C21.624 29.8257 21.7143 29.6038 21.7143 29.3725V13.6684C21.7143 13.437 21.624 13.2151 21.4632 13.0515C21.3025 12.8878 21.0845 12.7959 20.8571 12.7959H19.1429C18.9155 12.7959 18.6975 12.8878 18.5368 13.0515C18.376 13.2151 18.2857 13.437 18.2857 13.6684V29.3725C18.2857 29.6038 18.376 29.8257 18.5368 29.9894C18.6975 30.153 18.9155 30.2449 19.1429 30.2449ZM30.8571 5.81633H24.9707L22.5421 1.69401C22.2374 1.17709 21.8062 0.749355 21.2907 0.452479C20.7752 0.155603 20.193 -0.000286701 19.6007 3.95834e-07H12.3993C11.8072 -3.55355e-05 11.2253 0.155974 10.7101 0.452837C10.1949 0.749701 9.76394 1.1773 9.45929 1.69401L7.02929 5.81633H1.14286C0.839753 5.81633 0.549062 5.93889 0.334735 6.15704C0.120408 6.37519 0 6.67108 0 6.97959L0 8.14286C0 8.45138 0.120408 8.74726 0.334735 8.96541C0.549062 9.18357 0.839753 9.30612 1.14286 9.30612H2.28571V33.7347C2.28571 34.6602 2.64694 35.5479 3.28992 36.2024C3.9329 36.8568 4.80497 37.2245 5.71429 37.2245H26.2857C27.195 37.2245 28.0671 36.8568 28.7101 36.2024C29.3531 35.5479 29.7143 34.6602 29.7143 33.7347V9.30612H30.8571C31.1602 9.30612 31.4509 9.18357 31.6653 8.96541C31.8796 8.74726 32 8.45138 32 8.14286V6.97959C32 6.67108 31.8796 6.37519 31.6653 6.15704C31.4509 5.93889 31.1602 5.81633 30.8571 5.81633ZM12.2743 3.70137C12.3125 3.63665 12.3665 3.58314 12.4311 3.54605C12.4957 3.50897 12.5687 3.48958 12.6429 3.4898H19.3571C19.4312 3.48971 19.504 3.50915 19.5685 3.54623C19.6329 3.58331 19.6869 3.63676 19.725 3.70137L20.9721 5.81633H11.0279L12.2743 3.70137ZM26.2857 33.7347H5.71429V9.30612H26.2857V33.7347ZM11.1429 30.2449H12.8571C13.0845 30.2449 13.3025 30.153 13.4632 29.9894C13.624 29.8257 13.7143 29.6038 13.7143 29.3725V13.6684C13.7143 13.437 13.624 13.2151 13.4632 13.0515C13.3025 12.8878 13.0845 12.7959 12.8571 12.7959H11.1429C10.9155 12.7959 10.6975 12.8878 10.5368 13.0515C10.376 13.2151 10.2857 13.437 10.2857 13.6684V29.3725C10.2857 29.6038 10.376 29.8257 10.5368 29.9894C10.6975 30.153 10.9155 30.2449 11.1429 30.2449Z"
+													fill="var(--dark)"
+												/>
+											</svg>
+										</button>
+										<button in:fade class="icon" on:click|stopPropagation={handleEditAppointment(selectedAppointment)}>
+											<svg width="32" height="28" viewBox="0 0 42 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path
+													d="M29.335 24.9262L31.6684 22.614C32.033 22.2527 32.6674 22.5056 32.6674 23.0259V33.5318C32.6674 35.4465 31.0996 37 29.1673 37H3.50008C1.56774 37 0 35.4465 0 33.5318V8.09798C0 6.18322 1.56774 4.62974 3.50008 4.62974H23.4432C23.9609 4.62974 24.2234 5.25113 23.8589 5.61964L21.5255 7.9318C21.4161 8.04018 21.2703 8.09798 21.1098 8.09798H3.50008V33.5318H29.1673V25.3308C29.1673 25.1791 29.2256 25.0346 29.335 24.9262ZM40.754 10.3451L21.6057 29.3193L15.0139 30.0418C13.1034 30.2514 11.4773 28.6545 11.6888 26.747L12.418 20.2152L31.5663 1.24098C33.2361 -0.41366 35.9341 -0.41366 37.5966 1.24098L40.7467 4.3624C42.4165 6.01704 42.4165 8.6977 40.754 10.3451V10.3451ZM33.5497 12.5778L29.3131 8.37978L15.7649 21.812L15.2326 26.5302L19.9942 26.0028L33.5497 12.5778ZM38.2748 6.81907L35.1247 3.69765C34.8258 3.40141 34.3372 3.40141 34.0455 3.69765L31.7924 5.93033L36.0289 10.1284L38.2821 7.89567C38.5738 7.5922 38.5738 7.11531 38.2748 6.81907V6.81907Z"
+													fill="var(--dark)"
+												/>
+											</svg>
+										</button>
+									</div>
+								{/if}
 								<div class="wrapper-fields mt-16">
 									<div>
 										<p class="label mb-8">Ersteller</p>
@@ -823,13 +861,16 @@
 		{/await}
 	</div>
 </div>
-{#if $bottomBarAction === "delete_appointment"}
-	<DeleteModal on:deleteEntity={handleDeleteAppointment}>
-		"{selectedAppointment.start_date}"
-	</DeleteModal>
+{#if showDeleteModal}
+	<DeleteModal on:deleteEntity={handleDeleteAppointment} on:closeModal={() => (showDeleteModal = false)} typeToDelete={"appointment"} />
 {/if}
 
 <style>
+	.wrapper-context-icons {
+		display: flex;
+		align-items: center;
+	}
+
 	.wrapper-current-selected-day {
 		margin-bottom: 3rem;
 		margin-top: 2rem;

@@ -77,6 +77,7 @@
 	onMount(() => {
 		console.log("lastSelected", $lastSelectedDay.dayId);
 		if ($lastSelectedDay.dayId) {
+			console.log("mounting with dayId");
 			menuActive.set("appointments");
 			menuStatus.set({ context: "add_appointment" });
 			bottomBarAction.set("");
@@ -87,7 +88,9 @@
 				extractedMonth = parseInt($lastSelectedDay.dayId.slice(4, 6)) - 1;
 				extractedDay = parseInt($lastSelectedDay.dayId.slice(6, 8));
 			} else if (formContext === "edit") {
-				const start_date = new Date(toUpdateAppointmentData.start_date);
+				console.log("context EDIT, to update data", toUpdateAppointmentData);
+				const start_date = new Date(parseInt(toUpdateAppointmentData.start_date));
+				console.log("startDate", start_date);
 				extractedYear = start_date.getFullYear();
 				extractedMonth = start_date.getMonth();
 				extractedDay = start_date.getDate();
@@ -124,6 +127,8 @@
 	function onAppointmentDataToUpdate() {
 		console.log("toUpdateDate", toUpdateAppointmentData);
 		appointmentData = toUpdateAppointmentData;
+		appointmentData.start_date = new Date(parseInt(appointmentData.start_date)).toISOString();
+		appointmentData.end_date = new Date(parseInt(appointmentData.end_date)).toISOString();
 		const extracted_start_date = new Date(appointmentData.start_date);
 		start_date_selections = {
 			hour: String(leadingZero(extracted_start_date.getHours())),

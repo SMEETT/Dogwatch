@@ -15,7 +15,8 @@
 	// ********************************************************
 	onMount(() => {
 		menuActive.set("appointments");
-		menuStatus.set({ context: "appointment", idToUse: parseInt($lastSelectedDay.apptId) });
+		console.log("edit id", parseInt($params.editAppointment));
+		menuStatus.set({ context: "appointment", idToUse: parseInt($params.editAppointment) });
 		liveValidation.set(false);
 	});
 

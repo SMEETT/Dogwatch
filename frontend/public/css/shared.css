@@ -66,6 +66,13 @@ BUTTONS
 	width: 3.1rem;
 }
 
+button.icon {
+	margin-right: 2rem;
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
 /* button {
 	width: 3.2rem;
 	height: 3.2rem;

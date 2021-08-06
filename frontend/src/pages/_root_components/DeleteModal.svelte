@@ -9,6 +9,8 @@
 
 	const dispatch = createEventDispatcher();
 
+	export let typeToDelete = "efefef";
+
 	function dispatchDelete() {
 		dispatch("deleteEntity");
 	}
@@ -28,7 +30,11 @@
 	<div class="container-message">
 		<div class="top-row">
 			<div class="wrapper-headline">
-				<p class="regular-text">Wollen Sie <span><slot /></span> wirklich löschen?</p>
+				{#if typeToDelete === "appointment"}
+					<p class="regular-text">Wollen Sie diesen Termin wirklich löschen?</p>
+				{:else}
+					<p class="regular-text">Wollen Sie <span><slot /></span> wirklich löschen?</p>
+				{/if}
 			</div>
 		</div>
 		<div class="bottom-row">
