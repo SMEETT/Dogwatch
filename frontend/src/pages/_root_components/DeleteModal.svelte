@@ -52,6 +52,7 @@
 		color: var(--bright);
 		width: 10rem;
 		height: 3.2rem;
+		border-radius: 5px;
 		margin-right: 4rem;
 	}
 
@@ -63,6 +64,7 @@
 		background-color: var(--bright);
 		border: 1px solid var(--dark);
 		color: var(--dark);
+		border-radius: 5px;
 		width: 10rem;
 		height: 3.2rem;
 	}
@@ -93,7 +95,7 @@
 		align-items: center;
 		justify-content: center;
 		transition: 0.3s;
-		width: 100%;
+		width: 98%;
 		height: auto;
 		min-height: 12rem;
 		max-height: 12rem;
@@ -101,11 +103,12 @@
 		margin: auto;
 		top: 20%;
 		bottom: 20%;
-		left: 0%;
-		right: 5%;
+		left: 1%;
+		right: 1%;
 		z-index: 5;
 		font-size: 1.6rem;
 		background-color: var(--bright);
+		border-radius: 5px;
 		color: var(--bright);
 		box-shadow: 0 1.4px 1px rgba(0, 0, 0, 0.043), 0 3.6px 2.4px rgba(0, 0, 0, 0.062), 0 7.4px 5px rgba(0, 0, 0, 0.078), 0 15.3px 10.2px rgba(0, 0, 0, 0.097),
 			0 42px 28px rgba(0, 0, 0, 0.14);
