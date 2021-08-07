@@ -24,7 +24,7 @@
 		const data = await graphQLClient.request(mutation);
 		console.log(JSON.stringify(data, undefined, 2));
 		$statusModalMessages = { code: 200, message: "Logout erfolgreich" };
-		$goto("/login");
+		$goto("/");
 	}
 
 	isAuthenticated.set(false);

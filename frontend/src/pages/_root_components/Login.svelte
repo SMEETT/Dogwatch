@@ -4,22 +4,26 @@
 	import { null_to_empty } from "svelte/internal";
 	metatags.title = "Dogwatch / Login";
 	metatags.description = "Description coming soon...";
-	import { isAuthenticated, authenticating, checkAuthCookie, liveValidation, statusModalMessages } from "../../stores/state";
+	import { isAuthenticated, authenticating, checkAuthCookie, liveValidation, statusModalMessages, newlyRegisteredEmail } from "../../stores/state";
 
 	import { login } from "../../stores/state";
 	import * as yup from "yup";
-
-	let email;
-	let password;
 
 	const loginData = {
 		email: null,
 		password: null,
 	};
 
+	if ($newlyRegisteredEmail) {
+		loginData.email = $newlyRegisteredEmail;
+	}
+
+	console.log("newRegistrationEmail", $newlyRegisteredEmail);
+
 	async function handleSubmit() {
 		if (await validate(schema_login, loginData, loginValidationErrors)) {
 			if (await login(loginData.email, loginData.password)) {
+				$newlyRegisteredEmail = null;
 				$goto("/appointments");
 				statusModalMessages.set({ code: 200, message: "Login erfolgreich" });
 			} else {

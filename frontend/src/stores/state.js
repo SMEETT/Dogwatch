@@ -10,6 +10,7 @@ export const bottomBarAction = writable(null);
 
 export const statusModalMessages = writable({ code: null, message: null });
 export const liveValidation = writable(false);
+export const newlyRegisteredEmail = writable(null);
 
 // ********************************************************
 // DOG ID's

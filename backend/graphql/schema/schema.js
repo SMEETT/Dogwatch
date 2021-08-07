@@ -339,13 +339,21 @@ const Mutation = new GraphQLObjectType({
 		// REGISTER
 		// ----------------------------------------------------
 		registerUser: {
-			type: UserType,
+			type: GraphQLJSON,
 			args: {
 				username: { type: new GraphQLNonNull(GraphQLString) },
 				email: { type: new GraphQLNonNull(GraphQLString) },
 				password: { type: new GraphQLNonNull(GraphQLString) },
 			},
 			async resolve(parent, args, { req, res, maxSessionAge }) {
+				// check if the email is already in use
+				console.log("registerUser backend");
+				const userWithSameEmail = await User.findOne({ where: { email: args.email } });
+				console.log(userWithSameEmail);
+				if (userWithSameEmail) {
+					return { status: 409, message: "Already exists", node: false };
+				}
+
 				const saltHash = genPassword(args.password);
 				const salt = saltHash.salt;
 				const hash = saltHash.hash;
@@ -363,7 +371,7 @@ const Mutation = new GraphQLObjectType({
 					.save()
 					.then((user) => {
 						console.log(user);
-						return user;
+						return { status: 200, message: "OK", email: user.email };
 					})
 					.catch((err) => {
 						console.log("Registering User Failed: ", err);

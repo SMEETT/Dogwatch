@@ -29,7 +29,7 @@
 	<h1 class="h1">WILLKOMMEN!</h1>
 	<p class="copy">
 		Willkommen zum Alpha-Test von Dogwatch. Die vorliegende Version beinhaltet die rudimentäre Funktionalität. Es kann (und wird) zu Fehlern kommen (bis hin
-		zum Verlust sämtlicher, eingetragener Termine, Hunde bzw. Daten im Allgemeinen.
+		zum Verlust sämtlicher, eingetragener Termine, Hunde bzw. Daten im Allgemeinen)
 	</p>
 	<p class="feedback">
 		Bei Fragen und Problemen:<br />
