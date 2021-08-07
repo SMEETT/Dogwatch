@@ -33,7 +33,7 @@
 	</p>
 	<p class="feedback">
 		Bei Fragen und Problemen:<br />
-		<a class="email" href="mailto:tbr@tutamail.com">tbr@tutamail.com</a>
+		<a class="generic" href="mailto:tbr@tutamail.com">tbr@tutamail.com</a>
 	</p>
 	<div class="wrapper-buttons">
 		<button on:click={() => $goto("/appointments")} class="button-login">EINLOGGEN</button>
@@ -105,12 +105,6 @@
 		line-height: 135%;
 		text-align: center;
 		margin-top: 2rem;
-	}
-
-	a.email {
-		font-weight: 700;
-		text-decoration: underline;
-		color: var(--dark);
 	}
 
 	body {

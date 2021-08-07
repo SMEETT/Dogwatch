@@ -26,9 +26,9 @@
 	authenticating...
 {:else if $isAuthenticated || checkAuthCookie()}
 	<slot />
+	<BottomBar />
 {:else}
 	<Login />
 {/if}
 
 <StatusModal />
-<BottomBar />

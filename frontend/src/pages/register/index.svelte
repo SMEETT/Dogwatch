@@ -160,7 +160,16 @@
 </form>
 <button on:click={handleSubmit} class="btn btn-regular">Registrieren</button>
 
+<div class="wrapper-to-login">
+	<p>Sie haben bereits einen Account? <a class="generic" href="/login">EINLOGGEN</a></p>
+</div>
+
 <style>
+	.wrapper-to-login {
+		font-size: 1.5rem;
+		margin-top: 4rem;
+	}
+
 	input {
 		border: 1px solid var(--dark);
 		border-radius: 5px;

@@ -92,7 +92,7 @@
 </div>
 <div style="margin-top: -2rem" class="separator" />
 
-<form form>
+<form>
 	<label for="email">E-Mail:</label><br />
 	<input type="text" id="email" name="email" bind:value={loginData.email} />
 	{#if loginValidationErrors.email}
@@ -106,7 +106,16 @@
 </form>
 <button on:click={handleSubmit} class="btn btn-regular">Einloggen</button>
 
+<div class="wrapper-to-register">
+	<p>Sie haben noch keinen Account? <a class="generic" href="/register">REGISTRIEREN</a></p>
+</div>
+
 <style>
+	.wrapper-to-register {
+		font-size: 1.5rem;
+		margin-top: 4rem;
+	}
+
 	input {
 		border: 1px solid var(--dark);
 		border-radius: 5px;
