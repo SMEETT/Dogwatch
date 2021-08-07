@@ -7,6 +7,8 @@
 	import { isAuthenticated, authenticating, checkAuthCookie, liveValidation, statusModalMessages, newlyRegisteredEmail } from "../../stores/state";
 	import { GraphQLClient, gql } from "graphql-request";
 
+	import StatusModal from "../_root_components/StatusModal.svelte";
+
 	import { login } from "../../stores/state";
 	import * as yup from "yup";
 
@@ -22,16 +24,23 @@
 	};
 
 	async function handleSubmit() {
-		// check if a user with the used e-mail alreadty exists
-
 		if (await validate(schema_register, registerData, registerValidationErrors)) {
-			if (await register(registerData.username, registerData.email, registerData.password)) {
+			const registerAttempt = await register(registerData.username, registerData.email, registerData.password);
+
+			if (registerAttempt === true) {
 				$goto("/appointments");
 				statusModalMessages.set({ code: 200, message: "Erfolgreich registriert" });
 			} else {
-				console.log("registration failed");
-				$statusModalMessages = { code: 400, message: "Felder bitte korrekt ausfuellen" };
+				statusModalMessages.set({ code: 400, message: registerAttempt.message });
+				console.log(registerAttempt.message);
 			}
+
+			// if (await register(registerData.username, registerData.email, registerData.password) === ) {
+
+			// } else {
+			// 	console.log("registration failed");
+			// 	$statusModalMessages = { code: 400, message: "Felder bitte korrekt ausfuellen" };
+			// }
 		}
 	}
 
@@ -46,7 +55,7 @@
 	// NEW APPOINTMENT SCHEMA
 	// ----------------------------------------------------
 	const schema_register = yup.object().shape({
-		username: yup.string().required("Bitte Benutzernamen angeben").typeError("Bitte Benutzernamen angeben"),
+		username: yup.string().required("Bitte Benutzername angeben").typeError("Bitte Benutzername angeben"),
 		email: yup.string().email("Ungueltige E-Mail Adresse").required("Bitte E-Mail angeben").typeError("Bitte E-Mail angeben"),
 		password: yup.string().required("Passwort bitte angeben").typeError("Bitte Passwort angeben"),
 		passwordConfirmation: yup
@@ -67,11 +76,9 @@
 			registerValidationErrors = {};
 			return true;
 		} catch (err) {
-			console.log(errors);
 			errors = extractErrors(err);
-			console.log(errors);
 			registerValidationErrors = errors;
-			$statusModalMessages = { code: 1, message: "Bitte die fehlenden Felder ausfuellen" };
+			$statusModalMessages = { code: 1, message: "Felder bitte korrekt ausfuellen" };
 			return false;
 		}
 	};
@@ -111,10 +118,9 @@
 				$newlyRegisteredEmail = data.registerUser.email;
 				return true;
 			} else if (data.registerUser.status === 409) {
-				console.log("User with that email already exists");
-				throw new Error("User with that name already exists");
+				throw new Error("Diese E-Mail Adresse wird bereits verwendet");
 			} else {
-				throw new Error("Registration Failed");
+				throw new Error("Registrierung fehlgeschlagen (unbekannter Fehler)");
 			}
 		}
 
@@ -124,7 +130,7 @@
 			})
 			.catch((error) => {
 				console.log(error);
-				return false;
+				return error;
 			});
 	};
 </script>
@@ -147,12 +153,12 @@
 	{#if registerValidationErrors.email}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.email})</p>
 	{/if}
-	<label for="password">Password:</label><br />
+	<label for="password">Passwort:</label><br />
 	<input type="password" id="password" name="password" bind:value={registerData.password} />
 	{#if registerValidationErrors.password}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.password})</p>
 	{/if}
-	<label for="password-confirmation">Password bestaetigen:</label><br />
+	<label for="password-confirmation">Passwort bestaetigen:</label><br />
 	<input type="password" id="password-confirmation" name="password-confirmation" bind:value={registerData.passwordConfirmation} />
 	{#if registerValidationErrors.passwordConfirmation}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.passwordConfirmation})</p>
@@ -164,10 +170,13 @@
 	<p>Sie haben bereits einen Account? <a class="generic" href="/login">EINLOGGEN</a></p>
 </div>
 
+<StatusModal />
+
 <style>
 	.wrapper-to-login {
 		font-size: 1.5rem;
 		margin-top: 4rem;
+		line-height: 150%;
 	}
 
 	input {

@@ -88,7 +88,7 @@
 <!-- Login Index -->
 
 <div class="headline">
-	<h1 class="color-headline" style="margin-left: 0rem">Login</h1>
+	<h1 class="color-headline" style="margin-left: 0rem">Einloggen</h1>
 </div>
 <div style="margin-top: -2rem" class="separator" />
 
@@ -98,7 +98,7 @@
 	{#if loginValidationErrors.email}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({loginValidationErrors.email})</p>
 	{/if}
-	<label for="password">Password:</label><br />
+	<label for="password">Passwort:</label><br />
 	<input type="password" id="password" name="password" bind:value={loginData.password} />
 	{#if loginValidationErrors.password}
 		<p class="form-validation-error">({loginValidationErrors.password})</p>
@@ -114,6 +114,7 @@
 	.wrapper-to-register {
 		font-size: 1.5rem;
 		margin-top: 4rem;
+		line-height: 150%;
 	}
 
 	input {
