@@ -21,11 +21,11 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 	border-radius: 5px;
 }
 
-.accordion:hover {
+/* .accordion:hover {
 	background-color: var(--light);
 	color: var(--bright);
 	border: 1px solid transparent;
-}
+} */
 
 .active {
 	background-color: transparent;
@@ -34,9 +34,9 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 	color: var(--dark) !important;
 }
 
-.accordion:hover:after {
+/* .accordion:hover:after {
 	color: var(--bright);
-}
+} */
 
 .accordion:after {
 	content: "\002B";
@@ -48,13 +48,13 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 
 .active:after {
 	content: "\2212";
-	color: var(--bright);
+	/* color: var(--bright); */
 }
 
-.active:after:hover {
+/* .active:after:hover {
 	content: "\2212";
 	color: var(--bright);
-}
+} */
 
 .panel {
 	background-color: transparent;
