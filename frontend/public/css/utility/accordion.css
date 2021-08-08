@@ -28,10 +28,10 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 }
 
 .active {
-	border: 0;
-	background-color: var(--light);
+	background-color: transparent;
 	border: 1px solid transparent;
-	color: var(--bright) !important;
+	border: 1px solid var(--light);
+	color: var(--dark) !important;
 }
 
 .accordion:hover:after {

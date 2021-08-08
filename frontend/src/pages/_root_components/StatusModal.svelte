@@ -20,8 +20,8 @@
 	<div
 		transition:fade={{ duration: 200 }}
 		class="wrapper regular-text line-height-125"
-		class:bg-green={$statusModalMessages.code === 200}
-		class:bg-red={$statusModalMessages.code !== 200}
+		class:bg-success={$statusModalMessages.code === 200}
+		class:bg-error={$statusModalMessages.code !== 200}
 		on:click={closeStatusModal}
 		use:autoClose
 	>
@@ -105,11 +105,11 @@
 		justify-content: left;
 	}
 
-	.bg-red {
-		background-color: red;
+	.bg-error {
+		background-color: rgb(201, 80, 80);
 	}
 
-	.bg-green {
-		background-color: green;
+	.bg-success {
+		background-color: var(--light);
 	}
 </style>

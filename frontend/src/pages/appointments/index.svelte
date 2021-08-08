@@ -439,7 +439,7 @@
 				// we increment its 'depth' (and use the new value for our local "depth" variable,
 				// see below)
 				if (currentDayObject.length !== 0) {
-					currentDayObject[0].depth = currentDayObject[0].depth + 1;
+					currentDayObject[0].depth = currentDayObject[0].depth + 0.8;
 					depth = currentDayObject[0].depth;
 					// if the current day doesn't exist yet, we create the initial object with a 'depth' of 0
 				} else {
@@ -490,7 +490,8 @@
 					const barToAppend = document.createElement("div");
 					barToAppend.style.width = "100%";
 					barToAppend.style.backgroundColor = appointment.color;
-					barToAppend.style.height = "1rem";
+					barToAppend.style.height = "0.5rem";
+					depth = depth + 0.3;
 					barToAppend.style.marginTop = `${depth}rem`;
 					targetContainer.append(barToAppend);
 				} catch {
@@ -618,11 +619,11 @@
 					if ($menuStatus.context === "day") {
 						$menuStatus.context = "caretaker";
 						localStorage.setItem("appointmentSwitchStatus", "caretaker");
-						$statusModalMessages = { code: 200, message: "Angezeigte Termine: als Aufpasser" };
+						$statusModalMessages = { code: 200, message: "Angezeigte Termine: Aufpasser" };
 					} else if ($menuStatus.context === "caretaker") {
 						$menuStatus.context = "day";
 						localStorage.setItem("appointmentSwitchStatus", "creator");
-						$statusModalMessages = { code: 200, message: "Angezeigte Termine: als Ersteller" };
+						$statusModalMessages = { code: 200, message: "Angezeigte Termine: Ersteller" };
 					}
 				}}
 			/>

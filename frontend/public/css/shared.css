@@ -185,11 +185,12 @@ button:hover svg path {
 	box-sizing: border-box;
 	color: rgba(0, 0, 0, 0.5);
 	overflow: hidden;
+	border-radius: 5px;
 }
 
 .image {
 	/* border-radius: 10%; */
-	border-radius: 35%;
+	border-radius: 5px;
 	/* border-radius: 5px; */
 	/* border-top-left-radius: 0%;
 	border-bottom-left-radius: 0%; */
