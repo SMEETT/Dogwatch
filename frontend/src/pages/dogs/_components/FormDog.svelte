@@ -41,6 +41,14 @@
 		image = dogData.image;
 	}
 
+	let titleFormContext;
+
+	if (formContext === "edit") {
+		titleFormContext = "Hund bearbeiten";
+	} else if (formContext === "add") {
+		titleFormContext = "Hund anlegen";
+	}
+
 	// ********************************************************
 	// FORM DATA
 	// ********************************************************
@@ -471,7 +479,7 @@
 </script>
 
 <div class="wrapper">
-	<p style="margin-top: -7rem" class="label color-dark label-appointments">Hund anlegen</p>
+	<p style="margin-top: -7rem" class="label color-dark label-appointments">{titleFormContext}</p>
 	<!-- -------------------------------------- -->
 	<!-- NAME -->
 	<!-- -------------------------------------- -->
