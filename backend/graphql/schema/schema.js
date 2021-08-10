@@ -210,6 +210,7 @@ const AppointmentType = new GraphQLObjectType({
 		},
 		notes: { type: GraphQLString },
 		status: { type: GraphQLJSON },
+		color: { type: GraphQLString },
 	}),
 });
 
@@ -477,6 +478,7 @@ const Mutation = new GraphQLObjectType({
 				start_date: { type: GraphQLString },
 				end_date: { type: GraphQLString },
 				notes: { type: GraphQLString },
+				color: { type: GraphQLString },
 			},
 			async resolve(parent, args, { req, res, maxSessionAge }) {
 				if (!req.isAuthenticated()) {
@@ -486,6 +488,7 @@ const Mutation = new GraphQLObjectType({
 						start_date: args.start_date,
 						end_date: args.end_date,
 						notes: args.notes,
+						color: args.color,
 					});
 
 					const t = await db.transaction();

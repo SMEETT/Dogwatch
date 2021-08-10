@@ -10,6 +10,8 @@
 	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages, lastSelectedDay } from "../../../stores/state";
 	import { leadingZero } from "../../../_helpers/helperFunctions";
 
+	import randomColor from "randomcolor"; // import the script
+
 	let extractedYear;
 	let extractedMonth;
 	let extractedDay;
@@ -74,6 +76,8 @@
 	// ********************************************************
 	// ON MOUNT
 	// ********************************************************
+	let colorTest;
+
 	onMount(() => {
 		console.log("lastSelected", $lastSelectedDay.dayId);
 		if ($lastSelectedDay.dayId) {
@@ -396,7 +400,10 @@
 					mode: "cors",
 				});
 
-				console.log("appointmentData", appointmentData);
+				appointmentData.color = randomColor({
+					luminosity: "light",
+					hue: "random",
+				});
 
 				const dogIds = [];
 				appointmentData.dogs.forEach((dog) => {
@@ -416,6 +423,7 @@
                         start_date: "${appointmentData.start_date}",
                         end_date: "${appointmentData.end_date}",
                         notes: "${appointmentData.notes}",
+                        color: "${appointmentData.color}"
 			        ){
 						id
 						status

@@ -74,8 +74,8 @@ require("./sequelize/models/_relations");
 // sync all Sequelize Models with the DB (and add some initial Data)
 async function syncDB() {
 	console.log("Syncing Database...");
-	// await db.sync({ force: true });
-	await db.sync({});
+	await db.sync({ force: true });
+	// await db.sync({});
 	// require("./misc/initialData");
 }
 syncDB();

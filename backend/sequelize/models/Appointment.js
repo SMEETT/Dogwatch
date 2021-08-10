@@ -11,6 +11,9 @@ const Appointment = db.define("appointment", {
 	notes: {
 		type: sequilize.STRING(500),
 	},
+	color: {
+		type: sequilize.STRING(),
+	},
 });
 
 module.exports = Appointment;
