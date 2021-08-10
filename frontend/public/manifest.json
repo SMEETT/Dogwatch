@@ -1,21 +1,30 @@
 {
   "background_color": "#FFFFFF",
-  "theme_color": "#E938C2",
+  "theme_color": "#FFFFFF",
   "name": "Dogwatch",
   "short_name": "Dogwatch",
-  "start_url": "/appointments",
+  "start_url": "/",
   "display": "standalone",
   "icons": [
-    {
-      "src": "/images/touch-icons/logo-192.png",
+        {
+      "src": "/images/app_manifest_icons/app_manifest_icon_96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+        {
+      "src": "/images/app_manifest_icons/app_manifest_icon_192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
-    {
-      "src": "/images/touch-icons/logo-800.png",
+        {
+      "src": "/images/app_manifest_icons/app_manifest_icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+        {
+      "src": "/images/app_manifest_icons/app_manifest_icon_800.png",
       "sizes": "800x800",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "type": "image/png"
     }
   ]
 }
