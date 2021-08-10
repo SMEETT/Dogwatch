@@ -7,9 +7,8 @@
 	import { fade } from "svelte/transition";
 	import { GraphQLClient, gql } from "graphql-request";
 	import { menuActive, menuStatus, bottomBarAction, lastSelectedDay, statusModalMessages } from "../../stores/state";
-	import { leadingZero, extractTimeOfDay, parseDateToString, calculateAge, dateFromDayId, rainbow, rainbowStop } from "../../_helpers/helperFunctions";
+	import { leadingZero, extractTimeOfDay, parseDateToString, calculateAge, dateFromDayId } from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
-	import Prefetcher from "@roxi/routify/runtime/Prefetcher.svelte";
 
 	let userIsCaretaker = false;
 	let allDays = [];

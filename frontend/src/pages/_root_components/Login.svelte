@@ -34,6 +34,7 @@
 				$goto("/appointments");
 				statusModalMessages.set({ code: 200, message: "Login erfolgreich" });
 			} else {
+				$authenticating = false;
 				console.log("login failed");
 				$statusModalMessages = { code: 400, message: "Falsche E-Mail Adresse/Passwort" };
 			}
