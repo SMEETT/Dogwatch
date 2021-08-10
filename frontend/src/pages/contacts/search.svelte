@@ -48,6 +48,13 @@
 		}
 	}
 
+	function handleKeyPress(e) {
+		if (e.charCode === 13) {
+			console.log("enter pressed");
+			search();
+		}
+	}
+
 	async function addContact(id) {
 		console.log(searchterm);
 		const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
@@ -91,7 +98,14 @@
 	</div>
 	<div style="margin-top: -2rem" class="separator" />
 	<div class="search-bar">
-		<input bind:value={searchterm} class="searchfield" class:selected={searchterm} placeholder="E-Mail oder Benutzername" type="text" />
+		<input
+			bind:value={searchterm}
+			on:keypress={handleKeyPress}
+			class="searchfield"
+			class:selected={searchterm}
+			placeholder="E-Mail oder Benutzername"
+			type="text"
+		/>
 		<button class="btn" on:click={search}><span class="icon-search ml-8" /></button>
 	</div>
 	{#await searchResultPromise then result}

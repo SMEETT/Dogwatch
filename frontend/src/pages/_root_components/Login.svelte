@@ -20,6 +20,13 @@
 
 	console.log("newRegistrationEmail", $newlyRegisteredEmail);
 
+	function handleKeyPress(e) {
+		if (e.charCode === 13) {
+			console.log("enter pressed");
+			handleSubmit();
+		}
+	}
+
 	async function handleSubmit() {
 		if (await validate(schema_login, loginData, loginValidationErrors)) {
 			if (await login(loginData.email, loginData.password)) {
@@ -99,7 +106,7 @@
 		<p class="form-validation-error" style="margin-bottom: 2rem">({loginValidationErrors.email})</p>
 	{/if}
 	<label for="password">Passwort:</label><br />
-	<input type="password" id="password" name="password" bind:value={loginData.password} />
+	<input type="password" id="password" name="password" bind:value={loginData.password} on:keypress={handleKeyPress} />
 	{#if loginValidationErrors.password}
 		<p class="form-validation-error">({loginValidationErrors.password})</p>
 	{/if}

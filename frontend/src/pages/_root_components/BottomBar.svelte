@@ -355,8 +355,8 @@
 		align-items: center;
 		justify-content: space-between;
 		transition: 0.3s;
-		border: 5px solid var(--bg-color);
-		border-bottom: 6px solid var(--bg-color);
+		/* border: 5px solid var(--bg-color); */
+		/* border-bottom: 6px solid var(--bg-color); */
 		/* border-left: 5px solid white;
 		border-right: 5px solid white; */
 
@@ -388,7 +388,7 @@
 		padding: 1rem 2.4rem;
 		position: fixed;
 		height: 0;
-		bottom: calc(var(--bottombar-height) - 0.4rem);
+		bottom: calc(var(--bottombar-height) + 0.2rem);
 		background: var(--light);
 		display: flex;
 		/* right: 5%; */
@@ -403,9 +403,9 @@
 		border-top-right-radius: 15px;
 		/* border: 5px solid white; */
 		border-bottom: 1px solid var(--bright);
-		border-left: 5px solid var(--bg-color);
+		/* border-left: 5px solid var(--bg-color);
 		border-right: 5px solid var(--bg-color);
-		border-top: 5px solid var(--bg-color);
+		border-top: 5px solid var(--bg-color); */
 	}
 
 	.wrapper-context-icons {
