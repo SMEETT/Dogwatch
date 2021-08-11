@@ -1,5 +1,4 @@
 **/node_modules/
-/dist/
 .DS_Store
 **/.history
 src/tmp/
@@ -9,3 +8,4 @@ assets/build
 .vercel
 NOTES.txt
 .env
+frontend/dist

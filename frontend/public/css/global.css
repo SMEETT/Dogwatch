@@ -9,7 +9,7 @@
 
 	--dark: #535353;
 	--contrast: #b3b3b3;
-	--light: #c7c7c7;
+	--light: #bfbfbf;
 	--bright: rgb(245, 245, 245);
 	--inactive: #b6b6b6;
 	--bg-color: white;
@@ -18,11 +18,17 @@
 	--color-headline: var(--dark);
 	--color-headline-bg: var(--bg-color);
 
+	--color-bottom-bar-bg: var(--bright);
+	--color-bottom-bar-icons: var(--dark);
+
+	--color-bottom-menu-bg: var(--bright);
+	--color-bottom-menu-icons: var(--dark);
+
 	/* typography */
 	font-family: "Nunito", sans-serif;
 	--line-height-copy: 125%;
 
-	--bottombar-height: 7rem;
+	--bottombar-height: 6rem;
 	--headline-height: 7rem;
 }
 
@@ -34,6 +40,10 @@
 
 .color-light {
 	color: var(--light) !important;
+}
+
+.some {
+	color: #00ffbb;
 }
 
 .color-bright {

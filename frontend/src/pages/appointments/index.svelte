@@ -9,6 +9,7 @@
 	import { menuActive, menuStatus, bottomBarAction, lastSelectedDay, statusModalMessages } from "../../stores/state";
 	import { leadingZero, extractTimeOfDay, parseDateToString, calculateAge, dateFromDayId } from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
+	import DotMenu from "../_root_components/DotMenu.svelte";
 
 	let userIsCaretaker = false;
 	let allDays = [];
@@ -606,7 +607,7 @@
 					<path d="M28 22L2 2V42L28 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
 				</svg>
 			</button>
-			<h1 class="color-headline">{currentMonthDisplay}</h1>
+			<h1 class="color-headline" style="margin: 0">{currentMonthDisplay}</h1>
 		</div>
 		<p class="headline-label">{currentYearDisplay}</p>
 		<!-- <p class="label">Termine</p> -->
@@ -629,6 +630,7 @@
 			/>
 			<span class="slider round" />
 		</label>
+		<DotMenu />
 	</div>
 	<div style="margin-top: -2rem" class="separator" />
 	<div class="wrapper-calendar debug-border">

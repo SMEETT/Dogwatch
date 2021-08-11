@@ -17,13 +17,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 require("dotenv").config();
 
-const emulatorURL = "http://10.0.2.2:5000";
-
 // CSP Header
 app.use(
 	expressCspHeader({
 		directives: {
-			"default-src": [SELF, process.env.FRONTEND_URL, emulatorURL],
+			"default-src": [SELF, process.env.FRONTEND_URL],
 			"script-src": [SELF, INLINE, EVAL],
 			"style-src": [SELF, INLINE, "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
 			"img-src": [SELF],
@@ -31,12 +29,12 @@ app.use(
 			"block-all-mixed-content": true,
 			"font-src": ["https://fonts.googleapis.com", "https://fonts.gstatic.com"],
 			"frame-ancestors": [NONE],
-			"connect-src": [SELF, process.env.FRONTEND_URL, emulatorURL],
+			"connect-src": [SELF, process.env.FRONTEND_URL],
 		},
 	})
 );
 
-app.use(cors({ origin: [process.env.FRONTEND_URL, emulatorURL], credentials: true }));
+app.use(cors({ origin: [process.env.FRONTEND_URL], credentials: true }));
 
 // on first request attaches a cookie to the response (inside the setCookie header) and writes
 // a session ID to the database, after that the session (incl. the cookie to identify it)

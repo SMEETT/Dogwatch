@@ -1,6 +1,6 @@
 {
-  "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
+  "background_color": "#ff00e1",
+  "theme_color": "white",
   "name": "Dogwatch",
   "short_name": "Dogwatch",
   "start_url": "/",
