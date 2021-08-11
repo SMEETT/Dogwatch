@@ -134,7 +134,7 @@
 
 	.icon-search {
 		display: flex;
-		background: url("/images/icons/general_ui/icon_search.svg") no-repeat center center;
+		background: url("/images/icons/icon_search.svg") no-repeat center center;
 		width: 3.2rem;
 		height: 16px;
 		height: 100%;
@@ -142,7 +142,7 @@
 	}
 
 	.icon-search:hover {
-		background: url("/images/icons/general_ui/icon_search_white.svg") no-repeat center center;
+		background: url("/images/icons/icon_search_white.svg") no-repeat center center;
 		background-color: var(--dark);
 		cursor: pointer;
 	}

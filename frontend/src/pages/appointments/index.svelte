@@ -586,7 +586,6 @@
 		console.log($lastSelectedDay);
 		// $lastSelectedDay = { dayId: id };
 		$goto(`/appointments/edit/${appointment.id}`);
-		console.log(id);
 	}
 
 	onDestroy(() => {
