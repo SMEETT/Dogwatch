@@ -397,6 +397,8 @@ const Mutation = new GraphQLObjectType({
 					// cookie is unsecure and only used to help the frontend routing
 					// since the auth-cookie is HTTP only
 					let cookieOptions = {
+						domain: 'borisfries.dev',
+						path: '/',
 						maxAge: maxSessionAge - 10000,
 						sameSite: "none",
 						secure: true,
