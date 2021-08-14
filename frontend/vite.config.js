@@ -9,7 +9,7 @@ export default defineConfig({
 	},
 	build: {
 		cssCodeSplit: false,
-		sourcemap: true,
+		sourcemap: false,
 	},
 	optimizeDeps: {
 		exclude: ["@roxi/routify"],
