@@ -4,7 +4,6 @@
 	metatags.title = "Dogwatch / Home";
 	metatags.description = "Description coming soon...";
 	import { goto } from "@roxi/routify";
-	import { afterUpdate, onMount } from "svelte";
 </script>
 
 <div class="wrapper">
@@ -35,14 +34,36 @@
 		Bei Fragen und Problemen:<br />
 		<a class="generic" href="mailto:tbr@tutamail.com">tbr@tutamail.com</a>
 	</p>
+
 	<div class="wrapper-buttons">
 		<button on:click={() => $goto("/appointments")} class="button-login">EINLOGGEN</button>
 		<p class="or">ODER</p>
 		<button on:click={() => $goto("/register")} class="button-register">REGISTRIEREN</button>
 	</div>
+
+	<div class="nullptr">
+		Very special thanks to sir <b style="color: #27C7DD">nullptr</b> - Love & Light to you!
+		<div class="gif-container">
+			<img src="/heart.gif" alt="" />
+		</div>
+	</div>
 </div>
 
 <style>
+	.gif-container {
+		display: flex;
+		margin-top: 2rem;
+		justify-content: center;
+	}
+
+	.nullptr {
+		padding: 2rem;
+		line-height: 150%;
+		margin-top: 5rem;
+		border: 1px dotted var(--light);
+		font-size: 2rem;
+	}
+
 	.wrapper {
 		display: flex;
 		flex-direction: column;
@@ -55,7 +76,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		margin-top: 8rem;
+		margin-top: 4rem;
 	}
 
 	.button-login {

@@ -7,8 +7,11 @@
 	import { GraphQLClient, gql } from "graphql-request";
 
 	import Cropper from "svelte-easy-crop";
-	import Resizer from "react-image-file-resizer";
-	const resize = Resizer.imageFileResizer;
+	// import Resizer from "react-image-file-resizer";
+	// const resize = Resizer.imageFileResizer;
+
+	import imageFileResizer from "../../../_helpers/imageResizer";
+	const resize = imageFileResizer.imageFileResizer;
 
 	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
 	import { leadingZero } from "../../../_helpers/helperFunctions";
@@ -506,7 +509,7 @@
 				/>
 			</div>
 		{:else}
-			<img style="margin-top: 3.2rem" alt="dog profile pic" src="../../../../public/images/image_profile_ph.png" />
+			<img style="margin-top: 3.2rem" alt="dog profile pic" src="/images/image_profile_ph.png" />
 		{/if}
 		<div class="image-upload">
 			<label style="width: 180px; align-items: center" class="btn btn-regular" for="file-input"> Bild wählen.. </label>

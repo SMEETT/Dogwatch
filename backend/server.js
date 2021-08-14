@@ -55,7 +55,7 @@ app.use(
 		cookie: {
 			maxAge: maxSessionAge,
 			// sameSite: "none",
-			// secure: false,
+			secure: process.env.NODE_ENV === "production",
 			// (requires HTTPS or the cookie won't be set)
 		},
 	})
