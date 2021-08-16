@@ -2,7 +2,7 @@ cd /home/bf/Dogwatch/backend
 npm install
 pm2 delete dw_backend
 pm2 start /home/bf/Dogwatch/backend/server.js --name "dw_backend"
-cd /home/bf/gh_actions_test/frontend
+cd /home/bf/Dogwatch/frontend
 npm install --production=false
 npm run build
 pm2 delete dw_frontend
