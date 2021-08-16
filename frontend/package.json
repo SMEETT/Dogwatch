@@ -3,8 +3,8 @@
     "private": true,
     "scripts": {
         "dev": "routify -c dev-vite",
-        "preview": "vite preview",
-        "build": "vite build",
+        "build": "routify -b & vite build",
+        "serve": "vite preview",
         "dev-vite": "vite"
     },
     "devDependencies": {

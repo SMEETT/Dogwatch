@@ -1,0 +1,31 @@
+name: Deploy
+
+on: [push]
+
+jobs:
+    build:
+        if: "contains(github.event.head_commit.message, '[deploy]')"
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Copy repository contents via scp
+              uses: appleboy/scp-action@master
+              env:
+                  HOST: ${{ secrets.HOST }}
+                  USERNAME: ${{ secrets.USERNAME }}
+                  PORT: ${{ secrets.PORT }}
+                  KEY: ${{ secrets.SSHKEY }}
+              with:
+                  source: "."
+                  target: "/home/bf/Dogwatch"
+
+            - name: Run Deploy-Script
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.HOST }}
+                  USERNAME: ${{ secrets.USERNAME }}
+                  PORT: ${{ secrets.PORT }}
+                  KEY: ${{ secrets.SSHKEY }}
+                  script: sh /home/bf/Dogwatch/deploy_script.sh

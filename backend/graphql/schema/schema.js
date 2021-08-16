@@ -396,14 +396,25 @@ const Mutation = new GraphQLObjectType({
 					req.login(user, (error) => (error ? error : user));
 					// cookie is unsecure and only used to help the frontend routing
 					// since the auth-cookie is HTTP only
-					let cookieOptions = {
-						domain: 'borisfries.dev',
-						path: '/',
+
+					let cookieOptions;
+
+					const cookieOptionsDev = {
 						maxAge: maxSessionAge - 10000,
 						sameSite: "none",
 						secure: true,
-						// signed: true, // Indicates if the cookie should be signed
 					};
+					const cookieOptionsProd = {
+						domain: "borisfries.dev",
+						path: "/",
+						maxAge: maxSessionAge - 10000,
+						sameSite: "none",
+						secure: true,
+					};
+
+					process.env.NODE_ENV === "production" ? (cookieOptions = cookieOptionsProd) : (cookieOptions = cookieOptionsDev);
+					console.log(cookieOptions);
+
 					res.cookie("isAuthenticated", "true", cookieOptions);
 					return { status: 200, message: "OK", node: true };
 				}
