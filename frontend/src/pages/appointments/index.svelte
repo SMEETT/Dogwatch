@@ -774,7 +774,7 @@
 															{/if}
 														</div>
 														<div>
-															<p class="label mb-8">Spaziergaenge</p>
+															<p class="label mb-8">Spaziergänge</p>
 															{#each currentDog.walktimes as walktime}
 																<p class="regular-text mb-8">
 																	{extractTimeOfDay(walktime)}
@@ -782,7 +782,7 @@
 															{/each}
 														</div>
 														<div>
-															<p class="label mb-8">Fuetterungen</p>
+															<p class="label mb-8">Fütterungen</p>
 															{#each currentDog.feedtimes as feedtime}
 																<p class="regular-text mb-8">
 																	{extractTimeOfDay(feedtime)}
