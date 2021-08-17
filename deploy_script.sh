@@ -1,6 +1,6 @@
 cd /var/lib/pm2node/Dogwatch/backend
 npm install
-cd /home/bf/pm2node/Dogwatch/frontend
+cd /var/lib/pm2node/Dogwatch/frontend
 npm install --production=false
 npm run build
 cd /var/lib/pm2node/Dogwatch
