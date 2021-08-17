@@ -24,7 +24,7 @@ module.exports = {
 			script: "./backend/server.js",
 			watch: true,
 			autorestart: true,
-			env_prod: {
+			env: {
 				NODE_ENV: "production",
 				BACKEND_PORT: 3001,
 				DB_NAME: secretKeys[0],
@@ -41,7 +41,7 @@ module.exports = {
 			args: "run serve --prefix ./frontend/",
 			watch: true,
 			autorestart: true,
-			env_prod: {
+			env: {
 				NODE_ENV: "production",
 				VITE_GQL_ENDPOINT_URL: "https://dw-api.borisfries.dev/gql",
 			},
