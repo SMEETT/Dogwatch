@@ -6,5 +6,5 @@ npm run build
 cd /var/lib/pm2node/Dogwatch
 pm2 delete dogwatch_frontend
 pm2 delete dogwatch_backend
-pm2 restart ecoststem.config.js --env prod
+pm2 restart ecosystem.config.js --env prod
 pm2 save
