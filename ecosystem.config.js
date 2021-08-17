@@ -11,8 +11,7 @@ const getSecretKeys = () => {
 		return secretsArray;
 	} catch (error) {
 		console.error(`Error reading SecretKeys ${error}`);
-		return [0, 0, 0, 0];
-		// process.exit(1);
+		process.exit(1);
 	}
 };
 
@@ -25,16 +24,6 @@ module.exports = {
 			script: "./backend/server.js",
 			watch: true,
 			autorestart: true,
-			env_dev: {
-				NODE_ENV: "development",
-				BACKEND_PORT: 3001,
-				DB_NAME: "db_dogwatch",
-				DB_USER: "admin",
-				DB_PASSWORD: "secret",
-				DB_HOST: "localhost",
-				SESSION_SECRET: "secret",
-				FRONTEND_URL: "http://localhost:5000",
-			},
 			env_prod: {
 				NODE_ENV: "production",
 				BACKEND_PORT: 3001,
@@ -49,13 +38,9 @@ module.exports = {
 		{
 			name: "dogwatch_frontend",
 			script: "npm",
-			args: "run dev --prefix ./frontend/",
+			args: "run serve --prefix ./frontend/",
 			watch: true,
 			autorestart: true,
-			env_dev: {
-				NODE_ENV: "development",
-				VITE_GQL_ENDPOINT_URL: "http://localhost:3001/gql",
-			},
 			env_prod: {
 				NODE_ENV: "production",
 				VITE_GQL_ENDPOINT_URL: "https://dw-api.borisfries.dev/gql",
