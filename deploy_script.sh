@@ -1,10 +1,10 @@
-cd /home/bf/Dogwatch/backend
+cd /var/lib/pm2node/Dogwatch/backend
 npm install
-pm2 delete dw_backend
-pm2 start /home/bf/Dogwatch/backend/server.js --name "dw_backend"
-cd /home/bf/Dogwatch/frontend
+cd /home/bf/pm2node/Dogwatch/frontend
 npm install --production=false
 npm run build
-pm2 delete dw_frontend
-pm2 start npm --name "dw_frontend" -- run serve
+cd /var/lib/pm2node/Dogwatch
+pm2 delete dogwatch_frontend
+pm2 delete dogwatch_backend
+pm2 restart ecoststem.config.js --env prod
 pm2 save

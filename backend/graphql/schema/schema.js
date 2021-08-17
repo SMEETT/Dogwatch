@@ -413,7 +413,7 @@ const Mutation = new GraphQLObjectType({
 					};
 
 					process.env.NODE_ENV === "production" ? (cookieOptions = cookieOptionsProd) : (cookieOptions = cookieOptionsDev);
-					console.log(cookieOptions);
+					console.log(process.env.NODE_ENV);
 
 					res.cookie("isAuthenticated", "true", cookieOptions);
 					return { status: 200, message: "OK", node: true };

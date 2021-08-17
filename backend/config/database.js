@@ -1,7 +1,5 @@
 const { Sequelize } = require("sequelize");
-if (process.env.NODE_ENV !== "production") {
-	require("dotenv").config();
-}
+
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;

@@ -19,7 +19,7 @@ jobs:
                   KEY: ${{ secrets.SSHKEY }}
               with:
                   source: "."
-                  target: "/home/bf/Dogwatch"
+                  target: "/var/lib/pm2node/Dogwatch"
 
             - name: Run Deploy-Script
               uses: appleboy/ssh-action@master
@@ -28,4 +28,4 @@ jobs:
                   USERNAME: ${{ secrets.USERNAME }}
                   PORT: ${{ secrets.PORT }}
                   KEY: ${{ secrets.SSHKEY }}
-                  script: sh /home/bf/Dogwatch/deploy_script.sh
+                  script: sh /var/lib/pm2node/Dogwatch/deploy_script.sh
