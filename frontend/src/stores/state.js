@@ -41,6 +41,7 @@ export const checkAuthCookie = () => {
 
 export const login = async (email, password) => {
 	authenticating.set(true);
+	console.log("GWL endpoitn", import.meta.env.VITE_GQL_ENDPOINT_URL);
 	async function loginUser() {
 		const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
 		const graphQLClient = new GraphQLClient(endpoint, {
