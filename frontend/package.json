@@ -1,5 +1,7 @@
 {
     "name": "dogwatch_frontend",
+    "version": "Alpha 0.1",
+    "description": "Dogwatch Frontend (Vite, Routify, Svelte)",
     "private": true,
     "scripts": {
         "dev": "routify -c dev-vite",

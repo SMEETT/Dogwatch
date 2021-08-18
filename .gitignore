@@ -10,3 +10,4 @@ NOTES.txt
 .env
 frontend/dist
 frontend/embedded_images
+postgres_docker

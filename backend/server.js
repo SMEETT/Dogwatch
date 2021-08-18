@@ -38,7 +38,7 @@ app.use(cors({ origin: [process.env.FRONTEND_URL], credentials: true }));
 // on first request attaches a cookie to the response (inside the setCookie header) and writes
 // a session ID to the database, after that the session (incl. the cookie to identify it)
 // is send (by the browser) on each request and is then available via 'req.session' inside Express
-const maxSessionAge = 1000 * 60 * 60;
+const maxSessionAge = 1000 * 60 * 60 * 2;
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
