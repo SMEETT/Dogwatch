@@ -1,6 +1,6 @@
 {
   "name": "dogwatch_backend",
-  "version": "Alpha 0.1",
+  "version": "1.0",
   "description": "Dogwatch Backend (ExpressJS)",
   "main": "server.js",
   "scripts": {
