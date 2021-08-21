@@ -173,6 +173,10 @@
 <StatusModal />
 
 <style>
+	#email {
+		text-transform: lowercase;
+	}
+
 	.wrapper-to-login {
 		font-size: 1.5rem;
 		margin-top: 4rem;

@@ -321,26 +321,23 @@
 	// NEW APPOINTMENT SCHEMA
 	// ----------------------------------------------------
 	const schema_appointment = yup.object().shape({
-		dogs: yup
-			.array()
-			.of(
-				yup.object().shape({
-					id: yup.number().required(),
-					name: yup.string().required(),
-				})
-			)
-			.required()
-			.min(1, "Bitte Hund(e) hinzufuegen"),
-		caretakers: yup
-			.array()
-			.of(
-				yup.object().shape({
-					id: yup.number().required(),
-					username: yup.string().required(),
-				})
-			)
-			.required()
-			.min(1, "Bitte Aufpasser hinzufuegen"),
+		dogs: yup.array().of(
+			yup.object().shape({
+				id: yup.number().required(),
+				name: yup.string().required(),
+			})
+		),
+		// .required()
+		// .min(1, "Bitte Hund(e) hinzufuegen")
+
+		caretakers: yup.array().of(
+			yup.object().shape({
+				id: yup.number().required(),
+				username: yup.string().required(),
+			})
+		),
+		// .required()
+		// .min(1, "Bitte Aufpasser hinzufuegen"),
 		start_date: yup.date().required("Bitte Startdatum angeben").typeError("Bitte Ankunftszeit angeben"),
 		end_date: yup
 			.date()
