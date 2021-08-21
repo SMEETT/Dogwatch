@@ -866,7 +866,7 @@
 						<p use:handleAccordion />
 					{/each}
 				{:else}
-					<p class="regular-text">Noch keine Termine an diesem Tag.</p>
+					<p class="regular-text">Noch keine Termine an diesem Tag</p>
 				{/if}
 			</div>
 			<p use:handleLastSelectedDayAppointments />
