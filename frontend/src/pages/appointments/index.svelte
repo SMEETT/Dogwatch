@@ -10,6 +10,7 @@
 	import { leadingZero, extractTimeOfDay, parseDateToString, calculateAge, dateFromDayId } from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
 	import DotMenu from "../_root_components/DotMenu.svelte";
+	import { element } from "svelte/internal";
 
 	let userIsCaretaker = false;
 	let allDays = [];
@@ -58,6 +59,15 @@
 	currentDayDisplay = dateFromDayId($lastSelectedDay.dayId);
 	let initialYear = dateNow.getFullYear();
 	let initialMonth = dateNow.getMonth();
+
+	function markToday() {
+		const dateNow = new Date();
+		const todayId = `${dateNow.getFullYear()}${leadingZero(dateNow.getMonth() + 1)}${leadingZero(dateNow.getDate())}`;
+		try {
+			const elementToday = document.querySelectorAll(`[data-day-id="${todayId}"]`)[0];
+			elementToday.classList.add("today");
+		} catch {}
+	}
 
 	function handleLastSelectedDayAppointments() {
 		try {
@@ -860,6 +870,7 @@
 				{/if}
 			</div>
 			<p use:handleLastSelectedDayAppointments />
+			<p use:markToday />
 		{:catch error}
 			<p style="color: red">{error.message}</p>
 		{/await}
@@ -870,6 +881,10 @@
 {/if}
 
 <style>
+	:global(.today) {
+		border: 1px solid var(--light);
+	}
+
 	.wrapper-context-icons {
 		display: flex;
 		align-items: center;
