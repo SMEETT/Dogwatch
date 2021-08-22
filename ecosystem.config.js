@@ -37,8 +37,8 @@ module.exports = {
 		},
 		{
 			name: "dogwatch_frontend",
-			script: "npm",
-			args: "run serve --prefix ./frontend/",
+			script: "serve -l 5000 ./frontend/dist",
+			// args: "run serve --prefix ./frontend/",
 			watch: true,
 			autorestart: true,
 			env: {
