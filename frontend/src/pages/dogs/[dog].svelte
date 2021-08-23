@@ -212,7 +212,18 @@
 				<div>
 					<p class="label mb-8">Spaziergaenge</p>
 					{#each currentDog.walktimes as walktime}
-						<p class="regular-text mb-8">
+						<p class="regular-text mb-8" style="display: flex; align-items: center">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="18"
+								height="18"
+								fill="none"
+								stroke="var(--dark)"
+								stroke-width="1.5"
+								stroke-linejoin="round"
+								style="margin-right: 0.5rem"
+								><path d="M9 17A8 8 0 1 0 9 1a8 8 0 1 0 0 16z" /><path d="M9 4.429V9l2.286 2.286" stroke-linecap="round" /></svg
+							>
 							{extractTimeOfDay(walktime)}
 						</p>
 					{/each}
@@ -220,7 +231,18 @@
 				<div>
 					<p class="label mb-8">Fuetterungen</p>
 					{#each currentDog.feedtimes as feedtime}
-						<p class="regular-text mb-8">
+						<p class="regular-text mb-8" style="display: flex; align-items: center">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="18"
+								height="18"
+								fill="none"
+								stroke="var(--dark)"
+								stroke-width="1.5"
+								stroke-linejoin="round"
+								style="margin-right: 0.5rem"
+								><path d="M9 17A8 8 0 1 0 9 1a8 8 0 1 0 0 16z" /><path d="M9 4.429V9l2.286 2.286" stroke-linecap="round" /></svg
+							>
 							{extractTimeOfDay(feedtime)}
 						</p>
 					{/each}

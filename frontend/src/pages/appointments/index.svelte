@@ -632,7 +632,12 @@
 												/>
 											</svg>
 										</button>
-										<button in:fade class="icon" on:click|stopPropagation={handleEditAppointment(iteratedAppointment)}>
+										<button
+											in:fade
+											class="icon"
+											on:click|stopPropagation={handleEditAppointment(iteratedAppointment)}
+											style="margin-top: -0.2rem"
+										>
 											<svg width="32" height="28" viewBox="0 0 42 37" fill="none" xmlns="http://www.w3.org/2000/svg">
 												<path
 													d="M29.335 24.9262L31.6684 22.614C32.033 22.2527 32.6674 22.5056 32.6674 23.0259V33.5318C32.6674 35.4465 31.0996 37 29.1673 37H3.50008C1.56774 37 0 35.4465 0 33.5318V8.09798C0 6.18322 1.56774 4.62974 3.50008 4.62974H23.4432C23.9609 4.62974 24.2234 5.25113 23.8589 5.61964L21.5255 7.9318C21.4161 8.04018 21.2703 8.09798 21.1098 8.09798H3.50008V33.5318H29.1673V25.3308C29.1673 25.1791 29.2256 25.0346 29.335 24.9262ZM40.754 10.3451L21.6057 29.3193L15.0139 30.0418C13.1034 30.2514 11.4773 28.6545 11.6888 26.747L12.418 20.2152L31.5663 1.24098C33.2361 -0.41366 35.9341 -0.41366 37.5966 1.24098L40.7467 4.3624C42.4165 6.01704 42.4165 8.6977 40.754 10.3451V10.3451ZM33.5497 12.5778L29.3131 8.37978L15.7649 21.812L15.2326 26.5302L19.9942 26.0028L33.5497 12.5778ZM38.2748 6.81907L35.1247 3.69765C34.8258 3.40141 34.3372 3.40141 34.0455 3.69765L31.7924 5.93033L36.0289 10.1284L38.2821 7.89567C38.5738 7.5922 38.5738 7.11531 38.2748 6.81907V6.81907Z"
@@ -645,7 +650,9 @@
 								<div class="wrapper-fields mt-16">
 									<div>
 										<p class="label mb-8">Ersteller</p>
-										<p class="regular-text mb-8">{iteratedAppointment.creator.username}</p>
+										<p class="regular-text mb-8">
+											{iteratedAppointment.creator.username}
+										</p>
 									</div>
 
 									<div>
@@ -654,18 +661,32 @@
 											<p class="regular-text">-</p>
 										{/if}
 										{#each iteratedAppointment.caretakers as caretaker}
-											<p class="regular-text mb-8">{caretaker.username}</p>
+											<p class="regular-text mb-8">
+												{caretaker.username}
+											</p>
 										{/each}
 									</div>
 									<div>
 										<p class="label mb-8">Ankunft</p>
-										<p class="regular-text">
+										<p class="regular-text" style="display: flex; align-items: center">
+											<svg xmlns="http://www.w3.org/2000/svg" width="18" height="5" fill="none" style="margin-right: 0.5rem"
+												><path
+													d="M2.571 0c1.123 0 2.074.692 2.426 1.667H18v1.667H4.997a2.5 2.5 0 0 1-.939 1.21c-.435.299-.954.458-1.487.457a2.61 2.61 0 0 1-1.818-.732C.271 3.799 0 3.163 0 2.5S.271 1.201.753.732A2.61 2.61 0 0 1 2.571 0h0z"
+													fill="var(--dark)"
+												/></svg
+											>
 											{extractTimeOfDay(parseInt(iteratedAppointment.start_date))}
 										</p>
 									</div>
 									<div>
 										<p class="label mb-8">Abholung</p>
-										<p class="regular-text">
+										<p class="regular-text" style="display: flex; align-items: center">
+											<svg xmlns="http://www.w3.org/2000/svg" width="18" height="5" fill="none" style="margin-right: 0.5rem"
+												><path
+													d="M15.429 0c-1.123 0-2.074.692-2.426 1.667H0v1.667h13.003a2.5 2.5 0 0 0 .939 1.21c.435.299.954.458 1.487.457a2.61 2.61 0 0 0 1.818-.732C17.729 3.799 18 3.163 18 2.5s-.271-1.299-.753-1.768A2.61 2.61 0 0 0 15.429 0h0z"
+													fill="var(--dark)"
+												/></svg
+											>
 											{extractTimeOfDay(parseInt(iteratedAppointment.end_date))}
 										</p>
 									</div>
@@ -721,7 +742,21 @@
 														<div>
 															<p class="label mb-8">Spaziergänge</p>
 															{#each currentDog.walktimes as walktime}
-																<p class="regular-text mb-8">
+																<p class="regular-text mb-8" style="display: flex; align-items: center">
+																	<svg
+																		xmlns="http://www.w3.org/2000/svg"
+																		width="18"
+																		height="18"
+																		fill="none"
+																		stroke="var(--dark)"
+																		stroke-width="1.5"
+																		stroke-linejoin="round"
+																		style="margin-right: 0.5rem"
+																		><path d="M9 17A8 8 0 1 0 9 1a8 8 0 1 0 0 16z" /><path
+																			d="M9 4.429V9l2.286 2.286"
+																			stroke-linecap="round"
+																		/></svg
+																	>
 																	{extractTimeOfDay(walktime)}
 																</p>
 															{/each}
@@ -729,7 +764,21 @@
 														<div>
 															<p class="label mb-8">Fütterungen</p>
 															{#each currentDog.feedtimes as feedtime}
-																<p class="regular-text mb-8">
+																<p class="regular-text mb-8" style="display: flex; align-items: center">
+																	<svg
+																		xmlns="http://www.w3.org/2000/svg"
+																		width="18"
+																		height="18"
+																		fill="none"
+																		stroke="var(--dark)"
+																		stroke-width="1.5"
+																		stroke-linejoin="round"
+																		style="margin-right: 0.5rem"
+																		><path d="M9 17A8 8 0 1 0 9 1a8 8 0 1 0 0 16z" /><path
+																			d="M9 4.429V9l2.286 2.286"
+																			stroke-linecap="round"
+																		/></svg
+																	>
 																	{extractTimeOfDay(feedtime)}
 																</p>
 															{/each}
