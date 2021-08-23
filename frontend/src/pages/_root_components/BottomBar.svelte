@@ -299,7 +299,7 @@
 	<!-- // HAMBURGER ICON (always rendered) -->
 	<!-- ----------------------------------------- -->
 	<div />
-	<div class="wrapper-hamburger-icon">
+	<div class="wrapper-hamburger-icon" class:rotate={menuVisible}>
 		<button in:fade on:click|stopPropagation={toggleMenu}>
 			<svg class="hamburger" width="27" height="25" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path
@@ -340,9 +340,18 @@
 		align-items: center;
 		justify-content: space-between;
 		transition: 0.3s;
-		/* border-left: 5px solid white; */
-		/* border-right: 5px solid white; */
+		border-left: 5px solid white;
+		border-right: 5px solid white;
 		background: var(--color-bottom-bar-bg);
+	}
+
+	.rotate {
+		transition: 0.3s;
+		transform: rotate(90deg);
+	}
+
+	.wrapper-hamburger-icon {
+		transition: 0.3s;
 	}
 
 	button.menu-link {
