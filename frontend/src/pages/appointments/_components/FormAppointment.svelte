@@ -7,7 +7,7 @@
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages, lastSelectedDay } from "../../../stores/state";
+	import { menuSelection, menuContext, bottomBarAction, liveValidation, statusModalMessages, lastSelectedDay } from "../../../stores/state";
 	import { leadingZero } from "../../../_helpers/helperFunctions";
 
 	import randomColor from "randomcolor"; // import the script
@@ -82,8 +82,8 @@
 		console.log("lastSelected", $lastSelectedDay.dayId);
 		if ($lastSelectedDay.dayId) {
 			console.log("mounting with dayId");
-			menuActive.set("appointments");
-			menuStatus.set({ context: "add_appointment" });
+			menuSelection.set("appointments");
+			menuContext.set({ context: "appointment_add" });
 			bottomBarAction.set("");
 			liveValidation.set(false);
 			console.log("on mount");
@@ -101,7 +101,6 @@
 			}
 			// titleDate = `${extractedDay}. ${monthNames[extractedMonth]}`;
 
-			console.log("currentDate", currentDate);
 			console.log("onMount() extractedYear:", extractedYear);
 
 			// appointmentData.start_date = new Date(extractedYear, extractedMonth, extractedDay).toISOString();
@@ -510,7 +509,7 @@
 	}
 
 	$: {
-		if ($bottomBarAction === "writeAppointment") {
+		if ($bottomBarAction === "appointment_save") {
 			console.log("trying to write Appointment to DB...");
 			$bottomBarAction = "";
 			if (formContext === "add") {

@@ -13,7 +13,7 @@
 	import imageFileResizer from "../../../_helpers/imageResizer";
 	const resize = imageFileResizer.imageFileResizer;
 
-	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
+	import { menuSelection, menuContext, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
 	import { leadingZero } from "../../../_helpers/helperFunctions";
 
 	let image;
@@ -314,7 +314,7 @@
 	}
 
 	$: {
-		if ($bottomBarAction === "writeDog") {
+		if ($bottomBarAction === "dog_save") {
 			console.log("trying to write Appointment to DB...");
 			$bottomBarAction = "";
 			if (formContext === "add") {

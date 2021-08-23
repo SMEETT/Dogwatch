@@ -6,7 +6,7 @@
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages } from "../../stores/state";
+	import { menuSelection, menuContext, bottomBarAction, liveValidation, statusModalMessages } from "../../stores/state";
 	import { leadingZero } from "../../_helpers/helperFunctions";
 
 	import FormAppointment from "./_components/FormAppointment.svelte";
@@ -15,8 +15,8 @@
 	// ON MOUNT
 	// ********************************************************
 	onMount(() => {
-		menuActive.set("appointments");
-		menuStatus.set({ context: "add_appointment" });
+		menuSelection.set("appointments");
+		menuContext.set({ context: "appointment_add" });
 		liveValidation.set(false);
 	});
 

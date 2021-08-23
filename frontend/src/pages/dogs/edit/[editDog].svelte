@@ -6,7 +6,7 @@
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuActive, menuStatus, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
+	import { menuSelection, menuContext, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
 	import { leadingZero } from "../../../_helpers/helperFunctions";
 
 	import FormDog from "../_components/FormDog.svelte";
@@ -15,16 +15,16 @@
 	// ON MOUNT
 	// ********************************************************
 	onMount(() => {
-		menuActive.set("dogs");
-		menuStatus.set({ context: "add_dog" });
+		menuSelection.set("dogs");
+		menuContext.set({ context: "dog_add" });
 		liveValidation.set(false);
 	});
 
-	const fetchPromise = fetchDog(parseInt($menuStatus.idToUse));
+	const fetchPromise = fetchDog(parseInt($menuContext.idToUse));
 
 	async function fetchDog(dogId) {
 		console.log("fetchDog dogId", dogId);
-		console.log($menuStatus);
+		console.log($menuContext);
 		async function getDog() {
 			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
 			const graphQLClient = new GraphQLClient(endpoint, {

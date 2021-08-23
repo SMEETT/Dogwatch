@@ -1,6 +1,6 @@
 <script>
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuActive, menuStatus, statusModalMessages } from "../../stores/state";
+	import { menuSelection, menuContext, statusModalMessages } from "../../stores/state";
 	import { onDestroy, onMount } from "svelte";
 	import { metatags, goto, url } from "@roxi/routify";
 	import { fade } from "svelte/transition";
@@ -12,8 +12,8 @@
 	let showDeleteModal = false;
 
 	onMount(() => {
-		menuActive.set("contacts");
-		menuStatus.set({ context: "contacts", idToUse: null });
+		menuSelection.set("contacts");
+		menuContext.set({ context: "contacts", idToUse: null });
 	});
 
 	async function fetchContacts() {

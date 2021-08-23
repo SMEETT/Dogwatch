@@ -6,7 +6,7 @@
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuActive, menuStatus, lastSelectedDay, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
+	import { menuSelection, menuContext, lastSelectedDay, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
 
 	import FormAppointment from "../_components/FormAppointment.svelte";
 
@@ -14,10 +14,10 @@
 	// ON MOUNT
 	// ********************************************************
 	onMount(() => {
-		menuActive.set("appointments");
-		console.log("edit id", parseInt($params.editAppointment));
-		menuStatus.set({ context: "appointment", idToUse: parseInt($params.editAppointment) });
-		liveValidation.set(false);
+		// menuSelection.set("appointments");
+		// console.log("edit id", parseInt($params.editAppointment));
+		// menuContext.set({ context: "appointment", idToUse: parseInt($params.editAppointment) });
+		// liveValidation.set(false);
 	});
 
 	const fetchPromise = fetchAppointment(parseInt($params.editAppointment));

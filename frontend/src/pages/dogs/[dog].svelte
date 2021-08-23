@@ -1,7 +1,7 @@
 <script>
 	import { params, redirect } from "@roxi/routify";
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuActive, menuStatus, bottomBarAction } from "../../stores/state";
+	import { menuSelection, menuContext, bottomBarAction } from "../../stores/state";
 	import { onDestroy, onMount } from "svelte";
 	import { metatags, goto, url } from "@roxi/routify";
 	import { fade } from "svelte/transition";
@@ -20,17 +20,17 @@
 	let currentDog = new Promise((resolve, reject) => {});
 
 	onMount(() => {
-		$menuActive = "dogs";
-		$menuStatus.context = "dog";
-		$menuStatus.idToUse = $params.dog;
+		$menuSelection = "dogs";
+		$menuContext.context = "dog";
+		$menuContext.idToUse = $params.dog;
 	});
 
 	async function main() {
 		// only fetch when there is a parameter present
 		if ($params.dog) {
 			console.log("called...... DOG MAIN!!");
-			menuStatus.set({ context: "dog", idToUse: $params.dog });
-			console.log($menuStatus);
+			menuContext.set({ context: "dog", idToUse: $params.dog });
+			console.log($menuContext);
 			async function getDogData() {
 				async function getDogs() {
 					const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
@@ -256,7 +256,7 @@
 			</button>
 		</div> -->
 	</div>
-	{#if $bottomBarAction === "delete_dog"}
+	{#if $bottomBarAction === "dog_delete"}
 		<DeleteModal on:deleteEntity={handleDeleteDog}>
 			"{currentDog.name}"
 		</DeleteModal>

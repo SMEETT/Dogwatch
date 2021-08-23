@@ -42,3 +42,17 @@ export function dateFromDayId(dayId) {
 	const toReturn = parseDateToString(date);
 	return toReturn;
 }
+
+export function dayIdFromDate(date) {
+	return `${date.getFullYear()}${leadingZero(date.getMonth() + 1)}${leadingZero(date.getDate())}`;
+}
+
+// helper-function to generate a unique Id per day (format "yyyymmdd")
+// const id = y*1000 + m*100 + d; return id.toString();
+export function generateId(date) {
+	const y = date.getFullYear();
+	const m = leadingZero(date.getMonth() + 1);
+	const d = leadingZero(date.getDate());
+	const id = y.toString() + m.toString() + d.toString();
+	return id;
+}

@@ -3,7 +3,7 @@
 	metatags.title = "Dogwatch / Hunde";
 	metatags.description = "Description coming soon...";
 	import { onMount, onDestroy } from "svelte";
-	import { menuActive, menuStatus } from "../../stores/state";
+	import { menuSelection, menuContext } from "../../stores/state";
 	import { GraphQLClient, gql } from "graphql-request";
 	import { usersDogsIds } from "../../stores/state";
 
@@ -34,10 +34,10 @@
 	}
 
 	onMount(() => {
-		menuActive.set("dogs");
-		console.log($menuStatus);
-		$menuStatus = { context: "no_dogs" };
-		console.log($menuStatus.context);
+		menuSelection.set("dogs");
+		console.log($menuContext);
+		$menuContext = { context: "dog_none" };
+		console.log($menuContext.context);
 		promise = getDogIds();
 		promise.then((data) => {
 			const dogsIds = [];
@@ -55,7 +55,7 @@
 	});
 
 	onDestroy(() => {
-		$menuStatus = { context: null };
+		$menuContext = { context: null };
 	});
 </script>
 

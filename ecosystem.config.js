@@ -37,7 +37,7 @@ module.exports = {
 		},
 		{
 			name: "dogwatch_frontend",
-			script: "serve -l 5000 ./frontend/dist",
+			script: "serve -s -l 5000 ./frontend/dist",
 			// args: "run serve --prefix ./frontend/",
 			watch: true,
 			autorestart: true,

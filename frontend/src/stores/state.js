@@ -4,8 +4,8 @@ import * as yup from "yup";
 
 export const lastSelectedDay = writable({});
 
-export const menuStatus = writable({ context: null, idToUse: null });
-export const menuActive = writable(null);
+export const menuContext = writable({ context: null, idToUse: null });
+export const menuSelection = writable(null);
 export const bottomBarAction = writable(null);
 
 export const statusModalMessages = writable({ code: null, message: null });
