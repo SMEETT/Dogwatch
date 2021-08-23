@@ -34,7 +34,7 @@
 		if (localStorage.getItem("appointmentSwitchStatus") === "caretaker") {
 			switchToggle.checked = true;
 			showCaredates = true;
-			$menuContext.context = null;
+			$menuContext.context = "caretaker";
 		} else if (localStorage.getItem("appointmentSwitchStatus") === "creator") {
 			switchToggle.checked = false;
 			showCaredates = false;
