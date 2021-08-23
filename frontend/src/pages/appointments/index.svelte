@@ -802,8 +802,8 @@
 													</div>
 												</div>
 											</div>
-											<p use:handleAccordion />
 										{/each}
+										<p use:handleAccordion />
 									</div>
 									<div class="wrapper-events">
 										<p class="label mb-8">Ablauf</p>

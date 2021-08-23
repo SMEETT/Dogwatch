@@ -347,11 +347,13 @@
 
 	.rotate {
 		transition: 0.3s;
+		transition-timing-function: ease-in-out;
 		transform: rotate(90deg);
 	}
 
 	.wrapper-hamburger-icon {
 		transition: 0.3s;
+		transition-timing-function: ease-in-out;
 	}
 
 	button.menu-link {
