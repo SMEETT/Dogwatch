@@ -7,9 +7,9 @@
 
 	/* colors */
 
-	--dark: #535353;
+	--dark: #363636;
 	--contrast: #b3b3b3;
-	--light: #bfbfbf;
+	--light: #c5c5c5;
 	--bright: rgb(245, 245, 245);
 	--inactive: #b6b6b6;
 	--bg-color: white;
@@ -18,11 +18,11 @@
 	--color-headline: var(--dark);
 	--color-headline-bg: var(--bg-color);
 
-	--color-bottom-bar-bg: var(--bright);
-	--color-bottom-bar-icons: var(--dark);
+	--color-bottom-bar-bg: rgb(231, 10, 47);
+	--color-bottom-bar-icons: var(--bright);
 
-	--color-bottom-menu-bg: var(--bright);
-	--color-bottom-menu-icons: var(--dark);
+	--color-bottom-menu-bg: rgb(231, 10, 47);
+	--color-bottom-menu-icons: var(--bright);
 
 	/* typography */
 	font-family: "Nunito", sans-serif;

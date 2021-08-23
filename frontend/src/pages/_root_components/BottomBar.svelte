@@ -326,10 +326,6 @@
 </div>
 
 <style>
-	.test {
-		border: 1px solid red;
-	}
-
 	.wrapper-bottombar {
 		position: fixed;
 		padding: 0rem 2rem;
@@ -366,11 +362,15 @@
 	}
 
 	button.menu-selected {
-		color: var(--contrast) !important;
+		color: var(--light) !important;
+	}
+
+	button.menu-selected svg > path {
+		fill: var(--light) !important;
 	}
 
 	button.menu-link:hover svg > path {
-		fill: var(--contrast);
+		fill: var(--light);
 	}
 
 	.wrapper-btn-menu-link {
