@@ -119,6 +119,10 @@
 </div>
 
 <style>
+	#email {
+		text-transform: lowercase;
+	}
+
 	.wrapper-to-register {
 		font-size: 1.5rem;
 		margin-top: 4rem;

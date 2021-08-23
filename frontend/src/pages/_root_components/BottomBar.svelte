@@ -340,8 +340,8 @@
 		align-items: center;
 		justify-content: space-between;
 		transition: 0.3s;
-		border-left: 5px solid white;
-		border-right: 5px solid white;
+		/* border-left: 5px solid white; */
+		/* border-right: 5px solid white; */
 		background: var(--color-bottom-bar-bg);
 	}
 
@@ -416,12 +416,12 @@
 	}
 
 	svg.hamburger:hover path {
-		fill: var(--dark);
+		fill: var(--color-bottom-menu-icons);
 	}
 
 	svg.x:hover path {
-		fill: var(--dark);
-		stroke: var(--dark);
+		fill: var(--color-bottom-menu-icons);
+		stroke: var(--color-bottom-menu-icons);
 	}
 
 	button {
