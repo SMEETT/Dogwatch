@@ -13,12 +13,15 @@ export function extractTimeOfDay(date) {
 	return TOD;
 }
 
-export function parseDateToString(date, withWeekdays) {
+export function parseDateToString(date, withWeekdays, shortYear) {
 	let dateToParse = new Date(date);
 	const weekday = weekdayNames[dateToParse.getDay()];
 	const month = monthNames[dateToParse.getMonth()];
 	const day = leadingZero(dateToParse.getDate());
-	const year = dateToParse.getFullYear();
+	let year = dateToParse.getFullYear();
+	if (shortYear) {
+		year = `'${year.toString().slice(2, 5)}`;
+	}
 	if (withWeekdays) {
 		return `${weekday} ${day}. ${month} ${year}`;
 	} else {

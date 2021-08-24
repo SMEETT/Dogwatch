@@ -616,9 +616,10 @@
 					{#each allAppointmentsForSelectedDay as iteratedAppointment}
 						<div class="wrapper-appt">
 							<button class="accordion regular-text" style={`border: 3px solid ${iteratedAppointment.color}`}
-								>{`${parseDateToString(parseInt(iteratedAppointment.start_date), false)} - ${parseDateToString(
+								>{`${parseDateToString(parseInt(iteratedAppointment.start_date), false, true)} - ${parseDateToString(
 									parseInt(iteratedAppointment.end_date),
-									false
+									false,
+									true
 								)}`}</button
 							>
 							<div class="panel" id="rootpanel">

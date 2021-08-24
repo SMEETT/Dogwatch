@@ -57,13 +57,13 @@
 		align-items: center;
 		justify-content: center;
 		transition: 0.3s;
-		width: 98%;
+		width: 70%;
 		height: auto;
-		min-height: 8rem;
+		min-height: 6rem;
 		position: fixed;
 		bottom: 8.4rem;
-		left: 1%;
-		right: 1%;
+		left: 15%;
+		right: 15%;
 		z-index: 2;
 		font-size: 1.6rem;
 		background-color: red;
@@ -106,10 +106,10 @@
 	}
 
 	.bg-error {
-		background-color: rgb(201, 80, 80);
+		background-color: rgb(207, 53, 53);
 	}
 
 	.bg-success {
-		background-color: var(--light);
+		background-color: var(--contrast);
 	}
 </style>
