@@ -29,7 +29,7 @@
 	onMount(() => {
 		// Mark "Appointments" in Menu
 		menuSelection.set("appointments");
-		menuContext.context = "day";
+		$menuContext.context = "day";
 
 		if (localStorage.getItem("appointmentSwitchStatus") === "caretaker") {
 			switchToggle.checked = true;
