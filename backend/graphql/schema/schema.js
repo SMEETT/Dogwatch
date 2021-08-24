@@ -211,6 +211,7 @@ const AppointmentType = new GraphQLObjectType({
 		notes: { type: GraphQLString },
 		status: { type: GraphQLJSON },
 		color: { type: GraphQLString },
+		accepted: { type: GraphQLBoolean },
 	}),
 });
 

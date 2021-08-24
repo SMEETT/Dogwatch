@@ -1,18 +1,21 @@
-const sequilize = require("sequelize");
+const sequelize = require("sequelize");
 const db = require("../../config/database");
 
 const Appointment = db.define("appointment", {
 	start_date: {
-		type: sequilize.DATE,
+		type: sequelize.DATE,
 	},
 	end_date: {
-		type: sequilize.DATE,
+		type: sequelize.DATE,
 	},
 	notes: {
-		type: sequilize.STRING(500),
+		type: sequelize.STRING(500),
 	},
 	color: {
-		type: sequilize.STRING(),
+		type: sequelize.STRING(),
+	},
+	accepted: {
+		type: sequelize.BOOLEAN,
 	},
 });
 
