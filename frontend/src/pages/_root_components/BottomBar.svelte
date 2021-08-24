@@ -339,20 +339,20 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		transition: 0.3s;
+		transition: 0.2s;
 		border-left: 5px solid white;
 		border-right: 5px solid white;
 		background: var(--color-bottom-bar-bg);
 	}
 
 	.rotate {
-		transition: 0.3s;
+		transition: 0.2s;
 		transition-timing-function: ease-in-out;
 		transform: rotate(90deg);
 	}
 
 	.wrapper-hamburger-icon {
-		transition: 0.3s;
+		transition: 0.2s;
 		transition-timing-function: ease-in-out;
 	}
 
@@ -369,19 +369,19 @@
 	}
 
 	button.menu-link:hover {
-		color: var(--light);
+		color: var(--bright);
 	}
 
 	button.menu-selected {
-		color: var(--light) !important;
+		color: var(--bright) !important;
 	}
 
 	button.menu-selected svg > path {
-		fill: var(--light) !important;
+		fill: var(--bright) !important;
 	}
 
 	button.menu-link:hover svg > path {
-		fill: var(--light);
+		fill: var(--bright);
 	}
 
 	.wrapper-btn-menu-link {

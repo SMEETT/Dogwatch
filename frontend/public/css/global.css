@@ -8,8 +8,8 @@
 	/* colors */
 
 	--dark: #363636;
-	--contrast: #b3b3b3;
-	--light: #c5c5c5;
+	--contrast: #9c9c9c;
+	--light: #d6d6d6;
 	--bright: rgb(245, 245, 245);
 	--inactive: #b6b6b6;
 	--bg-color: white;
@@ -18,11 +18,11 @@
 	--color-headline: var(--dark);
 	--color-headline-bg: var(--bg-color);
 
-	--color-bottom-bar-bg: rgb(231, 10, 47);
+	--color-bottom-bar-bg: var(--dark);
 	--color-bottom-bar-icons: var(--bright);
 
-	--color-bottom-menu-bg: rgb(231, 10, 47);
-	--color-bottom-menu-icons: var(--bright);
+	--color-bottom-menu-bg: var(--dark);
+	--color-bottom-menu-icons: var(--contrast);
 
 	/* typography */
 	font-family: "Nunito", sans-serif;
@@ -80,9 +80,7 @@ body {
 	padding-top: calc(var(--headline-height) + 2rem);
 	padding-bottom: calc(var(--bottombar-height) + 3rem);
 	min-height: 100%;
-	/* border-radius: 40px; */
 	background-color: var(--bg-color);
-	/* border: 1px solid var(--light); */
 	overflow: scroll;
 }
 
