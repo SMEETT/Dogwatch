@@ -1,20 +1,22 @@
 const fs = require("fs");
 const path = require("path");
 // file 'secret' is a comma-separated list
-const pathToSecretKey = path.join("/var/lib", "pm2node", "secrets");
-const getSecretKeys = () => {
-	try {
-		const secretKeys = fs.readFileSync(pathToSecretKey, "utf8");
-		const secretsArray = secretKeys.split(",");
-		secretsArray[secretsArray.length - 1] = secretsArray[secretsArray.length - 1].replace(/(\r\n|\n|\r)/gm, "");
-		return secretsArray;
-	} catch (error) {
-		console.error(`Error reading SecretKeys ${error}`);
-		process.exit(1);
-	}
-};
-
-let secretKeys = getSecretKeys();
+let secretKeys = [0, 0, 0];
+if (process.env.NODE_ENV === "production") {
+	const getSecretKeys = () => {
+		try {
+			const pathToSecretKey = path.join("/var/lib", "pm2node", "secrets");
+			const secretKeys = fs.readFileSync(pathToSecretKey, "utf8");
+			const secretsArray = secretKeys.split(",");
+			secretsArray[secretsArray.length - 1] = secretsArray[secretsArray.length - 1].replace(/(\r\n|\n|\r)/gm, "");
+			return secretsArray;
+		} catch (error) {
+			console.error(`Error reading SecretKeys ${error}`);
+			process.exit(1);
+		}
+	};
+	secretKeys = getSecretKeys();
+}
 
 module.exports = {
 	development: {

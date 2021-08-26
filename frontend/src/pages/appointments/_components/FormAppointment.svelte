@@ -422,7 +422,6 @@
                         color: "${appointmentData.color}"
 			        ){
 						id
-						status
 			        }
 			    }
 			`;
@@ -499,7 +498,6 @@
 			}
 			writeAppointment()
 				.then((appointment) => {
-					$lastSelectedDay.apptId = appointment.id;
 					$goto("/appointments");
 				})
 				.catch((error) => console.error(error));

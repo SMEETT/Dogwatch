@@ -72,7 +72,7 @@ require("./sequelize/models/_relations");
 async function syncDB() {
 	console.log("Syncing Database...");
 	// await db.sync({ force: true });
-	await db.sync({ force: false, alter: false });
+	await db.sync({ force: false });
 	// require("./misc/initialData");
 }
 syncDB();
@@ -109,6 +109,10 @@ app.use(cookieParser());
 
 // Imports all of the routes from ./routes/index.js
 // app.use(routes);
+
+const date = new Date();
+console.log(date.toISOString());
+console.log("test");
 
 app.use(
 	"/gql",

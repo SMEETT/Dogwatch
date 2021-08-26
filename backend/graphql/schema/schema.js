@@ -5,6 +5,7 @@ const { GraphQLJSON, GraphQLJSONObject } = require("graphql-type-json");
 const User = require("../../sequelize/models/User");
 const Dog = require("../../sequelize/models/Dog");
 const Appointment = require("../../sequelize/models/Appointment");
+const users_appointments = require("../../sequelize/models/users_appointments");
 const db = require("../../config/database");
 
 const { validatePassword, genPassword } = require("../../misc/passwordUtils");
@@ -90,18 +91,18 @@ const UserType = new GraphQLObjectType({
 				}
 			},
 		},
+
 		appointments: {
 			args: {
-				id: { type: GraphQLInt },
 				start_of_range: { type: GraphQLString },
 				end_of_range: { type: GraphQLString },
 			},
 			type: new GraphQLList(AppointmentType),
 			async resolve(parent, args, { req, res }) {
 				if (req.user.id === parent.id) {
-					const appointments = await Appointment.findAll({
+					const user = await User.findOne({ where: { id: req.user.id } });
+					const appointments = await user.getAppointments({
 						where: {
-							userId: req.user.id,
 							[Op.not]: {
 								[Op.or]: [
 									{
@@ -117,6 +118,10 @@ const UserType = new GraphQLObjectType({
 								],
 							},
 						},
+						include: [
+							{ model: User, as: "Users", where: { id: req.user.id } },
+							{ association: "Users", through: { where: { role: 2 } } },
+						],
 					});
 					return appointments;
 				} else {
@@ -126,7 +131,6 @@ const UserType = new GraphQLObjectType({
 		},
 		caredates: {
 			args: {
-				id: { type: GraphQLInt },
 				start_of_range: { type: GraphQLString },
 				end_of_range: { type: GraphQLString },
 			},
@@ -134,8 +138,14 @@ const UserType = new GraphQLObjectType({
 			async resolve(parent, args, { req, res }) {
 				if (req.user.id === parent.id) {
 					const user = await User.findOne({ where: { id: req.user.id } });
-					const caredates = await user.getCaredates({
+					const ids = await users_appointments.findAll({ where: { userId: req.user.id, role: [2, 3] } });
+					let toQueryIds = [];
+					ids.forEach((id) => {
+						toQueryIds.push(id.appointmentId);
+					});
+					const caredates = await user.getAppointments({
 						where: {
+							id: toQueryIds,
 							[Op.not]: {
 								[Op.or]: [
 									{
@@ -186,14 +196,36 @@ const AppointmentType = new GraphQLObjectType({
 	name: "Appointment",
 	fields: () => ({
 		id: { type: GraphQLID },
-		creator: {
-			type: UserType,
-			resolve(parent, args) {
-				return User.findOne({ where: { id: parent.userId } });
-			},
-		},
 		start_date: { type: GraphQLString },
 		end_date: { type: GraphQLString },
+		accepted: { type: GraphQLBoolean },
+		color: { type: GraphQLString },
+		creator: {
+			type: UserType,
+			async resolve(parent, args) {
+				const apptInstance = await Appointment.findOne({ where: { id: parent.id } });
+				return await apptInstance.getCreator();
+			},
+		},
+		caretaker: {
+			type: UserType,
+			async resolve(parent, args) {
+				const apptInstance = await User.findOne({
+					include: [
+						{ association: "Appointments", through: { where: { role: 2 } } },
+						{ model: Appointment, as: "Appointments", through: { where: { userId: req.user.id } } },
+					],
+				});
+				return apptInstance;
+			},
+		},
+		observers: {
+			type: GraphQLList(UserType),
+			async resolve(parent, args) {
+				const apptInstance = await Appointment.findOne({ where: { id: parent.id } });
+				return await apptInstance.getObservers();
+			},
+		},
 		dogs: {
 			type: new GraphQLList(DogType),
 			async resolve(parent, args) {
@@ -201,17 +233,7 @@ const AppointmentType = new GraphQLObjectType({
 				return await apptInstance.getDogs();
 			},
 		},
-		caretakers: {
-			type: new GraphQLList(UserType),
-			async resolve(parent, args) {
-				const apptInstance = await Appointment.findOne({ where: { id: parent.id } });
-				return await apptInstance.getCaretakers();
-			},
-		},
 		notes: { type: GraphQLString },
-		status: { type: GraphQLJSON },
-		color: { type: GraphQLString },
-		accepted: { type: GraphQLBoolean },
 	}),
 });
 
@@ -488,7 +510,8 @@ const Mutation = new GraphQLObjectType({
 			type: AppointmentType,
 			args: {
 				dogs: { type: GraphQLList(GraphQLInt) },
-				caretakers: { type: GraphQLList(GraphQLInt) },
+				caretaker: { type: GraphQLInt },
+				observers: { type: GraphQLList(GraphQLInt) },
 				start_date: { type: GraphQLString },
 				end_date: { type: GraphQLString },
 				notes: { type: GraphQLString },
@@ -503,22 +526,28 @@ const Mutation = new GraphQLObjectType({
 						end_date: args.end_date,
 						notes: args.notes,
 						color: args.color,
+						accepted: false,
 					});
 
 					const t = await db.transaction();
+					const t2 = await db.transaction();
 
 					try {
 						await newAppointment.save({ transaction: t });
-						const appointmentCreator = await User.findOne({ where: { id: req.user.id }, transaction: t });
-						const caretakers = await User.findAll({ where: { id: args.caretakers }, transaction: t });
 						const dogs = await Dog.findAll({ where: { id: args.dogs } });
-
-						await newAppointment.setUser(appointmentCreator, { transaction: t });
 						await newAppointment.addDogs(dogs, { transaction: t });
-						await newAppointment.addCaretakers(caretakers, { transaction: t });
 						await t.commit();
-						console.log("Transaction successful (Appointmend Add)");
+
+						const appointmentCreator = await User.findOne({ where: { id: req.user.id } });
+						const caretaker = await User.findOne({ where: { id: args.caretaker } });
+						const observers = await User.findAll({ where: { id: args.observers } });
+
+						await newAppointment.addUser(appointmentCreator, { through: { role: 1 } }, { transaction: t2 });
+						await newAppointment.addUser(caretaker, { through: { role: 2 } }, { transaction: t2 });
+						await newAppointment.addUsers(observers, { through: { role: 3 } }, { transaction: t2 });
+						await t2.commit();
 						newAppointment.status = { code: 200, message: "OK" };
+						console.log("Transaction successful (Appointmend Add)");
 						return newAppointment;
 					} catch (err) {
 						console.log("Transaction failed (Appointmend Add)", err);

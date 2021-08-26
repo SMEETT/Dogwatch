@@ -127,14 +127,19 @@
 					getUser { 
 						${whatToFetch} (start_of_range: "${rangeStartDate}", end_of_range: "${rangeEndDate}") {
 							id
+                            start_date
+							end_date
+                            accepted
+                            color
 							creator {
 								username
 							}
-							caretakers {
+							caretaker {
 								username
 							}
-							start_date
-							end_date
+                            observers {
+                                username
+                            }
 							dogs {
 								id
 								name
@@ -151,8 +156,6 @@
 								notes
 							}
 							notes
-                            color
-                            accepted
 						}
 					}
 				}
