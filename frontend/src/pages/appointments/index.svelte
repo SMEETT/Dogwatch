@@ -152,6 +152,7 @@
 							}
 							notes
                             color
+                            accepted
 						}
 					}
 				}
@@ -615,13 +616,39 @@
 				{#if allAppointmentsForSelectedDay.length > 0}
 					{#each allAppointmentsForSelectedDay as iteratedAppointment}
 						<div class="wrapper-appt">
-							<button class="accordion regular-text" style={`border: 3px solid ${iteratedAppointment.color}`}
-								>{`${parseDateToString(parseInt(iteratedAppointment.start_date), false, true)} - ${parseDateToString(
-									parseInt(iteratedAppointment.end_date),
-									false,
-									true
-								)}`}</button
-							>
+							<button class="accordion regular-text" style={`border: 2px solid ${iteratedAppointment.color}`}>
+								<div class="accordion-button-inner">
+									<div>
+										{`${parseDateToString(parseInt(iteratedAppointment.start_date), false, true)} - ${parseDateToString(
+											parseInt(iteratedAppointment.end_date),
+											false,
+											true
+										)}`}
+									</div>
+									<div style="display: flex; align-items: center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="20"
+											height="20"
+											fill="none"
+											stroke="#FF3434"
+											stroke-width="1.5"
+											style="margin-right: 1rem"
+											><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" /><path
+												stroke-linecap="round"
+												d="M5.75 10.25h8.5"
+											/></svg
+										>
+
+										<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" xmlns:v="https://vecta.io/nano"
+											><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" stroke="#111" stroke-width="1.5" /><path
+												d="M10 6a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5h-3v3a.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5v-3h-3A.5.5 0 0 1 6 10a.5.5 0 0 1 .5-.5h3v-3A.5.5 0 0 1 10 6h0z"
+												fill="#000"
+											/></svg
+										>
+									</div>
+								</div>
+							</button>
 							<div class="panel" id="rootpanel">
 								{#if $menuContext.context === "day"}
 									<div class="wrapper-context-icons">
@@ -647,6 +674,7 @@
 											</svg>
 										</button>
 									</div>
+									<div class="separator" style="margin-top: 0.5rem; margin-bottom: -0.5rem; width: 90%" />
 								{/if}
 								<div class="wrapper-fields mt-16">
 									<div>
@@ -697,7 +725,17 @@
 											<p class="regular-text">-</p>
 										{/if}
 										{#each iteratedAppointment.dogs as currentDog}
-											<button class="accordion regular-text">{currentDog.name}</button>
+											<button class="accordion regular-text">
+												<div style="display: flex; align-items: center; justify-content: space-between">
+													{currentDog.name}
+													<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
+														><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" stroke="#111" stroke-width="1.5" /><path
+															d="M10 6a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5h-3v3a.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5v-3h-3A.5.5 0 0 1 6 10a.5.5 0 0 1 .5-.5h3v-3A.5.5 0 0 1 10 6h0z"
+															fill="#000"
+														/></svg
+													>
+												</div>
+											</button>
 											<div class="panel" id="subpanel">
 												<div in:fade class="wrapper-detailview">
 													<div style="margin-top: 1rem" class="wrapper-image">
@@ -812,7 +850,17 @@
 											<p class="regular-text">-</p>
 										{:else}
 											{#each iteratedAppointment.events as event}
-												<button class="accordion regular-text">{parseDateToString(event.date)}</button>
+												<button class="accordion regular-text">
+													<div style="display: flex; align-items: center; justify-content: space-between">
+														{parseDateToString(event.date)}
+														<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
+															><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" stroke="#111" stroke-width="1.5" /><path
+																d="M10 6a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5h-3v3a.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5v-3h-3A.5.5 0 0 1 6 10a.5.5 0 0 1 .5-.5h3v-3A.5.5 0 0 1 10 6h0z"
+																fill="#000"
+															/></svg
+														>
+													</div>
+												</button>
 												<div class="panel" id="subpanel">
 													{#each event.events as evt}
 														<div class="event regular-text">

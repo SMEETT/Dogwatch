@@ -21,6 +21,13 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 	border-radius: 5px;
 }
 
+.accordion-button-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	/* border: 1px solid red; */
+}
+
 /* .accordion:hover {
 	background-color: var(--light);
 	color: var(--bright);
@@ -34,27 +41,27 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 	color: var(--dark) !important;
 }
 
-/* .accordion:hover:after {
-	color: var(--bright);
-} */
-
-.accordion:after {
+/* .accordion-button-inner:after {
 	content: "\002B";
 	color: var(--dark);
 	font-weight: bold;
 	float: right;
 	margin-left: 5px;
-}
+} */
 
-.active:after {
+/* .active:after {
 	content: "\2212";
 	/* color: var(--bright); */
-}
+/* } */
 
-/* .active:after:hover {
-	content: "\2212";
+/* .accordion:hover:after {
 	color: var(--bright);
 } */
+
+.active:after:hover {
+	content: "\2212";
+	color: var(--bright);
+}
 
 .panel {
 	background-color: transparent;
