@@ -311,6 +311,7 @@
 				listOfIds.push(generateId(iterDate));
 			}
 			apptIds.push({ ids: listOfIds, color: appointment.color });
+			console.log("apptIds-----------------------", apptIds);
 		});
 
 		function generateOrderOfEvents() {
@@ -569,6 +570,9 @@
 				allAppointmentsForSelectedDay.push(foundAppointment);
 			});
 		}
+		allAppointmentsForSelectedDay.sort(function (a, b) {
+			return a.start_date - b.start_date;
+		});
 	}
 
 	// ----------------------------------------------
@@ -709,9 +713,9 @@
 
 									<div style="display: flex; align-items: center; margin-right: 0.5rem">
 										{#if iteratedAppointment.accepted === false}
-											<span style="border-radius: 50%; background-color: red; width: 1.5rem; height: 1.5rem; margin-right: 1rem" />
+											<span style="border-radius: 20%; background-color: #F61969; width: 1.1rem; height: 1.1rem; margin-right: 1.5rem" />
 										{:else}
-											<span style="border-radius: 50%; background-color: green; width: 1.5rem; height: 1.5rem; margin-right: 1rem" />
+											<span style="border-radius: 20%; background-color: #00D964; width: 1.1rem; height: 1.1rem; margin-right: 1.5rem" />
 										{/if}
 										<!-- Icon plus -->
 										<!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" xmlns:v="https://vecta.io/nano"
@@ -720,7 +724,7 @@
 												fill="#000"
 											/></svg
 										> -->
-										<p>+</p>
+										<p><b>+</b></p>
 									</div>
 								</div>
 							</button>
