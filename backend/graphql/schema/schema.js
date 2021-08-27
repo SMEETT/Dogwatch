@@ -5,7 +5,7 @@ const { GraphQLJSON, GraphQLJSONObject } = require("graphql-type-json");
 const User = require("../../sequelize/models/User");
 const Dog = require("../../sequelize/models/Dog");
 const Appointment = require("../../sequelize/models/Appointment");
-const users_appointments = require("../../sequelize/models/users_appointments");
+// const users_appointments = require("../../sequelize/models/users_appointments");
 const db = require("../../config/database");
 
 const { validatePassword, genPassword } = require("../../misc/passwordUtils");
@@ -92,7 +92,7 @@ const UserType = new GraphQLObjectType({
 			},
 		},
 
-		appointments: {
+		createdAppointments: {
 			args: {
 				start_of_range: { type: GraphQLString },
 				end_of_range: { type: GraphQLString },
@@ -100,8 +100,7 @@ const UserType = new GraphQLObjectType({
 			type: new GraphQLList(AppointmentType),
 			async resolve(parent, args, { req, res }) {
 				if (req.user.id === parent.id) {
-					const user = await User.findOne({ where: { id: req.user.id } });
-					const appointments = await user.getAppointments({
+					const createdAppointments = await parent.getCreatedAppointments({
 						where: {
 							[Op.not]: {
 								[Op.or]: [
@@ -118,18 +117,14 @@ const UserType = new GraphQLObjectType({
 								],
 							},
 						},
-						include: [
-							{ model: User, as: "Users", where: { id: req.user.id } },
-							{ association: "Users", through: { where: { role: 2 } } },
-						],
 					});
-					return appointments;
+					return createdAppointments;
 				} else {
 					return null;
 				}
 			},
 		},
-		caredates: {
+		caretakerAppointments: {
 			args: {
 				start_of_range: { type: GraphQLString },
 				end_of_range: { type: GraphQLString },
@@ -137,15 +132,8 @@ const UserType = new GraphQLObjectType({
 			type: new GraphQLList(AppointmentType),
 			async resolve(parent, args, { req, res }) {
 				if (req.user.id === parent.id) {
-					const user = await User.findOne({ where: { id: req.user.id } });
-					const ids = await users_appointments.findAll({ where: { userId: req.user.id, role: [2, 3] } });
-					let toQueryIds = [];
-					ids.forEach((id) => {
-						toQueryIds.push(id.appointmentId);
-					});
-					const caredates = await user.getAppointments({
+					const caretakerAppointments = await parent.getCaretakerAppointments({
 						where: {
-							id: toQueryIds,
 							[Op.not]: {
 								[Op.or]: [
 									{
@@ -162,7 +150,39 @@ const UserType = new GraphQLObjectType({
 							},
 						},
 					});
-					return caredates;
+					return caretakerAppointments;
+				} else {
+					return null;
+				}
+			},
+		},
+		observerAppointments: {
+			args: {
+				start_of_range: { type: GraphQLString },
+				end_of_range: { type: GraphQLString },
+			},
+			type: new GraphQLList(AppointmentType),
+			async resolve(parent, args, { req, res }) {
+				if (req.user.id === parent.id) {
+					const observerAppointments = await parent.getObserverAppointments({
+						where: {
+							[Op.not]: {
+								[Op.or]: [
+									{
+										start_date: {
+											[Op.gt]: args.end_of_range,
+										},
+									},
+									{
+										end_date: {
+											[Op.lt]: args.start_of_range,
+										},
+									},
+								],
+							},
+						},
+					});
+					return observerAppointments;
 				} else {
 					return null;
 				}
@@ -202,38 +222,30 @@ const AppointmentType = new GraphQLObjectType({
 		color: { type: GraphQLString },
 		creator: {
 			type: UserType,
-			async resolve(parent, args) {
-				const apptInstance = await Appointment.findOne({ where: { id: parent.id } });
-				return await apptInstance.getCreator();
+			async resolve(parent, args, { req, res }) {
+				return await parent.getCreator();
 			},
 		},
 		caretaker: {
 			type: UserType,
 			async resolve(parent, args) {
-				const apptInstance = await User.findOne({
-					include: [
-						{ association: "Appointments", through: { where: { role: 2 } } },
-						{ model: Appointment, as: "Appointments", through: { where: { userId: req.user.id } } },
-					],
-				});
-				return apptInstance;
+				return await parent.getCaretaker();
 			},
 		},
 		observers: {
 			type: GraphQLList(UserType),
 			async resolve(parent, args) {
-				const apptInstance = await Appointment.findOne({ where: { id: parent.id } });
-				return await apptInstance.getObservers();
+				return await parent.getObservers();
 			},
 		},
 		dogs: {
 			type: new GraphQLList(DogType),
 			async resolve(parent, args) {
-				const apptInstance = await Appointment.findOne({ where: { id: parent.id } });
-				return await apptInstance.getDogs();
+				return await parent.getDogs();
 			},
 		},
 		notes: { type: GraphQLString },
+		status: { type: GraphQLJSON },
 	}),
 });
 
@@ -257,11 +269,9 @@ const RootQuery = new GraphQLObjectType({
 					return { status: 401, message: "Unauthorized", node: null };
 				}
 				if (args.id) {
-					const user = await User.findOne({ where: { id: args.id } });
-					return user;
+					return await User.findOne({ where: { id: args.id } });
 				}
-				const user = await User.findOne({ where: { id: req.user.id } });
-				return user;
+				return await User.findOne({ where: { id: req.user.id } });
 			},
 		},
 		getDog: {
@@ -273,8 +283,7 @@ const RootQuery = new GraphQLObjectType({
 				if (!req.isAuthenticated()) {
 					return { status: 401, message: "Unauthorized", node: null };
 				}
-				const dog = await Dog.findOne({ where: { userId: req.user.id, id: args.id } });
-				return dog;
+				return await Dog.findOne({ where: { userId: req.user.id, id: args.id } });
 			},
 		},
 		getAppointment: {
@@ -286,41 +295,39 @@ const RootQuery = new GraphQLObjectType({
 				if (!req.isAuthenticated()) {
 					return { status: 401, message: "Unauthorized", node: null };
 				}
-				const appointment = await Appointment.findOne({ where: { userId: req.user.id, id: args.id } });
-				return appointment;
+				return await Appointment.findOne({ where: { creatorId: req.user.id, id: args.id } });
 			},
 		},
-		getAppointments: {
-			type: GraphQLList(AppointmentType),
-			args: {
-				start_of_range: { type: GraphQLString },
-				end_of_range: { type: GraphQLString },
-			},
-			async resolve(parent, args, { req, res }) {
-				// if (!req.isAuthenticated()) {
-				// 	return { status: 401, message: "Unauthorized", node: null };
-				// }
-				const appointments = await Appointment.findAll({
-					where: {
-						[Op.not]: {
-							[Op.or]: [
-								{
-									start_date: {
-										[Op.gt]: args.end_of_range,
-									},
-								},
-								{
-									end_date: {
-										[Op.lt]: args.start_of_range,
-									},
-								},
-							],
-						},
-					},
-				});
-				return appointments;
-			},
-		},
+		// getAppointments: {
+		// 	type: GraphQLList(AppointmentType),
+		// 	args: {
+		// 		start_of_range: { type: GraphQLString },
+		// 		end_of_range: { type: GraphQLString },
+		// 	},
+		// 	async resolve(parent, args, { req, res }) {
+		// 		// if (!req.isAuthenticated()) {
+		// 		// 	return { status: 401, message: "Unauthorized", node: null };
+		// 		// }
+		// 		return await Appointment.findAll({
+		// 			where: {
+		// 				[Op.not]: {
+		// 					[Op.or]: [
+		// 						{
+		// 							start_date: {
+		// 								[Op.gt]: args.end_of_range,
+		// 							},
+		// 						},
+		// 						{
+		// 							end_date: {
+		// 								[Op.lt]: args.start_of_range,
+		// 							},
+		// 						},
+		// 					],
+		// 				},
+		// 			},
+		// 		});
+		// 	},
+		// },
 		getAuthStatus: {
 			type: GraphQLBoolean,
 			resolve(parent, args, { req, res }) {
@@ -530,22 +537,20 @@ const Mutation = new GraphQLObjectType({
 					});
 
 					const t = await db.transaction();
-					const t2 = await db.transaction();
 
 					try {
 						await newAppointment.save({ transaction: t });
 						const dogs = await Dog.findAll({ where: { id: args.dogs } });
 						await newAppointment.addDogs(dogs, { transaction: t });
-						await t.commit();
 
-						const appointmentCreator = await User.findOne({ where: { id: req.user.id } });
+						const creator = await User.findOne({ where: { id: req.user.id } });
 						const caretaker = await User.findOne({ where: { id: args.caretaker } });
 						const observers = await User.findAll({ where: { id: args.observers } });
 
-						await newAppointment.addUser(appointmentCreator, { through: { role: 1 } }, { transaction: t2 });
-						await newAppointment.addUser(caretaker, { through: { role: 2 } }, { transaction: t2 });
-						await newAppointment.addUsers(observers, { through: { role: 3 } }, { transaction: t2 });
-						await t2.commit();
+						await newAppointment.setCreator(creator, { transaction: t });
+						await newAppointment.setCaretaker(caretaker, { transaction: t });
+						await newAppointment.addObservers(observers, { transaction: t });
+						await t.commit();
 						newAppointment.status = { code: 200, message: "OK" };
 						console.log("Transaction successful (Appointmend Add)");
 						return newAppointment;
@@ -564,7 +569,8 @@ const Mutation = new GraphQLObjectType({
 			args: {
 				id: { type: GraphQLInt },
 				dogs: { type: GraphQLList(GraphQLInt) },
-				caretakers: { type: GraphQLList(GraphQLInt) },
+				caretaker: { type: GraphQLInt },
+				observers: { type: GraphQLList(GraphQLInt) },
 				start_date: { type: GraphQLString },
 				end_date: { type: GraphQLString },
 				notes: { type: GraphQLString },
@@ -573,23 +579,26 @@ const Mutation = new GraphQLObjectType({
 				if (!req.isAuthenticated()) {
 					return { status: { code: 401, message: "Unauthorized" } };
 				} else {
-					const appointmentToUpdate = await Appointment.findOne({ where: { id: args.id, userId: req.user.id } });
-					console.log(appointmentToUpdate);
+					const appointmentToUpdate = await Appointment.findOne({ where: { id: args.id, creatorId: req.user.id } });
 					appointmentToUpdate.start_date = args.start_date;
 					appointmentToUpdate.end_date = args.end_date;
 					appointmentToUpdate.notes = args.notes;
 					appointmentToUpdate.setDogs(null);
-					appointmentToUpdate.setCaretakers(null);
+					appointmentToUpdate.setCaretaker(null);
+					appointmentToUpdate.setObservers(null);
 
 					const t = await db.transaction();
 
 					try {
 						await appointmentToUpdate.save({ transaction: t });
-						const caretakers = await User.findAll({ where: { id: args.caretakers }, transaction: t });
-						const dogs = await Dog.findAll({ where: { id: args.dogs } });
+						const caretaker = await User.findOne({ where: { id: args.caretaker }, transaction: t });
+						const observers = await User.findAll({ where: { id: args.observers }, transaction: t });
+						const dogs = await Dog.findAll({ where: { id: args.dogs }, transaction: t });
 
 						await appointmentToUpdate.addDogs(dogs, { transaction: t });
-						await appointmentToUpdate.addCaretakers(caretakers, { transaction: t });
+						await appointmentToUpdate.setCaretaker(caretaker, { transaction: t });
+						await appointmentToUpdate.addObservers(observers, { transaction: t });
+
 						await t.commit();
 						console.log("Transaction successful (Appointment Update)");
 						appointmentToUpdate.status = { code: 200, message: "OK" };
@@ -613,7 +622,7 @@ const Mutation = new GraphQLObjectType({
 				if (!req.isAuthenticated()) {
 					return { status: { code: 401, message: "Unauthorized" } };
 				} else {
-					const appointmentToDelete = await Appointment.findOne({ where: { id: args.id, userId: req.user.id } });
+					const appointmentToDelete = await Appointment.findOne({ where: { id: args.id, creatorId: req.user.id } });
 					return appointmentToDelete
 						.destroy()
 						.then((appointment) => {
@@ -624,6 +633,24 @@ const Mutation = new GraphQLObjectType({
 							console.log("Error: couldn't delete Appointment from DB", err);
 							return;
 						});
+				}
+			},
+		},
+		changeAcceptStatus: {
+			type: AppointmentType,
+			args: {
+				accepted: { type: GraphQLBoolean },
+				caretakerId: { type: GraphQLInt },
+				appointmentId: { type: GraphQLInt },
+			},
+			async resolve(parent, args, { req, res }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const appointmentToUpdate = await Appointment.findOne({ where: { id: args.appointmentId, caretakerId: req.user.id } });
+					appointmentToUpdate.accepted = args.accepted;
+					await appointmentToUpdate.save();
+					return appointmentToUpdate;
 				}
 			},
 		},

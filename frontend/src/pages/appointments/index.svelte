@@ -14,7 +14,47 @@
 	let showCaredates = false;
 	let currentlySelectedDay = null;
 	let switchToggle;
+	let switchAccept = {};
 	let showDeleteModal = false;
+
+	function setAcceptSwitchStatus(bool) {
+		console.log("switch", switchAccept);
+		if (bool) {
+			switchAccept.checked = true;
+		} else {
+			switchAccept.checked = false;
+		}
+	}
+
+	function updateAcceptStatus(appointment) {
+		async function update() {
+			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
+			const graphQLClient = new GraphQLClient(endpoint, {
+				credentials: "include",
+				mode: "cors",
+			});
+			const mutation = gql`
+				mutation {
+					changeAcceptStatus(appointmentId: ${appointment.id}, accepted: ${appointment.accepted}) {
+                        id
+                        accepted
+                    }
+				}
+			`;
+
+			const data = await graphQLClient.request(mutation);
+			return data;
+		}
+		update()
+			.then((v) => {
+				console.log(v);
+				return true;
+			})
+			.catch((error) => {
+				console.log(error);
+				return false;
+			});
+	}
 
 	// global variable that contains all fetched data
 	let fetchedData;
@@ -26,7 +66,15 @@
 	// INIT, GLOBALS AND LIFECYCLE METHODS
 	// ----------------------------------------------
 
+	if (localStorage.getItem("appointmentSwitchStatus") === "caretaker") {
+		showCaredates = true;
+	}
+	if (localStorage.getItem("appointmentSwitchStatus") === "creator") {
+		showCaredates = false;
+	}
+
 	onMount(() => {
+		console.log("onMount()");
 		// Mark "Appointments" in Menu
 		menuSelection.set("appointments");
 		$menuContext.context = "day";
@@ -122,7 +170,8 @@
 				credentials: "include",
 				mode: "cors",
 			});
-			const query = gql`
+			const buildQuery = (whatToFetch) => {
+				return gql`
 				query {
 					getUser { 
 						${whatToFetch} (start_of_range: "${rangeStartDate}", end_of_range: "${rangeEndDate}") {
@@ -160,9 +209,24 @@
 					}
 				}
 			`;
-			const data = await graphQLClient.request(query);
+			};
+			console.log("whatToFetch", whatToFetch);
+
+			if (whatToFetch === "appointments") {
+				console.log("fetching created appointments");
+				const createdAppointments = await graphQLClient.request(buildQuery("createdAppointments"));
+				console.log("result", createdAppointments.getUser);
+				return createdAppointments.getUser.createdAppointments;
+			} else if (whatToFetch === "caredates") {
+				console.log("fetching caredates appointments");
+				console.log("query output", buildQuery("caretakerAppointments"));
+				const caretakerAppointments = await graphQLClient.request(buildQuery("caretakerAppointments"));
+				const observerAppointments = await graphQLClient.request(buildQuery("observerAppointments"));
+				console.log("result", [caretakerAppointments.getUser, observerAppointments.getUser]);
+				return [caretakerAppointments.getUser.caretakerAppointments, observerAppointments.getUser.observerAppointments];
+			}
+
 			// console.log(JSON.stringify(data, undefined, 2));
-			return data.getUser;
 		}
 		return await getUser().catch((error) => console.error(error));
 	}
@@ -195,6 +259,7 @@
 	// GENERATE CALENDAR
 	// ***********************************************************
 	async function generateCalendar(y, m) {
+		console.log("generating Calendar");
 		// calendar month to generate
 		const date = new Date(y, m);
 		const year = date.getFullYear();
@@ -216,10 +281,21 @@
 
 		fetchedData = await getAppointmentData(rangeStart, rangeEnd);
 		if (showCaredates) {
-			fetchedData = fetchedData.caredates;
-		} else {
-			fetchedData = fetchedData.appointments;
+			console.log("fetched[0]", fetchedData[0]);
+			console.log("typeof", typeof fetchedData[0]);
+			fetchedData[0].forEach((appointment) => {
+				appointment.role = "caretaker";
+			});
+			fetchedData[1].forEach((appointment) => {
+				appointment.role = "observer";
+			});
+			console.log("end of loops");
+			fetchedData = [...fetchedData[0], ...fetchedData[1]];
 		}
+		// } else {
+		// 	fetchedData = fetchedData.appointments;
+		// }
+		console.log("fetchedData after", fetchedData);
 
 		// reset the array of appointmentIds
 		apptIds = [];
@@ -395,6 +471,7 @@
 		var sortedApptIds = apptIds.sort(function (a, b) {
 			return a.ids[0] - b.ids[0];
 		});
+		console.log("sortedApptIds", sortedApptIds);
 		sortedApptIds.forEach((appointment) => {
 			// depth describes the amount of appointments on a single day
 			let depth = 0;
@@ -628,27 +705,22 @@
 											true
 										)}`}
 									</div>
-									<div style="display: flex; align-items: center">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="20"
-											height="20"
-											fill="none"
-											stroke="#FF3434"
-											stroke-width="1.5"
-											style="margin-right: 1rem"
-											><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" /><path
-												stroke-linecap="round"
-												d="M5.75 10.25h8.5"
-											/></svg
-										>
+									<!-- Icon "(not)Accepted" -->
 
-										<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" xmlns:v="https://vecta.io/nano"
+									<div style="display: flex; align-items: center; margin-right: 0.5rem">
+										{#if iteratedAppointment.accepted === false}
+											<span style="border-radius: 50%; background-color: red; width: 1.5rem; height: 1.5rem; margin-right: 1rem" />
+										{:else}
+											<span style="border-radius: 50%; background-color: green; width: 1.5rem; height: 1.5rem; margin-right: 1rem" />
+										{/if}
+										<!-- Icon plus -->
+										<!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" xmlns:v="https://vecta.io/nano"
 											><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" stroke="#111" stroke-width="1.5" /><path
 												d="M10 6a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5h-3v3a.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5v-3h-3A.5.5 0 0 1 6 10a.5.5 0 0 1 .5-.5h3v-3A.5.5 0 0 1 10 6h0z"
 												fill="#000"
 											/></svg
-										>
+										> -->
+										<p>+</p>
 									</div>
 								</div>
 							</button>
@@ -679,6 +751,22 @@
 									</div>
 									<div class="separator" style="margin-top: 0.5rem; margin-bottom: -0.5rem; width: 90%" />
 								{/if}
+								{#if iteratedAppointment.role === "caretaker"}
+									<label class="switch">
+										<input
+											bind:this={switchAccept}
+											checked={iteratedAppointment.accepted}
+											type="checkbox"
+											on:click={() => {
+												console.log("Toggle Accept");
+												iteratedAppointment.accepted = !iteratedAppointment.accepted;
+												updateAcceptStatus(iteratedAppointment);
+											}}
+										/>
+										<span class="slider round" />
+									</label>
+									<!-- <p use:setAcceptSwitchStatus={iteratedAppointment.accepted} /> -->
+								{/if}
 								<div class="wrapper-fields mt-16">
 									<div>
 										<p class="label mb-8">Ersteller</p>
@@ -689,14 +777,33 @@
 
 									<div>
 										<p class="label mb-8">Aufpasser</p>
-										{#if iteratedAppointment.caretakers.length === 0}
+										{#if !iteratedAppointment.caretaker}
 											<p class="regular-text">-</p>
-										{/if}
-										{#each iteratedAppointment.caretakers as caretaker}
+										{:else}
 											<p class="regular-text mb-8">
-												{caretaker.username}
+												{iteratedAppointment.caretaker.username}
 											</p>
-										{/each}
+										{/if}
+									</div>
+									<div>
+										<p class="label mb-8">Beobachter</p>
+										{#if iteratedAppointment.observers.length === 0}
+											<p class="regular-text">-</p>
+										{:else}
+											{#each iteratedAppointment.observers as observer}
+												<p class="regular-text mb-8" style="margin-bottom: 1rem">
+													{observer.username}
+												</p>
+											{/each}
+										{/if}
+									</div>
+									<div>
+										<p class="label mb-8">Termin Status</p>
+										{#if iteratedAppointment.accepted === true}
+											<p class="regular-text mb-8">Bestaetigt</p>
+										{:else}
+											<p class="regular-text mb-8">Nicht bestaetigt</p>
+										{/if}
 									</div>
 									<div>
 										<p class="label mb-8">Ankunft</p>

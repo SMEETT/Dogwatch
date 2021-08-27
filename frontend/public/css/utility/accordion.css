@@ -41,27 +41,27 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 	color: var(--dark) !important;
 }
 
-/* .accordion-button-inner:after {
+/* .accordion:after {
 	content: "\002B";
 	color: var(--dark);
 	font-weight: bold;
 	float: right;
 	margin-left: 5px;
-} */
+}
 
-/* .active:after {
+.active:after {
 	content: "\2212";
-	/* color: var(--bright); */
-/* } */
+	color: var(--dark);
+}
 
-/* .accordion:hover:after {
-	color: var(--bright);
-} */
+.accordion:hover:after {
+	color: var(--contrast);
+}
 
 .active:after:hover {
 	content: "\2212";
 	color: var(--bright);
-}
+} */
 
 .panel {
 	background-color: transparent;

@@ -10,6 +10,9 @@ const cors = require("cors");
 // graphQL
 const { graphqlHTTP } = require("express-graphql");
 const graphQLSchema = require("./graphql/schema/schema");
+if (process.env.NOD_ENV !== "production") {
+	require("dotenv").config();
+}
 
 const app = express();
 
@@ -32,6 +35,8 @@ app.use(
 		},
 	})
 );
+
+console.log(process.env.FRONTEND_URL);
 
 app.use(cors({ origin: [process.env.FRONTEND_URL], credentials: true }));
 
@@ -72,7 +77,7 @@ require("./sequelize/models/_relations");
 async function syncDB() {
 	console.log("Syncing Database...");
 	// await db.sync({ force: true });
-	await db.sync({ force: false });
+	await db.sync({ force: false, alter: true });
 	// require("./misc/initialData");
 }
 syncDB();

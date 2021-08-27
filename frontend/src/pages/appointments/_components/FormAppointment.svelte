@@ -23,7 +23,8 @@
 
 	let appointmentData = {
 		dogs: [],
-		caretakers: [],
+		caretaker: null,
+		observers: [],
 		start_date: null,
 		end_date: null,
 		notes: null,
@@ -36,9 +37,13 @@
 	let selectedDog = null;
 	let dropdownSelectDogs;
 
-	let fetchedCaretakers = [];
+	let fetchedContacts = [];
+
 	let selectedCaretaker = null;
-	let dropdownSelectCaretakers;
+	let dropdownSelectCaretaker;
+
+	let selectedObserver = null;
+	let dropdownSelectObserver;
 
 	$: titleDate = renderTitleDates(end_date_selections.year, end_date_selections.month, end_date_selections.day);
 
@@ -146,10 +151,13 @@
 			minute: String(leadingZero(extracted_end_date.getMinutes())),
 		};
 		console.log("eds", end_date_selections);
-		appointmentData.caretakers.forEach((caretaker) => {
-			fetchedCaretakers = fetchedCaretakers.filter((element) => element.id !== caretaker.id);
-			fetchedCaretakers.sort();
+		fetchedContacts = fetchedContacts.filter((element) => element.id !== appointmentData.caretaker.id);
+
+		appointmentData.observers.forEach((observer) => {
+			fetchedContacts = fetchedContacts.filter((element) => element.id !== observer.id);
 		});
+		fetchedContacts.sort();
+
 		appointmentData.dogs.forEach((dog) => {
 			fetchedDogs = fetchedDogs.filter((element) => element.id !== dog.id);
 			fetchedDogs.sort();
@@ -161,7 +169,7 @@
 	async function initFetch() {
 		const data = await getData();
 		fetchedDogs = data.dogs;
-		fetchedCaretakers = data.contacts;
+		fetchedContacts = data.contacts;
 
 		if (toUpdateAppointmentData) {
 			onAppointmentDataToUpdate();
@@ -174,7 +182,6 @@
 	// ********************************************************
 	async function getData() {
 		async function getUser() {
-			console.log("get data in addAppointment");
 			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
 			const graphQLClient = new GraphQLClient(endpoint, {
 				credentials: "include",
@@ -209,7 +216,6 @@
 	// ----------------------------------------------------
 
 	function addDog() {
-		console.log("on change fired");
 		if (selectedDog) {
 			appointmentData.dogs = [selectedDog, ...appointmentData.dogs];
 			console.log(appointmentData);
@@ -234,26 +240,51 @@
 	}
 
 	// ----------------------------------------------------
-	// CARETAKERS
+	// CARETAKER
 	// ----------------------------------------------------
-
 	function addCaretaker() {
 		console.log("add caretaker");
 		if (selectedCaretaker) {
-			appointmentData.caretakers = [selectedCaretaker, ...appointmentData.caretakers];
+			if (appointmentData.caretaker !== null) {
+				fetchedContacts = [...fetchedContacts, appointmentData.caretaker];
+				fetchedContacts.sort();
+			}
+			appointmentData.caretaker = selectedCaretaker;
 			console.log(appointmentData);
-			fetchedCaretakers = fetchedCaretakers.filter((element) => element !== selectedCaretaker);
-			fetchedCaretakers.sort();
-			dropdownSelectCaretakers.selectedIndex = 0;
+			fetchedContacts = fetchedContacts.filter((element) => element !== selectedCaretaker);
+			fetchedContacts.sort();
+			dropdownSelectCaretaker.selectedIndex = 0;
 			selectedCaretaker = null;
 		}
 	}
 
 	function removeCaretaker(caretaker) {
-		appointmentData.caretakers = appointmentData.caretakers.filter((element) => element !== caretaker);
-		fetchedCaretakers = [...fetchedCaretakers, caretaker];
-		fetchedCaretakers.sort();
+		appointmentData.caretaker = null;
+		fetchedContacts = [...fetchedContacts, caretaker];
+		fetchedContacts.sort();
 		selectedCaretaker = null;
+	}
+
+	// ----------------------------------------------------
+	// OBSERVERS
+	// ----------------------------------------------------
+
+	function addObserver() {
+		console.log("add observer");
+		if (selectedObserver) {
+			appointmentData.observers = [selectedObserver, ...appointmentData.observers];
+			fetchedContacts = fetchedContacts.filter((element) => element !== selectedObserver);
+			fetchedContacts.sort();
+			dropdownSelectObserver.selectedIndex = 0;
+			selectedObserver = null;
+		}
+	}
+
+	function removeObserver(observer) {
+		appointmentData.observers = appointmentData.observers.filter((element) => element !== observer);
+		fetchedContacts = [...fetchedContacts, observer];
+		fetchedContacts.sort();
+		selectedObserver = null;
 	}
 
 	// ----------------------------------------------------
@@ -329,7 +360,12 @@
 		// .required()
 		// .min(1, "Bitte Hund(e) hinzufuegen")
 
-		caretakers: yup.array().of(
+		caretaker: yup.object().shape({
+			id: yup.number().required(),
+			username: yup.string().required(),
+		}),
+
+		observers: yup.array().of(
 			yup.object().shape({
 				id: yup.number().required(),
 				username: yup.string().required(),
@@ -406,26 +442,29 @@
 					dogIds.push(parseInt(dog.id));
 				});
 
-				const caretakerIds = [];
-				appointmentData.caretakers.forEach((caretaker) => {
-					caretakerIds.push(parseInt(caretaker.id));
+				const observerIds = [];
+				appointmentData.observers.forEach((observer) => {
+					observerIds.push(parseInt(observer.id));
 				});
 
 				const mutation = gql`
 			    mutation {
 			        addAppointment(
-			            dogs: ${JSON.stringify(dogIds)},
-			            caretakers: ${JSON.stringify(caretakerIds)},
                         start_date: "${appointmentData.start_date}",
                         end_date: "${appointmentData.end_date}",
+			            caretaker: ${appointmentData.caretaker.id},
+                        observers: ${JSON.stringify(observerIds)},
+			            dogs: ${JSON.stringify(dogIds)},
                         notes: "${appointmentData.notes}",
                         color: "${appointmentData.color}"
 			        ){
 						id
+                        status
 			        }
 			    }
 			`;
 				const data = await graphQLClient.request(mutation);
+				console.log("returned data from GQL", data);
 				if (data.addAppointment.status.code === 200) {
 					statusModalMessages.set({ code: 200, message: `Termin wurde erfolgreich angelegt.` });
 				} else if (data.addAppointment.status.code === 401) {
@@ -464,20 +503,22 @@
 					dogIds.push(parseInt(dog.id));
 				});
 
-				const caretakerIds = [];
-				appointmentData.caretakers.forEach((caretaker) => {
-					caretakerIds.push(parseInt(caretaker.id));
+				const observerIds = [];
+				appointmentData.observers.forEach((observer) => {
+					observerIds.push(parseInt(observer.id));
 				});
 
 				const mutation = gql`
 			    mutation {
 			        updateAppointment(
-                        id: ${parseInt(appointmentData.id)},
-			            dogs: ${JSON.stringify(dogIds)},
-			            caretakers: ${JSON.stringify(caretakerIds)},
                         start_date: "${appointmentData.start_date}",
                         end_date: "${appointmentData.end_date}",
+                        accepted: false,
+			            caretaker: ${appointmentData.caretaker},
+                        observers: ${JSON.stringify(observerIds)},
+			            dogs: ${JSON.stringify(dogIds)},
                         notes: "${appointmentData.notes}",
+                        color: "${appointmentData.color}"
 			        ){
 						id
 						status
@@ -593,34 +634,81 @@
 				{/each}
 			</div>
 			<!-- ******************************************************** -->
-			<!-- CARETAKERS -->
+			<!-- CARETAKER -->
 			<!-- ******************************************************** -->
 			<p class="label color-dark mt-20">Aufpasser</p>
 			<div class="display-flex mt-8">
 				<!-- svelte-ignore a11y-no-onchange -->
 				<select
-					bind:this={dropdownSelectCaretakers}
+					bind:this={dropdownSelectCaretaker}
 					bind:value={selectedCaretaker}
 					on:change={addCaretaker}
-					class:selected={appointmentData.caretakers.length > 0}
+					class:selected={appointmentData.caretaker !== null}
 				>
 					<option value="" disabled selected>Bitte auswählen</option>
-					{#each fetchedCaretakers as caretaker}
-						<option value={caretaker}>{caretaker.username}</option>
+					{#each fetchedContacts as contact}
+						<option value={contact}>{contact.username}</option>
 					{/each}
 				</select>
 			</div>
-			{#if appointmentValidationErrors.caretakers}
-				<p class="form-validation-error mt-8">({appointmentValidationErrors.caretakers})</p>
+			{#if appointmentValidationErrors.caretaker}
+				<p class="form-validation-error mt-8">({appointmentValidationErrors.caretaker})</p>
 			{/if}
 			<!-- ----------------------------------------------------- -->
-			<!-- LIST OF ADDED CARETAKERS -->
+			<!-- ADDED CARETAKER -->
+			<!-- ----------------------------------------------------- -->
+			{#if appointmentData.caretaker !== null}
+				<div class="wrapper-list">
+					<div class="list-item mt-8 regular-text">
+						{appointmentData.caretaker.username}
+						<button on:click={() => removeCaretaker(appointmentData.caretaker)} class="btn btn-w-icon">
+							<svg width="16" height="16" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+									d="M10.2476 10.1872C9.95471 10.4801 9.47984 10.4801 9.18695 10.1872L1.18719 2.18718C0.894302 1.89428 0.894309 1.41941 1.18721 1.12652C1.4801 0.833633 1.95498 0.83364 2.24787 1.12654L10.2476 9.12654C10.5405 9.41944 10.5405 9.89431 10.2476 10.1872Z"
+									fill="var(--dark)"
+								/>
+								<path
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+									d="M10.2479 1.12652C10.5407 1.41941 10.5408 1.89428 10.2479 2.18718L2.24811 10.1872C1.95522 10.4801 1.48035 10.4801 1.18745 10.1872C0.894554 9.89431 0.894547 9.41944 1.18744 9.12654L9.18719 1.12654C9.48008 0.83364 9.95495 0.833633 10.2479 1.12652Z"
+									fill="var(--dark)"
+								/>
+							</svg>
+						</button>
+					</div>
+				</div>
+			{/if}
+			<!-- ******************************************************** -->
+			<!-- OBSERVERS -->
+			<!-- ******************************************************** -->
+			<p class="label color-dark mt-20">Beobachter</p>
+			<div class="display-flex mt-8">
+				<!-- svelte-ignore a11y-no-onchange -->
+				<select
+					bind:this={dropdownSelectObserver}
+					bind:value={selectedObserver}
+					on:change={addObserver}
+					class:selected={appointmentData.observers.length > 0}
+				>
+					<option value="" disabled selected>Bitte auswählen</option>
+					{#each fetchedContacts as contact}
+						<option value={contact}>{contact.username}</option>
+					{/each}
+				</select>
+			</div>
+			{#if appointmentValidationErrors.observers}
+				<p class="form-validation-error mt-8">({appointmentValidationErrors.observers})</p>
+			{/if}
+			<!-- ----------------------------------------------------- -->
+			<!-- LIST OF ADDED OBSERVERS -->
 			<!-- ----------------------------------------------------- -->
 			<div class="wrapper-list">
-				{#each appointmentData.caretakers as caretaker}
+				{#each appointmentData.observers as observer}
 					<div class="list-item mt-8 regular-text">
-						{caretaker.username}
-						<button on:click={() => removeCaretaker(caretaker)} class="btn btn-w-icon">
+						{observer.username}
+						<button on:click={() => removeObserver(observer)} class="btn btn-w-icon">
 							<svg width="16" height="16" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path
 									fill-rule="evenodd"
