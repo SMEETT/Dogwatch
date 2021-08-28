@@ -39,7 +39,11 @@
                                 id
                                 name
                             }
-                            caretakers {
+                            caretaker {
+                                id
+                                username
+                            }
+                            observers {
                                 id
                                 username
                             }

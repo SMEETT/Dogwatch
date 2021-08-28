@@ -135,6 +135,7 @@
 	function onAppointmentDataToUpdate() {
 		console.log("toUpdateDate", toUpdateAppointmentData);
 		appointmentData = toUpdateAppointmentData;
+		console.log("appointmentData after assignment", appointmentData);
 		appointmentData.start_date = new Date(parseInt(appointmentData.start_date)).toISOString();
 		appointmentData.end_date = new Date(parseInt(appointmentData.end_date)).toISOString();
 		const extracted_start_date = new Date(appointmentData.start_date);
@@ -151,7 +152,9 @@
 			minute: String(leadingZero(extracted_end_date.getMinutes())),
 		};
 		console.log("eds", end_date_selections);
-		fetchedContacts = fetchedContacts.filter((element) => element.id !== appointmentData.caretaker.id);
+		if (appointmentData.caretaker) {
+			fetchedContacts = fetchedContacts.filter((element) => element.id !== appointmentData.caretaker.id);
+		}
 
 		appointmentData.observers.forEach((observer) => {
 			fetchedContacts = fetchedContacts.filter((element) => element.id !== observer.id);
@@ -281,7 +284,10 @@
 	}
 
 	function removeObserver(observer) {
+		console.log("obseeeeeeeeeeeeeeeeeeeeerver", observer);
+		console.log("appointment data observers", appointmentData.observers);
 		appointmentData.observers = appointmentData.observers.filter((element) => element !== observer);
+		console.log("appointment data observers after filter", appointmentData.observers);
 		fetchedContacts = [...fetchedContacts, observer];
 		fetchedContacts.sort();
 		selectedObserver = null;
@@ -360,10 +366,13 @@
 		// .required()
 		// .min(1, "Bitte Hund(e) hinzufuegen")
 
-		caretaker: yup.object().shape({
-			id: yup.number().required(),
-			username: yup.string().required(),
-		}),
+		caretaker: yup
+			.object()
+			.shape({
+				id: yup.number().required(),
+				username: yup.string().required(),
+			})
+			.nullable(),
 
 		observers: yup.array().of(
 			yup.object().shape({
@@ -432,6 +441,13 @@
 					mode: "cors",
 				});
 
+				let caretakerId;
+				if (appointmentData.caretaker === null) {
+					caretakerId = null;
+				} else {
+					caretakerId = appointmentData.caretaker.id;
+				}
+
 				appointmentData.color = randomColor({
 					luminosity: "light",
 					hue: "random",
@@ -452,7 +468,7 @@
 			        addAppointment(
                         start_date: "${appointmentData.start_date}",
                         end_date: "${appointmentData.end_date}",
-			            caretaker: ${appointmentData.caretaker.id},
+			            caretaker: ${caretakerId},
                         observers: ${JSON.stringify(observerIds)},
 			            dogs: ${JSON.stringify(dogIds)},
                         notes: "${appointmentData.notes}",
@@ -496,6 +512,13 @@
 					mode: "cors",
 				});
 
+				let caretakerId;
+				if (appointmentData.caretaker === null) {
+					caretakerId = null;
+				} else {
+					caretakerId = appointmentData.caretaker.id;
+				}
+
 				console.log("appointmentData", appointmentData);
 
 				const dogIds = [];
@@ -511,17 +534,24 @@
 				const mutation = gql`
 			    mutation {
 			        updateAppointment(
+                        id: ${appointmentData.id},
                         start_date: "${appointmentData.start_date}",
                         end_date: "${appointmentData.end_date}",
-                        accepted: false,
-			            caretaker: ${appointmentData.caretaker},
+			            caretaker: ${caretakerId},
                         observers: ${JSON.stringify(observerIds)},
 			            dogs: ${JSON.stringify(dogIds)},
                         notes: "${appointmentData.notes}",
-                        color: "${appointmentData.color}"
 			        ){
 						id
 						status
+                        caretaker {
+                            id
+                            username
+                        }
+                        observers {
+                            id
+                            username
+                        }
 			        }
 			    }
 			`;

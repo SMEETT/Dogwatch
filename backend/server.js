@@ -4,7 +4,6 @@ const session = require("express-session");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const passport = require("passport");
 const cookieParser = require("cookie-parser");
-const routes = require("./routes");
 const { expressCspHeader, NONE, SELF, INLINE, EVAL } = require("express-csp-header");
 const cors = require("cors");
 // graphQL
@@ -15,7 +14,6 @@ if (process.env.NOD_ENV !== "production") {
 }
 
 const app = express();
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -92,32 +90,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(cookieParser());
-
-// app.use(function (req, res, next) {
-// let options = {
-// 	maxAge: maxSessionAge - 10000,
-// 	sameSite: "none",
-// 	secure: true,
-// 	// signed: true, // Indicates if the cookie should be signed
-// };
-// if (req.isAuthenticated()) {
-// 	// Set cookie
-// 	res.cookie("isAuthenticated", "true", { sameSite: "lax", secure: true }); // options is optional
-// 	console.log("cookie created successfully");
-// } else {
-// 	// not Authenticated
-// 	res.cookie("isAuthenticated", "false", { sameSite: "none", secure: true });
-// 	console.log("No Auth, no Cookie");
-// }
-// 	next();
-// });
-
-// Imports all of the routes from ./routes/index.js
-// app.use(routes);
-
-const date = new Date();
-console.log(date.toISOString());
-console.log("test");
 
 app.use(
 	"/gql",

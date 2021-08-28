@@ -130,7 +130,7 @@
 				acc[i].setAttribute("attached-listener", "true");
 			}
 			function togglePanel(e) {
-				this.classList.toggle("active");
+				this.firstChild.nextElementSibling.classList.toggle("active");
 				var panel = this.nextElementSibling;
 				if (panel.id === "rootpanel") {
 					if (panel.style.maxHeight) {
@@ -622,6 +622,7 @@
 
 <div class="wrapper">
 	<div class="headline">
+		<!-- Buttons to switch Month -->
 		<div class="wrapper-switcher">
 			<button class="btn" on:click|stopPropagation={prevMonth}>
 				<svg width="26" height="40" viewBox="0 0 30 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -636,7 +637,7 @@
 			<h1 class="color-headline" style="margin: 0">{monthNames[selectedMonth]}</h1>
 		</div>
 		<p class="headline-label">{selectedYear}</p>
-		<!-- <p class="label">Termine</p> -->
+		<!-- Switch to toggle createdAppointments <> caretakerAppointments/observerAppointments -->
 		<label class="switch">
 			<input
 				bind:this={switchToggle}
@@ -700,31 +701,22 @@
 				{#if allAppointmentsForSelectedDay.length > 0}
 					{#each allAppointmentsForSelectedDay as iteratedAppointment}
 						<div class="wrapper-appt">
-							<button class="accordion regular-text" style={`border: 2px solid ${iteratedAppointment.color}`}>
+							<button class="accordion regular-text" style={`border: 2px solid ${iteratedAppointment.color}; display: flex; align-items: center`}>
+								<div>
+									{`${parseDateToString(parseInt(iteratedAppointment.start_date), false, true)} - ${parseDateToString(
+										parseInt(iteratedAppointment.end_date),
+										false,
+										true
+									)}`}
+								</div>
 								<div class="accordion-button-inner">
-									<div>
-										{`${parseDateToString(parseInt(iteratedAppointment.start_date), false, true)} - ${parseDateToString(
-											parseInt(iteratedAppointment.end_date),
-											false,
-											true
-										)}`}
-									</div>
 									<!-- Icon "(not)Accepted" -->
-
-									<div style="display: flex; align-items: center; margin-right: 0.5rem">
+									<div style="display: flex; align-items: center; margin-right: 1rem">
 										{#if iteratedAppointment.accepted === false}
-											<span style="border-radius: 20%; background-color: #F61969; width: 1.1rem; height: 1.1rem; margin-right: 1.5rem" />
+											<span style="border-radius: 20%; background-color: #F61969; width: 1rem; height: 1rem" />
 										{:else}
-											<span style="border-radius: 20%; background-color: #00D964; width: 1.1rem; height: 1.1rem; margin-right: 1.5rem" />
+											<span style="border-radius: 20%; background-color: #00D964; width: 1rem; height: 1rem" />
 										{/if}
-										<!-- Icon plus -->
-										<!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" xmlns:v="https://vecta.io/nano"
-											><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" stroke="#111" stroke-width="1.5" /><path
-												d="M10 6a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5h-3v3a.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5v-3h-3A.5.5 0 0 1 6 10a.5.5 0 0 1 .5-.5h3v-3A.5.5 0 0 1 10 6h0z"
-												fill="#000"
-											/></svg
-										> -->
-										<p><b>+</b></p>
 									</div>
 								</div>
 							</button>
@@ -753,7 +745,6 @@
 											</svg>
 										</button>
 									</div>
-									<div class="separator" style="margin-top: 0.5rem; margin-bottom: -0.5rem; width: 90%" />
 								{/if}
 								{#if iteratedAppointment.role === "caretaker"}
 									<label class="switch">
@@ -839,16 +830,11 @@
 											<p class="regular-text">-</p>
 										{/if}
 										{#each iteratedAppointment.dogs as currentDog}
-											<button class="accordion regular-text">
-												<div style="display: flex; align-items: center; justify-content: space-between">
+											<button class="accordion regular-text" style="display:flex; align-items: center">
+												<div>
 													{currentDog.name}
-													<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
-														><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" stroke="#111" stroke-width="1.5" /><path
-															d="M10 6a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5h-3v3a.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5v-3h-3A.5.5 0 0 1 6 10a.5.5 0 0 1 .5-.5h3v-3A.5.5 0 0 1 10 6h0z"
-															fill="#000"
-														/></svg
-													>
 												</div>
+												<div class="accordion-button-inner" />
 											</button>
 											<div class="panel" id="subpanel">
 												<div in:fade class="wrapper-detailview">
@@ -964,16 +950,11 @@
 											<p class="regular-text">-</p>
 										{:else}
 											{#each iteratedAppointment.events as event}
-												<button class="accordion regular-text">
-													<div style="display: flex; align-items: center; justify-content: space-between">
+												<button class="accordion regular-text" style="display:flex; align-items: center">
+													<div>
 														{parseDateToString(event.date)}
-														<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
-															><rect x=".75" y=".75" width="18.5" height="18.5" rx="4.25" stroke="#111" stroke-width="1.5" /><path
-																d="M10 6a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5h-3v3a.5.5 0 0 1-.5.5.5.5 0 0 1-.5-.5v-3h-3A.5.5 0 0 1 6 10a.5.5 0 0 1 .5-.5h3v-3A.5.5 0 0 1 10 6h0z"
-																fill="#000"
-															/></svg
-														>
 													</div>
+													<div class="accordion-button-inner" />
 												</button>
 												<div class="panel" id="subpanel">
 													{#each event.events as evt}

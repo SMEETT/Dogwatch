@@ -6,6 +6,8 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
 .accordion {
 	background-color: transparent;
+	display: flex;
+	justify-content: space-between;
 	color: var(--dark);
 	cursor: pointer;
 	padding: 1rem;
@@ -25,7 +27,6 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	/* border: 1px solid red; */
 }
 
 /* .accordion:hover {
@@ -36,12 +37,10 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 
 .active {
 	background-color: transparent;
-	border: 1px solid transparent;
-	border: 1px solid var(--light);
 	color: var(--dark) !important;
 }
 
-/* .accordion:after {
+.accordion-button-inner:after {
 	content: "\002B";
 	color: var(--dark);
 	font-weight: bold;
@@ -54,14 +53,14 @@ https://www.w3schools.com/howto/howto_js_accordion.asp */
 	color: var(--dark);
 }
 
-.accordion:hover:after {
+.accordion-button-inner:hover:after {
 	color: var(--contrast);
 }
 
 .active:after:hover {
 	content: "\2212";
 	color: var(--bright);
-} */
+}
 
 .panel {
 	background-color: transparent;

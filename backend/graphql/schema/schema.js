@@ -579,26 +579,28 @@ const Mutation = new GraphQLObjectType({
 				if (!req.isAuthenticated()) {
 					return { status: { code: 401, message: "Unauthorized" } };
 				} else {
-					const appointmentToUpdate = await Appointment.findOne({ where: { id: args.id, creatorId: req.user.id } });
+					const t = await db.transaction();
+
+					const appointmentToUpdate = await Appointment.findOne({
+						where: { id: args.id, creatorId: req.user.id },
+						include: { association: "Observers" },
+					});
 					appointmentToUpdate.start_date = args.start_date;
 					appointmentToUpdate.end_date = args.end_date;
 					appointmentToUpdate.notes = args.notes;
-					appointmentToUpdate.setDogs(null);
+					appointmentToUpdate.accepted = false;
 					appointmentToUpdate.setCaretaker(null);
 					appointmentToUpdate.setObservers(null);
-
-					const t = await db.transaction();
+					appointmentToUpdate.setDogs(null);
+					await appointmentToUpdate.save();
 
 					try {
-						await appointmentToUpdate.save({ transaction: t });
 						const caretaker = await User.findOne({ where: { id: args.caretaker }, transaction: t });
 						const observers = await User.findAll({ where: { id: args.observers }, transaction: t });
 						const dogs = await Dog.findAll({ where: { id: args.dogs }, transaction: t });
-
-						await appointmentToUpdate.addDogs(dogs, { transaction: t });
 						await appointmentToUpdate.setCaretaker(caretaker, { transaction: t });
 						await appointmentToUpdate.addObservers(observers, { transaction: t });
-
+						await appointmentToUpdate.addDogs(dogs, { transaction: t });
 						await t.commit();
 						console.log("Transaction successful (Appointment Update)");
 						appointmentToUpdate.status = { code: 200, message: "OK" };
