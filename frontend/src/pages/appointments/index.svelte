@@ -982,9 +982,9 @@
 											{/each}
 										{/if}
 									</div>
-									<div style="margin-bottom: 5rem;" class="notes">
+									<div style="margin-bottom: 5rem;">
 										<p class="label mb-8">Notizen</p>
-										{#if iteratedAppointment.notes !== "null"}
+										{#if iteratedAppointment.notes !== ""}
 											<p class="regular-text line-height-125">
 												{iteratedAppointment.notes}
 											</p>

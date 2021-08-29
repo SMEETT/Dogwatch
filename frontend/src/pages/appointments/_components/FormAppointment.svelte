@@ -378,6 +378,10 @@
 					dogIds.push(parseInt(dog.id));
 				});
 
+				if (!appointmentData.notes) {
+					appointmentData.notes = "";
+				}
+
 				const observerIds = [];
 				appointmentData.observers.forEach((observer) => {
 					observerIds.push(parseInt(observer.id));
@@ -535,7 +539,7 @@
 	<div class="wrapper">
 		<div class="headline debug-border">
 			<p class="h1 color-headline">{titleDate}</p>
-			<p class="headline-label">{extractedYear}</p>
+			<p class="headline-label">{$lastSelectedDay.dayId.slice(0, 4)}</p>
 			<!-- <p class="label">Termin anlegen</p> -->
 		</div>
 		<div style="margin-top: -2rem" class="separator" />
