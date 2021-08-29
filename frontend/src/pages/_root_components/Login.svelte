@@ -102,12 +102,12 @@
 
 <form>
 	<label for="email">E-Mail:</label><br />
-	<input type="text" id="email" name="email" bind:value={loginData.email} />
+	<input class:selected={loginData.email} type="text" id="email" name="email" bind:value={loginData.email} />
 	{#if loginValidationErrors.email}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({loginValidationErrors.email})</p>
 	{/if}
 	<label for="password">Passwort:</label><br />
-	<input type="password" id="password" name="password" bind:value={loginData.password} on:keypress={handleKeyPress} />
+	<input class:selected={loginData.password} type="password" id="password" name="password" bind:value={loginData.password} on:keypress={handleKeyPress} />
 	{#if loginValidationErrors.password}
 		<p class="form-validation-error">({loginValidationErrors.password})</p>
 	{/if}

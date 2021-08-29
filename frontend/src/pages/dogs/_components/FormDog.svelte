@@ -769,7 +769,7 @@
 	<!-- -------------------------------------- -->
 	<p class="label color-dark mt-32">Notizen</p>
 	<div>
-		<textarea bind:value={dogData.notes} class="notes mt-8" cols="30" rows="10" />
+		<textarea bind:value={dogData.notes} class="notes-input mt-8" cols="30" rows="10" />
 	</div>
 	<p class="regular-text mt-8">{dogData.notes.length}/500 Zeichen</p>
 	{#if dogValidationErrors.notes}

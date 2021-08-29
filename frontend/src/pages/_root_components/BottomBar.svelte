@@ -61,7 +61,7 @@
 <!-- Menu Wrapper -->
 <div on:click|stopPropagation={toggleMenu} style="opacity: {menuOpacity}%; pointer-events: {menuPointer}" class="wrapper-menu">
 	<!-- 'X' Button to close Menu -->
-	<button class="x" on:click|stopPropagation={toggleMenu}>
+	<!-- <button class="x" on:click|stopPropagation={toggleMenu}>
 		<svg class="x" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path
 				d="M2 22.0005C17.3043 6.69611 21.7101 2.29031 22 2.00046"
@@ -78,18 +78,43 @@
 				stroke-linejoin="round"
 			/>
 		</svg>
-	</button>
-	<!-- Button "Contacts" -->
+	</button> -->
+	<!-- Button "Logout" -->
 	<div class="wrapper-btn-menu-link">
 		<button
-			class:menu-selected={$menuSelection === "contacts"}
+			class:menu-selected={$menuSelection === "logout"}
 			on:click|stopPropagation={toggleMenu}
-			on:click={() => menuSelection.set("contacts")}
-			on:click={() => $goto("/contacts/list")}
+			on:click={() => menuSelection.set("logout")}
+			on:click={() => $goto("/logout")}
 			class="menu-link"
-			>Kontakte <svg
+			>Logout <svg
 				class="icon-menu"
-				class:icon-active={$menuSelection === "contacts"}
+				class:icon-active={$menuSelection === "logout"}
+				width="18"
+				height="20"
+				viewBox="0 0 18 20"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path
+					fill-rule="evenodd"
+					d="M0 2C0 .9.9 0 2 0h8v2H2v14h8v2H2c-1.1 0-2-.9-2-2V2zm14.176 6L11.64 5.464l1.414-1.414L18.004 9l-4.95 4.95-1.414-1.414L14.176 10H7.59V8h6.586z"
+					fill="var(--color-bottom-menu-icons)"
+				/>
+			</svg></button
+		>
+	</div>
+	<!-- Button "Profile" -->
+	<div class="wrapper-btn-menu-link">
+		<button
+			class:menu-selected={$menuSelection === "profile"}
+			on:click|stopPropagation={toggleMenu}
+			on:click={() => menuSelection.set("profile")}
+			on:click={() => $goto("/profile")}
+			class="menu-link"
+			>Profil <svg
+				class="icon-menu"
+				class:icon-active={$menuSelection === "profile"}
 				width="18"
 				height="20"
 				viewBox="0 0 18 20"
@@ -101,6 +126,29 @@
 					fill="var(--color-bottom-menu-icons)"
 				/>
 			</svg></button
+		>
+	</div>
+	<!-- Button "Contacts" -->
+	<div class="wrapper-btn-menu-link">
+		<button
+			class:menu-selected={$menuSelection === "contacts"}
+			on:click|stopPropagation={toggleMenu}
+			on:click={() => menuSelection.set("contacts")}
+			on:click={() => $goto("/contacts/list")}
+			class="menu-link"
+			>Kontakte <svg
+				xmlns="http://www.w3.org/2000/svg"
+				class="icon-menu"
+				class:icon-active={$menuSelection === "profile"}
+				width="17"
+				height="20"
+				fill="none"
+				xmlns:v="https://vecta.io/nano"
+				><path
+					d="M11.5 10.25a.75.75 0 0 0-.75-.75h-5a.75.75 0 0 0-.75.75v.5c0 1 1.383 1.75 3.25 1.75s3.25-.75 3.25-1.75v-.5zM10 6.745C10 5.78 9.217 5 8.25 5S6.5 5.779 6.5 6.745a1.75 1.75 0 0 0 1.75 1.75A1.75 1.75 0 0 0 10 6.745h0zM0 2.5A2.5 2.5 0 0 1 2.5 0H14a2.5 2.5 0 0 1 .957.19 2.5 2.5 0 0 1 1.353 1.353 2.5 2.5 0 0 1 .19.957v14.25a.75.75 0 0 1-.75.75H1.5a1 1 0 0 0 1 1h13.25a.75.75 0 0 1 .75.75.75.75 0 0 1-.75.75H2.5A2.5 2.5 0 0 1 0 17.5v-15zm1.5 0V16H15V2.5a1 1 0 0 0-1-1H2.5a1 1 0 0 0-1 1z"
+					fill="var(--color-bottom-menu-icons)"
+				/></svg
+			></button
 		>
 	</div>
 	<!-- Button "Dogs" -->
@@ -386,15 +434,17 @@
 
 	.wrapper-btn-menu-link {
 		display: flex;
+		justify-content: center;
 		align-items: center;
-		margin-bottom: 1rem;
 		margin-right: 0.2rem;
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
 	}
 
 	.wrapper-menu {
 		padding: 1rem 2.4rem;
 		position: fixed;
-		height: 24rem;
+		height: 30rem;
 		bottom: calc(var(--bottombar-height) + 0.2rem);
 		background: var(--color-bottom-menu-bg);
 		display: flex;

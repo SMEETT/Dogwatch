@@ -144,22 +144,28 @@
 
 <form form>
 	<label for="username">Benuztername:</label><br />
-	<input type="text" id="username" name="username" bind:value={registerData.username} />
+	<input class:selected={registerData.username} type="text" id="username" name="username" bind:value={registerData.username} />
 	{#if registerValidationErrors.username}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.username})</p>
 	{/if}
 	<label for="email">E-Mail:</label><br />
-	<input type="text" id="email" name="email" bind:value={registerData.email} />
+	<input class:selected={registerData.email} type="text" id="email" name="email" bind:value={registerData.email} />
 	{#if registerValidationErrors.email}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.email})</p>
 	{/if}
 	<label for="password">Passwort:</label><br />
-	<input type="password" id="password" name="password" bind:value={registerData.password} />
+	<input class:selected={registerData.password} type="password" id="password" name="password" bind:value={registerData.password} />
 	{#if registerValidationErrors.password}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.password})</p>
 	{/if}
 	<label for="password-confirmation">Passwort bestaetigen:</label><br />
-	<input type="password" id="password-confirmation" name="password-confirmation" bind:value={registerData.passwordConfirmation} />
+	<input
+		class:selected={registerData.passwordConfirmation}
+		type="password"
+		id="password-confirmation"
+		name="password-confirmation"
+		bind:value={registerData.passwordConfirmation}
+	/>
 	{#if registerValidationErrors.passwordConfirmation}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.passwordConfirmation})</p>
 	{/if}
