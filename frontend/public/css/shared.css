@@ -173,6 +173,7 @@ button:hover svg path {
 	/* border-bottom-right-radius: 30px;
 	border-bottom-left-radius: 30px; */
 	border: 5px solid var(--bg-color);
+	z-index: 1;
 }
 
 .cropperArea {

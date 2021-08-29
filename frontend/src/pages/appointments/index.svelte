@@ -1035,7 +1035,7 @@
 	}
 
 	.wrapper-current-selected-day {
-		margin-bottom: 3rem;
+		margin-bottom: 1.5rem;
 		margin-top: 2rem;
 		padding: 0;
 	}
