@@ -15,7 +15,6 @@
 	let extractedYear;
 	let extractedMonth;
 	let extractedDay;
-	let currentDate;
 
 	// formContext can be "add" or "edit"
 	export let formContext;
@@ -60,16 +59,6 @@
 
 	const monthNames = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 	let titleDate;
-
-	// function getDaysInMonth(date) {
-	// 	// const date = new Date(ISOdate);
-	// 	const year = date.getFullYear();
-	// 	const month = date.getMonth();
-	// 	// console.log("getDaysInMonth");
-	// 	// console.log("getDaysInMonth Date:", date);
-	// 	// console.log("daysInMonth: ", new Date(year, month + 1, 0).getDate());
-	// 	return new Date(year, month + 1, 0).getDate();
-	// }
 
 	// ********************************************************
 	// ON MOUNT
@@ -182,7 +171,6 @@
 	function addDog() {
 		if (selectedDog) {
 			appointmentData.dogs = [selectedDog, ...appointmentData.dogs];
-			console.log(appointmentData);
 			fetchedDogs = fetchedDogs.filter((element) => element !== selectedDog);
 			fetchedDogs.sort();
 			dropdownSelectDogs.selectedIndex = 0;
@@ -244,7 +232,6 @@
 
 	function removeObserver(observer) {
 		appointmentData.observers = appointmentData.observers.filter((element) => element !== observer);
-		console.log("appointment data observers after filter", appointmentData.observers);
 		fetchedContacts = [...fetchedContacts, observer];
 		fetchedContacts.sort();
 		selectedObserver = null;
@@ -258,17 +245,13 @@
 	let startDate_time = { hour: null, minute: null };
 
 	function setStartdate() {
-		console.log("setStartdate");
-		console.log("startDate_time", startDate_time);
 		if (startDate_time.hour && startDate_time.minute && startDate_date) {
 			const date = new Date(startDate_date);
 			const year = date.getFullYear();
 			const month = date.getMonth();
 			const day = date.getDate();
-
 			const dateToSave = new Date(year, month, day, parseInt(startDate_time.hour), parseInt(startDate_time.minute));
 			appointmentData.start_date = dateToSave.toISOString();
-			console.log("appointmentData", appointmentData);
 		}
 	}
 
@@ -280,17 +263,13 @@
 	let endDate_time = { hour: null, minute: null };
 
 	function setEnddate() {
-		console.log("setEnddate");
-		console.log("endDate_time", endDate_time);
 		if (endDate_time.hour && endDate_time.minute && endDate_date) {
 			const date = new Date(endDate_date);
 			const year = date.getFullYear();
 			const month = date.getMonth();
 			const day = date.getDate();
-
 			const dateToSave = new Date(year, month, day, parseInt(endDate_time.hour), parseInt(endDate_time.minute));
 			appointmentData.end_date = dateToSave.toISOString();
-			console.log("appointmentData", appointmentData);
 		}
 	}
 
@@ -346,11 +325,8 @@
 			appointmentValidationErrors = {};
 			return true;
 		} catch (err) {
-			console.log(errors);
 			errors = extractErrors(err);
-			console.log(errors);
 			appointmentValidationErrors = errors;
-			console.log(appointmentValidationErrors);
 			$statusModalMessages = { code: 1, message: "Bitte die fehlenden Felder ausfuellen" };
 			return false;
 		}
@@ -424,7 +400,6 @@
 			    }
 			`;
 				const data = await graphQLClient.request(mutation);
-				console.log("returned data from GQL", data);
 				if (data.addAppointment.status.code === 200) {
 					statusModalMessages.set({ code: 200, message: `Termin wurde erfolgreich angelegt.` });
 				} else if (data.addAppointment.status.code === 401) {
@@ -432,7 +407,6 @@
 				} else {
 					statusModalMessages.set({ code: 1, message: "Unbekannter Fehler beim hinzufuegen eines neuen Termins" });
 				}
-				console.log(data.addAppointment.status);
 				console.log(JSON.stringify(data, undefined, 2));
 				return data.addAppointment;
 			}
@@ -468,8 +442,6 @@
 				} else {
 					caretakerId = appointmentData.caretaker.id;
 				}
-
-				console.log("appointmentData", appointmentData);
 
 				const dogIds = [];
 				appointmentData.dogs.forEach((dog) => {
@@ -513,7 +485,6 @@
 				} else {
 					statusModalMessages.set({ code: 1, message: "Unbekannter Fehler beim bearbeiten eines Termins" });
 				}
-				console.log(data.updateAppointment.status);
 				console.log(JSON.stringify(data, undefined, 2));
 				return data.updateAppointment;
 			}
@@ -727,10 +698,8 @@
 						<input
 							bind:value={startDate_date}
 							on:change={() => {
-								console.log(startDate_date);
 								const dateParts = startDate_date.split("-");
 								const startDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-								console.log(startDate_date);
 								if (startDate_time.hour && startDate_time.minute) {
 									startDate.setHours(parseInt(startDate_time.hour), parseInt(startDate_time.minute));
 								}
@@ -794,7 +763,6 @@
 									endDate.setHours(parseInt(endDate_time.hour), parseInt(endDate_time.minute));
 								}
 								appointmentData.end_date = endDate.toISOString();
-								console.log(appointmentData);
 							}}
 							type="date"
 							class="datepicker-input"

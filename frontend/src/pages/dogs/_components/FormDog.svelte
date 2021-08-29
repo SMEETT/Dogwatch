@@ -483,13 +483,10 @@
 
 <div class="wrapper">
 	<p style="margin-top: -7rem" class="label color-dark label-appointments">{titleFormContext}</p>
+	<div class="separator" style="margin-bottom: -1rem" />
 	<!-- -------------------------------------- -->
-	<!-- NAME -->
+	<!-- IMAGE -->
 	<!-- -------------------------------------- -->
-	<input class:selected={dogData.name} bind:value={dogData.name} class="h1 mt-16" placeholder="Name" type="text" />
-	{#if dogValidationErrors.name}
-		<p class="form-validation-error mt-8">({dogValidationErrors.name})</p>
-	{/if}
 	<div class="wrapper-capture">
 		<!-- <img src={image} alt="" /> -->
 		{#if image}
@@ -516,6 +513,17 @@
 			<input id="file-input" on:change={handleImage} type="file" accept="image/*" />
 		</div>
 	</div>
+	<!-- -------------------------------------- -->
+	<!-- NAME -->
+	<!-- -------------------------------------- -->
+	<p class="label color-dark mt-32">Name</p>
+	<div class="mt-8">
+		<input class:selected={dogData.name} bind:value={dogData.name} placeholder="Bitte angeben" type="text" />
+	</div>
+
+	{#if dogValidationErrors.name}
+		<p class="form-validation-error mt-8">({dogValidationErrors.name})</p>
+	{/if}
 	<!-- -------------------------------------- -->
 	<!-- BIRTHDAY -->
 	<!-- -------------------------------------- -->
