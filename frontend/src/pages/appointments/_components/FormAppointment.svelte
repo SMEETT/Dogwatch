@@ -30,9 +30,6 @@
 		notes: null,
 	};
 
-	let start_date_selections = { hour: 0, minute: 0 };
-	let end_date_selections = { year: null, month: null, day: null, hour: 0, minute: 0 };
-
 	let fetchedDogs = [];
 	let selectedDog = null;
 	let dropdownSelectDogs;
@@ -45,87 +42,52 @@
 	let selectedObserver = null;
 	let dropdownSelectObserver;
 
-	$: titleDate = renderTitleDates(end_date_selections.year, end_date_selections.month, end_date_selections.day);
+	$: titleDate = renderTitleDates(appointmentData.start_date, appointmentData.end_date);
 
-	function renderTitleDates() {
-		console.log("RENDER TITLE DATe");
-		console.log(end_date_selections);
-		const start_date = new Date(extractedYear, extractedMonth, extractedDay);
-		const end_date = new Date(end_date_selections.year, end_date_selections.month, end_date_selections.day);
-		const start_date_fixed = start_date.setHours(12, 0, 0, 0);
-		const end_date_fixed = end_date.setHours(12, 0, 0, 0);
-		if (start_date_fixed === end_date_fixed || end_date_fixed < start_date_fixed) {
-			return `${extractedDay}. ${monthNames[extractedMonth]}`;
+	function renderTitleDates(startDate, endDate) {
+		const start_date = new Date(startDate);
+		const end_date = new Date(endDate);
+		const start_date_fixed = new Date(start_date.setHours(12, 0, 0, 0));
+		const end_date_fixed = new Date(end_date.setHours(12, 0, 0, 0));
+		if (start_date_fixed.getTime() === end_date_fixed.getTime() || end_date_fixed < start_date_fixed) {
+			return `${leadingZero(start_date_fixed.getDate())}. ${monthNames[start_date_fixed.getMonth()]}`;
 		} else {
 			const end_date_day = end_date.getDate();
 			const end_date_month = monthNames[end_date.getMonth()];
-			const end_date_year = end_date.getFullYear();
-			return `${extractedDay}. ${monthNames[extractedMonth]} - ${end_date_day}. ${end_date_month}`;
+			return `${leadingZero(start_date_fixed.getDate())}. ${monthNames[start_date_fixed.getMonth()]} - ${end_date_day}. ${end_date_month}`;
 		}
 	}
 
 	const monthNames = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
-	const end_date_ranges = { days: null, years: [] };
 	let titleDate;
 
-	function getDaysInMonth(date) {
-		// const date = new Date(ISOdate);
-		const year = date.getFullYear();
-		const month = date.getMonth();
-		// console.log("getDaysInMonth");
-		// console.log("getDaysInMonth Date:", date);
-		// console.log("daysInMonth: ", new Date(year, month + 1, 0).getDate());
-		return new Date(year, month + 1, 0).getDate();
-	}
+	// function getDaysInMonth(date) {
+	// 	// const date = new Date(ISOdate);
+	// 	const year = date.getFullYear();
+	// 	const month = date.getMonth();
+	// 	// console.log("getDaysInMonth");
+	// 	// console.log("getDaysInMonth Date:", date);
+	// 	// console.log("daysInMonth: ", new Date(year, month + 1, 0).getDate());
+	// 	return new Date(year, month + 1, 0).getDate();
+	// }
 
 	// ********************************************************
 	// ON MOUNT
 	// ********************************************************
-	let colorTest;
-
 	onMount(() => {
 		console.log("lastSelected", $lastSelectedDay.dayId);
 		if ($lastSelectedDay.dayId) {
-			console.log("mounting with dayId");
 			menuSelection.set("appointments");
 			menuContext.set({ context: "appointment_add" });
 			bottomBarAction.set("");
 			liveValidation.set(false);
-			console.log("on mount");
 			if (formContext === "add") {
 				extractedYear = parseInt($lastSelectedDay.dayId.slice(0, 4));
-				extractedMonth = parseInt($lastSelectedDay.dayId.slice(4, 6)) - 1;
+				extractedMonth = parseInt($lastSelectedDay.dayId.slice(4, 6));
 				extractedDay = parseInt($lastSelectedDay.dayId.slice(6, 8));
-			} else if (formContext === "edit") {
-				console.log("context EDIT, to update data", toUpdateAppointmentData);
-				const start_date = new Date(parseInt(toUpdateAppointmentData.start_date));
-				console.log("startDate", start_date);
-				extractedYear = start_date.getFullYear();
-				extractedMonth = start_date.getMonth();
-				extractedDay = start_date.getDate();
+				startDate_date = `${extractedYear}-${leadingZero(extractedMonth)}-${extractedDay}`;
+				appointmentData.start_date = new Date(startDate_date).toISOString();
 			}
-			// titleDate = `${extractedDay}. ${monthNames[extractedMonth]}`;
-
-			console.log("onMount() extractedYear:", extractedYear);
-
-			// appointmentData.start_date = new Date(extractedYear, extractedMonth, extractedDay).toISOString();
-
-			end_date_selections.year = extractedYear;
-			end_date_selections.month = extractedMonth;
-			end_date_selections.day = extractedDay;
-
-			currentDate = new Date(extractedYear, extractedMonth, extractedDay);
-			end_date_ranges.days = getDaysInMonth(currentDate);
-			end_date_ranges.years = (function () {
-				let year = parseInt(currentDate.getFullYear());
-				const range = [];
-				for (let i = 0; i < 10; i++) {
-					let yearToPush = year + i;
-					range.push(yearToPush);
-				}
-				return range;
-			})();
-
 			initFetch();
 		} else {
 			$goto("/appointments");
@@ -133,25 +95,25 @@
 	});
 
 	function onAppointmentDataToUpdate() {
-		console.log("toUpdateDate", toUpdateAppointmentData);
 		appointmentData = toUpdateAppointmentData;
-		console.log("appointmentData after assignment", appointmentData);
 		appointmentData.start_date = new Date(parseInt(appointmentData.start_date)).toISOString();
 		appointmentData.end_date = new Date(parseInt(appointmentData.end_date)).toISOString();
 		const extracted_start_date = new Date(appointmentData.start_date);
-		start_date_selections = {
+		const extracted_end_date = new Date(appointmentData.end_date);
+
+		startDate_time = {
 			hour: String(leadingZero(extracted_start_date.getHours())),
 			minute: String(leadingZero(extracted_start_date.getMinutes())),
 		};
-		const extracted_end_date = new Date(appointmentData.end_date);
-		end_date_selections = {
-			year: extracted_end_date.getFullYear(),
-			month: extracted_end_date.getMonth(),
-			day: extracted_end_date.getDate(),
+		endDate_time = {
 			hour: String(leadingZero(extracted_end_date.getHours())),
 			minute: String(leadingZero(extracted_end_date.getMinutes())),
 		};
-		console.log("eds", end_date_selections);
+		function dateToYMD(date) {
+			return `${date.getFullYear()}-${leadingZero(parseInt(date.getMonth()) + 1)}-${leadingZero(date.getDate())}`;
+		}
+		endDate_date = dateToYMD(extracted_end_date);
+		startDate_date = dateToYMD(extracted_start_date);
 		if (appointmentData.caretaker) {
 			fetchedContacts = fetchedContacts.filter((element) => element.id !== appointmentData.caretaker.id);
 		}
@@ -165,7 +127,6 @@
 			fetchedDogs = fetchedDogs.filter((element) => element.id !== dog.id);
 			fetchedDogs.sort();
 		});
-		console.log("appointmentData ------------------------", appointmentData);
 	}
 
 	// used as proxy so we can call this onMount() and await in markup
@@ -246,7 +207,6 @@
 	// CARETAKER
 	// ----------------------------------------------------
 	function addCaretaker() {
-		console.log("add caretaker");
 		if (selectedCaretaker) {
 			if (appointmentData.caretaker !== null) {
 				fetchedContacts = [...fetchedContacts, appointmentData.caretaker];
@@ -273,7 +233,6 @@
 	// ----------------------------------------------------
 
 	function addObserver() {
-		console.log("add observer");
 		if (selectedObserver) {
 			appointmentData.observers = [selectedObserver, ...appointmentData.observers];
 			fetchedContacts = fetchedContacts.filter((element) => element !== selectedObserver);
@@ -284,8 +243,6 @@
 	}
 
 	function removeObserver(observer) {
-		console.log("obseeeeeeeeeeeeeeeeeeeeerver", observer);
-		console.log("appointment data observers", appointmentData.observers);
 		appointmentData.observers = appointmentData.observers.filter((element) => element !== observer);
 		console.log("appointment data observers after filter", appointmentData.observers);
 		fetchedContacts = [...fetchedContacts, observer];
@@ -297,17 +254,19 @@
 	// START DATE
 	// ----------------------------------------------------
 
+	let startDate_date;
+	let startDate_time = { hour: null, minute: null };
+
 	function setStartdate() {
 		console.log("setStartdate");
-		console.log("start_date_selections", start_date_selections);
-		if (start_date_selections.hour && start_date_selections.minute) {
-			const dateToSave = new Date(
-				extractedYear,
-				extractedMonth,
-				extractedDay,
-				parseInt(start_date_selections.hour),
-				parseInt(start_date_selections.minute)
-			);
+		console.log("startDate_time", startDate_time);
+		if (startDate_time.hour && startDate_time.minute && startDate_date) {
+			const date = new Date(startDate_date);
+			const year = date.getFullYear();
+			const month = date.getMonth();
+			const day = date.getDate();
+
+			const dateToSave = new Date(year, month, day, parseInt(startDate_time.hour), parseInt(startDate_time.minute));
 			appointmentData.start_date = dateToSave.toISOString();
 			console.log("appointmentData", appointmentData);
 		}
@@ -316,32 +275,21 @@
 	// ----------------------------------------------------
 	// END DATE
 	// ----------------------------------------------------
+
+	let endDate_date;
+	let endDate_time = { hour: null, minute: null };
+
 	function setEnddate() {
-		console.log("set endDate");
-		console.log(end_date_selections);
-		console.log(end_date_selections);
-		const newCurrentDate = new Date(end_date_selections.year, end_date_selections.month, 1);
-		console.log("newCurrentDate", newCurrentDate);
-		end_date_ranges.days = getDaysInMonth(newCurrentDate);
-		console.log("selection", end_date_selections.day);
-		console.log("range", end_date_ranges.days);
-		if (end_date_selections.day > end_date_ranges.days) {
-			end_date_selections.day = end_date_ranges.days;
-		}
+		console.log("setEnddate");
+		console.log("endDate_time", endDate_time);
+		if (endDate_time.hour && endDate_time.minute && endDate_date) {
+			const date = new Date(endDate_date);
+			const year = date.getFullYear();
+			const month = date.getMonth();
+			const day = date.getDate();
 
-		if (end_date_selections.hour && end_date_selections.minute) {
-			const dateToSave = new Date(
-				end_date_selections.year,
-				end_date_selections.month,
-				end_date_selections.day,
-				parseInt(end_date_selections.hour),
-				parseInt(end_date_selections.minute)
-			);
-
-			console.log("dateToSave", dateToSave);
+			const dateToSave = new Date(year, month, day, parseInt(endDate_time.hour), parseInt(endDate_time.minute));
 			appointmentData.end_date = dateToSave.toISOString();
-			console.log("dateToSave ISO", appointmentData.end_date);
-			console.log("ISO back to Date", new Date(dateToSave));
 			console.log("appointmentData", appointmentData);
 		}
 	}
@@ -363,8 +311,6 @@
 				name: yup.string().required(),
 			})
 		),
-		// .required()
-		// .min(1, "Bitte Hund(e) hinzufuegen")
 
 		caretaker: yup
 			.object()
@@ -380,9 +326,7 @@
 				username: yup.string().required(),
 			})
 		),
-		// .required()
-		// .min(1, "Bitte Aufpasser hinzufuegen"),
-		start_date: yup.date().required("Bitte Startdatum angeben").typeError("Bitte Ankunftszeit angeben"),
+		start_date: yup.date().required("Bitte Startdatum angeben").required(yup.ref("end_date"), "Enddatum fehlt").typeError("Bitte Ankunftszeit angeben"),
 		end_date: yup
 			.date()
 			.required("Bitte Enddatum angeben")
@@ -504,7 +448,13 @@
 	}
 
 	async function updateAppointmentInDB() {
-		if (await validate(schema_appointment, appointmentData, appointmentValidationErrors)) {
+		if (
+			(await validate(schema_appointment, appointmentData, appointmentValidationErrors)) &&
+			startDate_time.hour &&
+			startDate_time.minute &&
+			endDate_time.hour &&
+			endDate_time.minute
+		) {
 			async function writeAppointment() {
 				const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
 				const graphQLClient = new GraphQLClient(endpoint, {
@@ -762,26 +712,59 @@
 			<!-- ******************************************************** -->
 			<!-- DROPDOWN TO ADD TIME -->
 			<p class="label color-dark mt-20">Ankunft</p>
-			<div class="wrapper-selects mt-8">
-				<!-- svelte-ignore a11y-no-onchange -->
-				<select bind:value={start_date_selections.hour} on:change={setStartdate} class:selected={start_date_selections.hour}>
-					<option value="" disabled selected>Stunde</option>
-					{#each { length: 24 } as _, i}
-						<option>{String(leadingZero(i))}</option>
-					{/each}
-				</select>
-				<!-- svelte-ignore a11y-no-onchange -->
-				<select bind:value={start_date_selections.minute} on:change={setStartdate} class="ml-8" class:selected={start_date_selections.minute}>
-					<option value="" disabled selected>Minute</option>
-					<option>00</option>
-					<option>15</option>
-					<option>30</option>
-					<option>45</option>
-				</select>
-				<p class="regular-text ml-8">Uhr</p>
+			<div style="display: flex;">
+				<div class="wrapper-selects mt-8">
+					<div class="datepicker-toggle mr-8">
+						<div class:selected={startDate_date} class="datepicker-toggle-button">
+							{#if startDate_date}
+								{new Date(startDate_date).getDate()}.
+								{monthNames[new Date(startDate_date).getMonth()]}
+								{new Date(startDate_date).getFullYear()}
+							{:else}
+								Datum
+							{/if}
+						</div>
+						<input
+							bind:value={startDate_date}
+							on:change={() => {
+								console.log(startDate_date);
+								const dateParts = startDate_date.split("-");
+								const startDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+								console.log(startDate_date);
+								if (startDate_time.hour && startDate_time.minute) {
+									startDate.setHours(parseInt(startDate_time.hour), parseInt(startDate_time.minute));
+								}
+								appointmentData.start_date = startDate.toISOString();
+							}}
+							type="date"
+							class="datepicker-input"
+						/>
+					</div>
+				</div>
+				<div class="wrapper-selects mt-8">
+					<!-- svelte-ignore a11y-no-onchange -->
+					<select bind:value={startDate_time.hour} on:change={setStartdate} class:selected={startDate_time.hour}>
+						<option value="" disabled selected>Std</option>
+						{#each { length: 24 } as _, i}
+							<option>{String(leadingZero(i))}</option>
+						{/each}
+					</select>
+					<!-- svelte-ignore a11y-no-onchange -->
+					<select bind:value={startDate_time.minute} on:change={setStartdate} class="ml-8" class:selected={startDate_time.minute}>
+						<option value="" disabled selected>Min</option>
+						<option>00</option>
+						<option>15</option>
+						<option>30</option>
+						<option>45</option>
+					</select>
+					<p class="regular-text ml-8">Uhr</p>
+				</div>
 			</div>
+
 			{#if appointmentValidationErrors.start_date}
 				<p class="form-validation-error mt-8">({appointmentValidationErrors.start_date})</p>
+			{:else if (!startDate_time.hour || !startDate_time.minute) && $liveValidation && startDate_date}
+				<p class="form-validation-error mt-8">(Bitte Uhrzeit der Ankunft angeben)</p>
 			{/if}
 			<!-- ******************************************************** -->
 			<!-- END TIME/DATE -->
@@ -789,49 +772,60 @@
 			<!-- DROPDOWN TO ADD TIME -->
 			<p class="label color-dark mt-20">Abholung</p>
 			<!-- DATE SELECT -->
-			<div class="wrapper-selects mt-8">
-				<!-- svelte-ignore a11y-no-onchange -->
-				<select bind:value={end_date_selections.day} on:change={setEnddate} class:selected={end_date_selections.day !== null}>
-					{#each { length: end_date_ranges.days } as _, dayIndex}
-						<option value={dayIndex + 1}>{dayIndex + 1}</option>
-					{/each}
-				</select>
+			<!-- svelte-ignore a11y-no-onchange -->
+			<div style="display: flex;">
+				<div class="wrapper-selects mt-8">
+					<div class="datepicker-toggle mr-8">
+						<div class:selected={endDate_date} class="datepicker-toggle-button">
+							{#if endDate_date}
+								{new Date(endDate_date).getDate()}.
+								{monthNames[new Date(endDate_date).getMonth()]}
+								{new Date(endDate_date).getFullYear()}
+							{:else}
+								Datum
+							{/if}
+						</div>
+						<input
+							bind:value={endDate_date}
+							on:change={() => {
+								const dateParts = endDate_date.split("-");
+								const endDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+								if (endDate_time.hour && endDate_time.minute) {
+									endDate.setHours(parseInt(endDate_time.hour), parseInt(endDate_time.minute));
+								}
+								appointmentData.end_date = endDate.toISOString();
+								console.log(appointmentData);
+							}}
+							type="date"
+							class="datepicker-input"
+						/>
+					</div>
+				</div>
+				<div class="wrapper-selects mt-8">
+					<!-- svelte-ignore a11y-no-onchange -->
 
-				<!-- svelte-ignore a11y-no-onchange -->
-				<select class="ml-8" bind:value={end_date_selections.month} on:change={setEnddate} class:selected={end_date_selections.month !== null}>
-					{#each monthNames as monthName}
-						<option value={monthNames.indexOf(monthName)}>{monthName}</option>
-					{/each}
-				</select>
-
-				<!-- svelte-ignore a11y-no-onchange -->
-				<select class="ml-8" bind:value={end_date_selections.year} on:change={setEnddate} class:selected={end_date_selections.year !== null}>
-					{#each end_date_ranges.years as year}
-						<option value={year}>{year}</option>
-					{/each}
-				</select>
-			</div>
-			<div class="wrapper-selects mt-8">
-				<!-- svelte-ignore a11y-no-onchange -->
-				<select bind:value={end_date_selections.hour} on:change={setEnddate} class:selected={end_date_selections.hour}>
-					<option value="" disabled selected>Stunde</option>
-					{#each { length: 24 } as _, i}
-						<option>{String(leadingZero(i))}</option>
-					{/each}
-				</select>
-				<!-- svelte-ignore a11y-no-onchange -->
-				<select bind:value={end_date_selections.minute} on:change={setEnddate} class="ml-8" class:selected={end_date_selections.minute}>
-					<option value="" disabled selected>Minute</option>
-					<option>00</option>
-					<option>15</option>
-					<option>30</option>
-					<option>45</option>
-				</select>
-				<p class="regular-text ml-8">Uhr</p>
+					<select bind:value={endDate_time.hour} on:change={setEnddate} class:selected={endDate_time.hour}>
+						<option value="" disabled selected>Std</option>
+						{#each { length: 24 } as _, i}
+							<option>{String(leadingZero(i))}</option>
+						{/each}
+					</select>
+					<!-- svelte-ignore a11y-no-onchange -->
+					<select bind:value={endDate_time.minute} on:change={setEnddate} class="ml-8" class:selected={endDate_time.minute}>
+						<option value="" disabled selected>Min</option>
+						<option>00</option>
+						<option>15</option>
+						<option>30</option>
+						<option>45</option>
+					</select>
+					<p class="regular-text ml-8">Uhr</p>
+				</div>
 			</div>
 
 			{#if appointmentValidationErrors.end_date}
 				<p class="form-validation-error mt-8">({appointmentValidationErrors.end_date})</p>
+			{:else if (!endDate_time.hour || !endDate_time.minute) && $liveValidation && endDate_date}
+				<p class="form-validation-error mt-8">(Bitte Uhrzeit der Abholung angeben)</p>
 			{/if}
 			<!-- ******************************************************** -->
 			<!-- NOTES -->
