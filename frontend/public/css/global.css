@@ -59,6 +59,7 @@
 }
 
 .line-height-125 {
+	margin-top: -0.25rem;
 	line-height: 125%;
 }
 
@@ -89,8 +90,12 @@ body {
 h1 {
 	font-size: 3rem;
 	font-weight: 700;
+	display: flex;
+	align-items: center;
+	height: 3rem;
 	margin: 1rem;
 	color: var(--bright);
+	/* border: 1px solid red; */
 }
 
 .h1 {

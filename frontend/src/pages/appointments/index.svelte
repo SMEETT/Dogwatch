@@ -848,7 +848,7 @@
 
 														<div>
 															<p class="label mb-8">Rasse</p>
-															<p class="regular-text mb-8">{currentDog.race}</p>
+															<p class="regular-text mb-8 line-height-125">{currentDog.race}</p>
 														</div>
 														<div>
 															<p class="label mb-8">Geschlecht</p>

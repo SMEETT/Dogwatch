@@ -147,9 +147,9 @@
 	// NEW APPOINTMENT SCHEMA
 	// ----------------------------------------------------
 	const schema_newDog = yup.object().shape({
-		name: yup.string().required("Name fehlt").max(20),
+		name: yup.string().required("Name fehlt").max(20, "Maximal 20 Zeichen erlaubt"),
 		birthday: yup.date().required("Geburtsdatum bitte angeben"),
-		race: yup.string().required("Rasse bitte angeben").max(20),
+		race: yup.string().required("Rasse bitte angeben").max(60, "Maximal 40 Zeichen erlaubt"),
 		gender: yup.string().required("Bitte geben Sie das Geschlecht an"),
 		weight: yup.number().required("Gewicht bitte angeben"),
 		food_amount: yup.number().required("Futtermenge bitte angeben"),
@@ -201,7 +201,6 @@
 	// ********************************************************
 
 	async function writeDogToDB() {
-		console.log("WRITE DOG TO DB!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		if (await validate(schema_newDog, dogData, dogValidationErrors)) {
 			async function writeDog() {
 				const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;

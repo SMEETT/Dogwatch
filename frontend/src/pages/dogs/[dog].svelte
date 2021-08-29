@@ -154,7 +154,7 @@
 						<path d="M2 22L28 2V42L2 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
 					</svg>
 				</button>
-				<button class="ml-16 mr-8 btn" on:click|stopPropagation={nextDog}>
+				<button class="ml-16 btn" on:click|stopPropagation={nextDog}>
 					<svg width="26" height="40" viewBox="0 0 30 44" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M28 22L2 2V42L28 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
 					</svg>
@@ -180,7 +180,7 @@
 
 				<div>
 					<p class="label mb-8">Rasse</p>
-					<p class="regular-text mb-8">{currentDog.race}</p>
+					<p class="regular-text mb-8 line-height-125">{currentDog.race}</p>
 				</div>
 				<div>
 					<p class="label mb-8">Geschlecht</p>
