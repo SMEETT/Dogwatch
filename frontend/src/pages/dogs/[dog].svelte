@@ -169,7 +169,11 @@
 		<div in:fade class="wrapper-detailview">
 			<!-- <h2 class="date">30/01/20 - 04/01/21</h2> -->
 			<div class="wrapper-image">
-				<img class="image" src={currentDog.image} alt="" />
+				{#if currentDog.image !== "undefined"}
+					<img class="image" src={currentDog.image} alt="" />
+				{:else}
+					<img class="image" src="/images/image_profile_ph.png" alt="" />
+				{/if}
 			</div>
 			<div class="separator" />
 			<div class="wrapper-fields">
@@ -199,16 +203,12 @@
 					</p>
 				</div>
 				<div>
-					<p class="label mb-8">Medikamente</p>
-					{#each currentDog.medications as medication}
-						<p class="regular-text mb-8">
-							{medication}
-						</p>
-					{/each}
-					{#if currentDog.medications.length === 0}
-						<p class="regular-text mb-8">-</p>
-					{/if}
+					<p class="label mb-8">Spaziergang Dauer</p>
+					<p class="regular-text mb-8">
+						{currentDog.walk_duration} min
+					</p>
 				</div>
+
 				<div>
 					<p class="label mb-8">Fütterungen</p>
 					{#each currentDog.feedtimes as feedtime}
@@ -248,10 +248,15 @@
 					{/each}
 				</div>
 				<div>
-					<p class="label mb-8">Spaziergang Dauer</p>
-					<p class="regular-text mb-8">
-						{currentDog.walk_duration} min
-					</p>
+					<p class="label mb-8">Medikamente</p>
+					{#each currentDog.medications as medication}
+						<p class="regular-text mb-8">
+							{medication}
+						</p>
+					{/each}
+					{#if currentDog.medications.length === 0}
+						<p class="regular-text mb-8">-</p>
+					{/if}
 				</div>
 				<div class="notes">
 					<p class="label mb-8">Notizen</p>

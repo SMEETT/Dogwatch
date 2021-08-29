@@ -838,7 +838,11 @@
 											<div class="panel" id="subpanel">
 												<div in:fade class="wrapper-detailview">
 													<div style="margin-top: 1rem" class="wrapper-image">
-														<img class="image" src={currentDog.image} alt="" />
+														{#if currentDog.image !== "undefined"}
+															<img class="image" src={currentDog.image} alt="" />
+														{:else}
+															<img class="image" src="/images/image_profile_ph.png" alt="" />
+														{/if}
 													</div>
 													<div class="wrapper-fields">
 														<div>

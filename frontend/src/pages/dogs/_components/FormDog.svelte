@@ -41,7 +41,11 @@
 	if (toUpdateDogData) {
 		console.log("incoming data for edit dog");
 		dogData = toUpdateDogData;
-		image = dogData.image;
+		if (dogData.image === "undefined") {
+			image = null;
+		} else {
+			image = dogData.image;
+		}
 	}
 
 	let titleFormContext;
@@ -481,7 +485,7 @@
 </script>
 
 <div class="wrapper">
-	<p style="margin-top: -7rem" class="label color-dark label-appointments">{titleFormContext}</p>
+	<h1 style="margin-top: -7rem" class="color-dark">{titleFormContext}</h1>
 	<div class="separator" style="margin-bottom: -1rem" />
 	<!-- -------------------------------------- -->
 	<!-- IMAGE -->
@@ -600,6 +604,121 @@
 		<p class="form-validation-error mt-8">({dogValidationErrors.food_amount})</p>
 	{/if}
 	<!-- -------------------------------------- -->
+	<!-- WALK DURATION -->
+	<!-- -------------------------------------- -->
+	<p class="label color-dark mt-32">Spaziergang Dauer</p>
+	<div class="wrapper-input-w-suffix mt-8">
+		<input
+			type="number"
+			min="1"
+			step="1"
+			class:selected={dogData.walk_duration}
+			bind:value={dogData.walk_duration}
+			class="appearance-none"
+			placeholder="Bitte angeben"
+		/>
+		<p class="input-field-unit sib" class:selected={dogData.walk_duration}>min</p>
+	</div>
+	{#if dogValidationErrors.walk_duration}
+		<p class="form-validation-error mt-8">({dogValidationErrors.walk_duration})</p>
+	{/if}
+
+	<!-- -------------------------------------- -->
+	<!-- FEEDING -->
+	<!-- -------------------------------------- -->
+	<!-- DROPDOWN TO ADD FEEDTIME -->
+	<p class="label color-dark mt-32">Fütterungen</p>
+	<div class="wrapper-selects mt-8">
+		<select bind:this={feedtimeHourInput} class:selected={feedtime.hour !== null} bind:value={feedtime.hour} name="age-years" id="">
+			<option value="" disabled selected>Stunde</option>
+			{#each { length: 24 } as _, i}
+				<option>{leadingZero(i)}</option>
+			{/each}
+		</select>
+		<select bind:this={feedtimeMinuteInput} class="ml-16" class:selected={feedtime.minute !== null} bind:value={feedtime.minute} name="age-months" id="">
+			<option value="" disabled selected>Minute</option>
+			<option>00</option>
+			<option>15</option>
+			<option>30</option>
+			<option>45</option>
+		</select>
+	</div>
+	<!-- LIST OF FEEDTIMES -->
+	<div class="wrapper-list">
+		{#each dogData.feedtimes as feedtime}
+			<div class="list-item mt-8 regular-text">
+				{leadingZero(new Date(feedtime).getHours())} : {leadingZero(new Date(feedtime).getMinutes())} Uhr
+				<button on:click={() => removeFeedtime(feedtime)} class="btn btn-w-icon">
+					<svg width="16" height="16" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path
+							fill-rule="evenodd"
+							clip-rule="evenodd"
+							d="M10.2476 10.1872C9.95471 10.4801 9.47984 10.4801 9.18695 10.1872L1.18719 2.18718C0.894302 1.89428 0.894309 1.41941 1.18721 1.12652C1.4801 0.833633 1.95498 0.83364 2.24787 1.12654L10.2476 9.12654C10.5405 9.41944 10.5405 9.89431 10.2476 10.1872Z"
+							fill="var(--dark)"
+						/>
+						<path
+							fill-rule="evenodd"
+							clip-rule="evenodd"
+							d="M10.2479 1.12652C10.5407 1.41941 10.5408 1.89428 10.2479 2.18718L2.24811 10.1872C1.95522 10.4801 1.48035 10.4801 1.18745 10.1872C0.894554 9.89431 0.894547 9.41944 1.18744 9.12654L9.18719 1.12654C9.48008 0.83364 9.95495 0.833633 10.2479 1.12652Z"
+							fill="var(--dark)"
+						/>
+					</svg>
+				</button>
+			</div>
+		{/each}
+	</div>
+	{#if dogValidationErrors.feedtimes}
+		<p class="form-validation-error mt-8">({dogValidationErrors.feedtimes})</p>
+	{/if}
+	<!-- -------------------------------------- -->
+	<!-- WALKS -->
+	<!-- -------------------------------------- -->
+	<!-- DROPDOWN TO ADD TIME -->
+	<p class="label color-dark mt-32">Spaziergänge</p>
+	<div class="wrapper-selects mt-8">
+		<select bind:this={walktimeHourInput} class:selected={walktime.hour !== null} bind:value={walktime.hour} name="age-years" id="">
+			<option value="" disabled selected>Stunde</option>
+			{#each { length: 24 } as _, i}
+				<option>{leadingZero(i)}</option>
+			{/each}
+		</select>
+		<select bind:this={walktimeMinuteInput} class="ml-16" class:selected={walktime.minute !== null} bind:value={walktime.minute} name="age-months" id="">
+			<option value="" disabled selected>Minute</option>
+			<option>00</option>
+			<option>15</option>
+			<option>30</option>
+			<option>45</option>
+		</select>
+	</div>
+	<!-- LIST OF WALKTIMES -->
+	<div class="wrapper-list">
+		{#each dogData.walktimes as walktime}
+			<div class="list-item mt-8 regular-text">
+				{leadingZero(new Date(walktime).getHours())} : {leadingZero(new Date(walktime).getMinutes())} Uhr
+				<button on:click={() => removeWalktime(walktime)} class="btn btn-w-icon">
+					<svg width="16" height="16" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path
+							fill-rule="evenodd"
+							clip-rule="evenodd"
+							d="M10.2476 10.1872C9.95471 10.4801 9.47984 10.4801 9.18695 10.1872L1.18719 2.18718C0.894302 1.89428 0.894309 1.41941 1.18721 1.12652C1.4801 0.833633 1.95498 0.83364 2.24787 1.12654L10.2476 9.12654C10.5405 9.41944 10.5405 9.89431 10.2476 10.1872Z"
+							fill="var(--dark)"
+						/>
+						<path
+							fill-rule="evenodd"
+							clip-rule="evenodd"
+							d="M10.2479 1.12652C10.5407 1.41941 10.5408 1.89428 10.2479 2.18718L2.24811 10.1872C1.95522 10.4801 1.48035 10.4801 1.18745 10.1872C0.894554 9.89431 0.894547 9.41944 1.18744 9.12654L9.18719 1.12654C9.48008 0.83364 9.95495 0.833633 10.2479 1.12652Z"
+							fill="var(--dark)"
+						/>
+					</svg>
+				</button>
+			</div>
+		{/each}
+	</div>
+	{#if dogValidationErrors.walktimes}
+		<p class="form-validation-error mt-8">({dogValidationErrors.walktimes})</p>
+	{/if}
+
+	<!-- -------------------------------------- -->
 	<!-- MEDICATION -->
 	<!-- -------------------------------------- -->
 	<!-- TEXTFIELD TO ADD MED -->
@@ -650,119 +769,7 @@
 			<p class="form-validation-error mt-8">({dogValidationErrors.medications})</p>
 		{/if}
 	</div>
-	<!-- -------------------------------------- -->
-	<!-- WALK DURATION -->
-	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Spaziergang Dauer</p>
-	<div class="wrapper-input-w-suffix mt-8">
-		<input
-			type="number"
-			min="1"
-			step="1"
-			class:selected={dogData.walk_duration}
-			bind:value={dogData.walk_duration}
-			class="appearance-none"
-			placeholder="Bitte angeben"
-		/>
-		<p class="input-field-unit sib" class:selected={dogData.walk_duration}>min</p>
-	</div>
-	{#if dogValidationErrors.walk_duration}
-		<p class="form-validation-error mt-8">({dogValidationErrors.walk_duration})</p>
-	{/if}
-	<!-- -------------------------------------- -->
-	<!-- WALKS -->
-	<!-- -------------------------------------- -->
-	<!-- DROPDOWN TO ADD TIME -->
-	<p class="label color-dark mt-32">Spaziergänge</p>
-	<div class="wrapper-selects mt-8">
-		<select bind:this={walktimeHourInput} class:selected={walktime.hour !== null} bind:value={walktime.hour} name="age-years" id="">
-			<option value="" disabled selected>Stunde</option>
-			{#each { length: 24 } as _, i}
-				<option>{leadingZero(i)}</option>
-			{/each}
-		</select>
-		<select bind:this={walktimeMinuteInput} class="ml-16" class:selected={walktime.minute !== null} bind:value={walktime.minute} name="age-months" id="">
-			<option value="" disabled selected>Minute</option>
-			<option>00</option>
-			<option>15</option>
-			<option>30</option>
-			<option>45</option>
-		</select>
-	</div>
-	<!-- LIST OF WALKTIMES -->
-	<div class="wrapper-list">
-		{#each dogData.walktimes as walktime}
-			<div class="list-item mt-8 regular-text">
-				{leadingZero(new Date(walktime).getHours())} : {leadingZero(new Date(walktime).getMinutes())} Uhr
-				<button on:click={() => removeWalktime(walktime)} class="btn btn-w-icon">
-					<svg width="16" height="16" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path
-							fill-rule="evenodd"
-							clip-rule="evenodd"
-							d="M10.2476 10.1872C9.95471 10.4801 9.47984 10.4801 9.18695 10.1872L1.18719 2.18718C0.894302 1.89428 0.894309 1.41941 1.18721 1.12652C1.4801 0.833633 1.95498 0.83364 2.24787 1.12654L10.2476 9.12654C10.5405 9.41944 10.5405 9.89431 10.2476 10.1872Z"
-							fill="var(--dark)"
-						/>
-						<path
-							fill-rule="evenodd"
-							clip-rule="evenodd"
-							d="M10.2479 1.12652C10.5407 1.41941 10.5408 1.89428 10.2479 2.18718L2.24811 10.1872C1.95522 10.4801 1.48035 10.4801 1.18745 10.1872C0.894554 9.89431 0.894547 9.41944 1.18744 9.12654L9.18719 1.12654C9.48008 0.83364 9.95495 0.833633 10.2479 1.12652Z"
-							fill="var(--dark)"
-						/>
-					</svg>
-				</button>
-			</div>
-		{/each}
-	</div>
-	{#if dogValidationErrors.walktimes}
-		<p class="form-validation-error mt-8">({dogValidationErrors.walktimes})</p>
-	{/if}
-	<!-- -------------------------------------- -->
-	<!-- FEEDING -->
-	<!-- -------------------------------------- -->
-	<!-- DROPDOWN TO ADD FEEDTIME -->
-	<p class="label color-dark mt-32">Fütterungen</p>
-	<div class="wrapper-selects mt-8">
-		<select bind:this={feedtimeHourInput} class:selected={feedtime.hour !== null} bind:value={feedtime.hour} name="age-years" id="">
-			<option value="" disabled selected>Stunde</option>
-			{#each { length: 24 } as _, i}
-				<option>{leadingZero(i)}</option>
-			{/each}
-		</select>
-		<select bind:this={feedtimeMinuteInput} class="ml-16" class:selected={feedtime.minute !== null} bind:value={feedtime.minute} name="age-months" id="">
-			<option value="" disabled selected>Minute</option>
-			<option>00</option>
-			<option>15</option>
-			<option>30</option>
-			<option>45</option>
-		</select>
-	</div>
-	<!-- LIST OF FEEDTIMES -->
-	<div class="wrapper-list">
-		{#each dogData.feedtimes as feedtime}
-			<div class="list-item mt-8 regular-text">
-				{leadingZero(new Date(feedtime).getHours())} : {leadingZero(new Date(feedtime).getMinutes())} Uhr
-				<button on:click={() => removeFeedtime(feedtime)} class="btn btn-w-icon">
-					<svg width="16" height="16" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path
-							fill-rule="evenodd"
-							clip-rule="evenodd"
-							d="M10.2476 10.1872C9.95471 10.4801 9.47984 10.4801 9.18695 10.1872L1.18719 2.18718C0.894302 1.89428 0.894309 1.41941 1.18721 1.12652C1.4801 0.833633 1.95498 0.83364 2.24787 1.12654L10.2476 9.12654C10.5405 9.41944 10.5405 9.89431 10.2476 10.1872Z"
-							fill="var(--dark)"
-						/>
-						<path
-							fill-rule="evenodd"
-							clip-rule="evenodd"
-							d="M10.2479 1.12652C10.5407 1.41941 10.5408 1.89428 10.2479 2.18718L2.24811 10.1872C1.95522 10.4801 1.48035 10.4801 1.18745 10.1872C0.894554 9.89431 0.894547 9.41944 1.18744 9.12654L9.18719 1.12654C9.48008 0.83364 9.95495 0.833633 10.2479 1.12652Z"
-							fill="var(--dark)"
-						/>
-					</svg>
-				</button>
-			</div>
-		{/each}
-	</div>
-	{#if dogValidationErrors.feedtimes}
-		<p class="form-validation-error mt-8">({dogValidationErrors.feedtimes})</p>
-	{/if}
+
 	<!-- -------------------------------------- -->
 	<!-- NOTES -->
 	<!-- -------------------------------------- -->
