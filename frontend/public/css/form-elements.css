@@ -100,7 +100,7 @@ input:focus {
 	border-color: var(--dark);
 }
 
-.notes {
+.notes-input {
 	width: 100%;
 	padding: 1rem;
 	height: 15rem;

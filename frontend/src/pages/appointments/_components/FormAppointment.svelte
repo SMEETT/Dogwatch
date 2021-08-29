@@ -804,7 +804,7 @@
 			<!-- ******************************************************** -->
 			<p class="label color-dark mt-32">Notizen</p>
 			<div>
-				<textarea bind:value={appointmentData.notes} class="notes mt-8" cols="30" rows="10" />
+				<textarea bind:value={appointmentData.notes} class="notes-input mt-8" cols="30" rows="10" />
 			</div>
 		</div>
 	</div>

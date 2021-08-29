@@ -426,9 +426,7 @@ const Mutation = new GraphQLObjectType({
 					req.login(user, (error) => (error ? error : user));
 					// cookie is unsecure and only used to help the frontend routing
 					// since the auth-cookie is HTTP only
-
 					let cookieOptions;
-
 					const cookieOptionsDev = {
 						maxAge: maxSessionAge - 10000,
 						sameSite: "none",
@@ -443,8 +441,6 @@ const Mutation = new GraphQLObjectType({
 					};
 
 					process.env.NODE_ENV === "production" ? (cookieOptions = cookieOptionsProd) : (cookieOptions = cookieOptionsDev);
-					console.log(process.env.NODE_ENV);
-
 					res.cookie("isAuthenticated", "true", cookieOptions);
 					return { status: 200, message: "OK", node: true };
 				}
@@ -457,12 +453,21 @@ const Mutation = new GraphQLObjectType({
 			type: GraphQLBoolean,
 			async resolve(parent, args, { req, res, maxSessionAge }) {
 				req.logout(req.user, (error) => (error ? error : user));
-				let options = {
+				const cookieOptionsDev = {
 					maxAge: maxSessionAge - 10000,
-					// signed: true, // Indicates if the cookie should be signed
+					sameSite: "none",
+					secure: true,
 				};
-				res.cookie("isAuthenticated", "false", options);
-				console.log("request.user: ---------------------------> ", req.user);
+				const cookieOptionsProd = {
+					domain: "borisfries.dev",
+					path: "/",
+					maxAge: maxSessionAge - 10000,
+					sameSite: "none",
+					secure: true,
+				};
+
+				process.env.NODE_ENV === "production" ? (cookieOptions = cookieOptionsProd) : (cookieOptions = cookieOptionsDev);
+				res.cookie("isAuthenticated", "false", cookieOptions);
 				return true;
 			},
 		},
