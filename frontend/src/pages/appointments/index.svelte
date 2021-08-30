@@ -26,7 +26,8 @@
 		}
 	}
 
-	function updateAcceptStatus(appointment) {
+	let lastSelectedStatus;
+	function updateAppointmentStatus(appointment) {
 		async function update() {
 			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
 			const graphQLClient = new GraphQLClient(endpoint, {
@@ -35,9 +36,9 @@
 			});
 			const mutation = gql`
 				mutation {
-					changeAcceptStatus(appointmentId: ${appointment.id}, accepted: ${appointment.accepted}) {
+					updateAppointmentStatus(appointmentId: ${appointment.id}, status: ${appointment.status}) {
                         id
-                        accepted
+                        status
                     }
 				}
 			`;
@@ -178,7 +179,7 @@
 							id
                             start_date
 							end_date
-                            accepted
+                            status
                             color
 							creator {
 								username
@@ -711,9 +712,11 @@
 								<div class="accordion-button-inner">
 									<!-- Icon "(not)Accepted" -->
 									<div style="display: flex; align-items: center; margin-right: 1rem">
-										{#if iteratedAppointment.accepted === false}
+										{#if iteratedAppointment.status === 0}
 											<span style="border-radius: 20%; background-color: #F61969; width: 1rem; height: 1rem" />
-										{:else}
+										{:else if iteratedAppointment.status === 1}
+											<span style="border-radius: 20%; background-color: #E7C05C; width: 1rem; height: 1rem" />
+										{:else if iteratedAppointment.status === 2}
 											<span style="border-radius: 20%; background-color: #00D964; width: 1rem; height: 1rem" />
 										{/if}
 									</div>
@@ -746,19 +749,22 @@
 									</div>
 								{/if}
 								{#if iteratedAppointment.role === "caretaker"}
-									<label class="switch">
-										<input
-											bind:this={switchAccept}
-											checked={iteratedAppointment.accepted}
-											type="checkbox"
-											on:click={() => {
-												console.log("Toggle Accept");
-												iteratedAppointment.accepted = !iteratedAppointment.accepted;
-												updateAcceptStatus(iteratedAppointment);
+									<p class="label color-dark mt-8">Status</p>
+									<div class="mt-8">
+										<!-- svelte-ignore a11y-no-onchange -->
+										<select
+											class="selected"
+											bind:value={lastSelectedStatus}
+											on:change={() => {
+												iteratedAppointment.status = parseInt(lastSelectedStatus);
+												updateAppointmentStatus(iteratedAppointment);
 											}}
-										/>
-										<span class="slider round" />
-									</label>
+										>
+											<option value="1" selected={iteratedAppointment.status === 1}>Offen</option>
+											<option value="2" selected={iteratedAppointment.status === 2}>Bestätigt</option>
+											<option value="0" selected={iteratedAppointment.status === 0}>Abgelehnt</option>
+										</select>
+									</div>
 									<!-- <p use:setAcceptSwitchStatus={iteratedAppointment.accepted} /> -->
 								{/if}
 								<div class="wrapper-fields mt-16">
@@ -793,10 +799,12 @@
 									</div>
 									<div>
 										<p class="label mb-8">Termin Status</p>
-										{#if iteratedAppointment.accepted === true}
-											<p class="regular-text mb-8">Bestaetigt</p>
-										{:else}
-											<p class="regular-text mb-8">Nicht bestaetigt</p>
+										{#if iteratedAppointment.status === 0}
+											<p class="regular-text mb-8">Abgelehnt</p>
+										{:else if iteratedAppointment.status === 1}
+											<p class="regular-text mb-8">Offen</p>
+										{:else if iteratedAppointment.status === 2}
+											<p class="regular-text mb-8">Bestätigt</p>
 										{/if}
 									</div>
 									<div>

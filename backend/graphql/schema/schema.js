@@ -218,7 +218,7 @@ const AppointmentType = new GraphQLObjectType({
 		id: { type: GraphQLID },
 		start_date: { type: GraphQLString },
 		end_date: { type: GraphQLString },
-		accepted: { type: GraphQLBoolean },
+		status: { type: GraphQLInt },
 		color: { type: GraphQLString },
 		creator: {
 			type: UserType,
@@ -538,7 +538,7 @@ const Mutation = new GraphQLObjectType({
 						end_date: args.end_date,
 						notes: args.notes,
 						color: args.color,
-						accepted: false,
+						status: 1,
 					});
 
 					const t = await db.transaction();
@@ -593,7 +593,7 @@ const Mutation = new GraphQLObjectType({
 					appointmentToUpdate.start_date = args.start_date;
 					appointmentToUpdate.end_date = args.end_date;
 					appointmentToUpdate.notes = args.notes;
-					appointmentToUpdate.accepted = false;
+					appointmentToUpdate.status = 1;
 					appointmentToUpdate.setCaretaker(null);
 					appointmentToUpdate.setObservers(null);
 					appointmentToUpdate.setDogs(null);
@@ -643,10 +643,10 @@ const Mutation = new GraphQLObjectType({
 				}
 			},
 		},
-		changeAcceptStatus: {
+		updateAppointmentStatus: {
 			type: AppointmentType,
 			args: {
-				accepted: { type: GraphQLBoolean },
+				status: { type: GraphQLInt },
 				caretakerId: { type: GraphQLInt },
 				appointmentId: { type: GraphQLInt },
 			},
@@ -655,7 +655,7 @@ const Mutation = new GraphQLObjectType({
 					return { status: { code: 401, message: "Unauthorized" } };
 				} else {
 					const appointmentToUpdate = await Appointment.findOne({ where: { id: args.appointmentId, caretakerId: req.user.id } });
-					appointmentToUpdate.accepted = args.accepted;
+					appointmentToUpdate.status = args.status;
 					await appointmentToUpdate.save();
 					return appointmentToUpdate;
 				}

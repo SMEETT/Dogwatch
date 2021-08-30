@@ -14,8 +14,8 @@ const Appointment = db.define("appointment", {
 	color: {
 		type: sequelize.STRING(),
 	},
-	accepted: {
-		type: sequelize.BOOLEAN,
+	status: {
+		type: sequelize.INTEGER,
 	},
 });
 
