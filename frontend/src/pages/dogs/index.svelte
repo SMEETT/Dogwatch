@@ -3,7 +3,7 @@
 	metatags.title = "Dogwatch / Hunde";
 	metatags.description = "Description coming soon...";
 	import { onMount, onDestroy } from "svelte";
-	import { menuSelection, menuContext } from "../../stores/state";
+	import { menuSelection, menuContext, userLanguage } from "../../stores/state";
 	import { GraphQLClient, gql } from "graphql-request";
 	import { usersDogsIds } from "../../stores/state";
 
@@ -34,6 +34,7 @@
 	}
 
 	onMount(() => {
+		console.log("userLanguage----------------", $userLanguage);
 		menuSelection.set("dogs");
 		console.log($menuContext);
 		$menuContext = { context: "dog_none" };

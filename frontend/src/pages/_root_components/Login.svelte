@@ -1,13 +1,18 @@
 <!-- routify:options reset -->
 <script>
 	import { metatags, goto } from "@roxi/routify";
-	import { null_to_empty } from "svelte/internal";
 	metatags.title = "Dogwatch / Login";
 	metatags.description = "Description coming soon...";
 	import { isAuthenticated, authenticating, checkAuthCookie, liveValidation, statusModalMessages, newlyRegisteredEmail } from "../../stores/state";
 
 	import { login } from "../../stores/state";
 	import * as yup from "yup";
+
+	import { en } from "../../loc/en";
+	import { de } from "../../loc/de";
+
+	let loc;
+	navigator.language.slice(0, 2) === "de" ? (loc = de) : (loc = en);
 
 	const loginData = {
 		email: null,
@@ -18,11 +23,8 @@
 		loginData.email = $newlyRegisteredEmail;
 	}
 
-	console.log("newRegistrationEmail", $newlyRegisteredEmail);
-
 	function handleKeyPress(e) {
 		if (e.charCode === 13) {
-			console.log("enter pressed");
 			handleSubmit();
 		}
 	}
@@ -32,11 +34,11 @@
 			if (await login(loginData.email, loginData.password)) {
 				$newlyRegisteredEmail = null;
 				$goto("/appointments");
-				statusModalMessages.set({ code: 200, message: "Login erfolgreich" });
+				statusModalMessages.set({ code: 200, message: loc.login.val.modalLoginSuccess });
 			} else {
 				$authenticating = false;
 				console.log("login failed");
-				$statusModalMessages = { code: 400, message: "Falsche E-Mail Adresse/Passwort" };
+				$statusModalMessages = { code: 400, message: loc.login.val.modalLoginFailed };
 			}
 		}
 	}
@@ -52,8 +54,8 @@
 	// NEW APPOINTMENT SCHEMA
 	// ----------------------------------------------------
 	const schema_login = yup.object().shape({
-		email: yup.string().email("Ungueltige E-Mail Adresse").required("Bitte E-Mail angeben").typeError("Bitte E-Mail angeben"),
-		password: yup.string().required("Passwort bitte angeben").typeError("Bitte Passwort angeben"),
+		email: yup.string().email(loc.login.val.emailInvalid).required(loc.login.val.emailProvide).typeError(loc.login.val.emailProvide),
+		password: yup.string().required(loc.login.val.pwdProvide).typeError(loc.login.val.pwdProvide),
 	});
 
 	// ----------------------------------------------------
@@ -71,7 +73,7 @@
 			errors = extractErrors(err);
 			console.log(errors);
 			loginValidationErrors = errors;
-			$statusModalMessages = { code: 1, message: "Bitte die fehlenden Felder ausfuellen" };
+			$statusModalMessages = { code: 1, message: loc.login.val.modalFields };
 			return false;
 		}
 	};
@@ -96,26 +98,26 @@
 <!-- Login Index -->
 
 <div class="headline">
-	<h1 class="color-headline" style="margin-left: 0rem">Einloggen</h1>
+	<h1 class="color-headline" style="margin-left: 0rem">{loc.login.title}</h1>
 </div>
 <div style="margin-top: -2rem" class="separator" />
 
 <form>
-	<label for="email">E-Mail:</label><br />
+	<label for="email">{loc.login.email}</label><br />
 	<input class:selected={loginData.email} type="text" id="email" name="email" bind:value={loginData.email} />
 	{#if loginValidationErrors.email}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({loginValidationErrors.email})</p>
 	{/if}
-	<label for="password">Passwort:</label><br />
+	<label for="password">{loc.login.password}</label><br />
 	<input class:selected={loginData.password} type="password" id="password" name="password" bind:value={loginData.password} on:keypress={handleKeyPress} />
 	{#if loginValidationErrors.password}
 		<p class="form-validation-error">({loginValidationErrors.password})</p>
 	{/if}
 </form>
-<button on:click={handleSubmit} class="btn btn-regular">Einloggen</button>
+<button on:click={handleSubmit} class="btn btn-regular">{loc.login.submit}</button>
 
 <div class="wrapper-to-register">
-	<p>Sie haben noch keinen Account? <a class="generic" href="/register">REGISTRIEREN</a></p>
+	<p>{loc.login.infotext} <a class="generic" href="/register">{loc.login.regLink}</a></p>
 </div>
 
 <style>

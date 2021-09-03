@@ -6,25 +6,27 @@
 	import { onMount, createEventDispatcher, onDestroy } from "svelte";
 	import { fade } from "svelte/transition";
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuSelection, menuContext, bottomBarAction, lastSelectedDay, statusModalMessages } from "../../stores/state";
-	import { leadingZero, extractTimeOfDay, parseDateToString, calculateAge, dateFromDayId, dayIdFromDate, generateId } from "../../_helpers/helperFunctions";
+	import { menuSelection, menuContext, bottomBarAction, lastSelectedDay, statusModalMessages, userLanguage } from "../../stores/state";
+	import {
+		leadingZero,
+		extractTimeOfDay,
+		parseDateToString,
+		calculateAge,
+		dateFromDayId,
+		dayIdFromDate,
+		generateId,
+		dateToString,
+	} from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
-	import DotMenu from "../_root_components/DotMenu.svelte";
+
+	const lang = localStorage.getItem("language");
+	const dateFormat = localStorage.getItem("dateFormat");
 
 	let showCaredates = false;
 	let currentlySelectedDay = null;
 	let switchToggle;
 	let switchAccept = {};
 	let showDeleteModal = false;
-
-	function setAcceptSwitchStatus(bool) {
-		console.log("switch", switchAccept);
-		if (bool) {
-			switchAccept.checked = true;
-		} else {
-			switchAccept.checked = false;
-		}
-	}
 
 	let lastSelectedStatus;
 	function updateAppointmentStatus(appointment) {
@@ -42,7 +44,6 @@
                     }
 				}
 			`;
-
 			const data = await graphQLClient.request(mutation);
 			return data;
 		}
@@ -76,6 +77,7 @@
 
 	onMount(() => {
 		console.log("onMount()");
+		console.log("lang", lang);
 		// Mark "Appointments" in Menu
 		menuSelection.set("appointments");
 		$menuContext.context = "day";
@@ -211,19 +213,12 @@
 				}
 			`;
 			};
-			console.log("whatToFetch", whatToFetch);
-
 			if (whatToFetch === "appointments") {
-				console.log("fetching created appointments");
 				const createdAppointments = await graphQLClient.request(buildQuery("createdAppointments"));
-				console.log("result", createdAppointments.getUser);
 				return createdAppointments.getUser.createdAppointments;
 			} else if (whatToFetch === "caredates") {
-				console.log("fetching caredates appointments");
-				console.log("query output", buildQuery("caretakerAppointments"));
 				const caretakerAppointments = await graphQLClient.request(buildQuery("caretakerAppointments"));
 				const observerAppointments = await graphQLClient.request(buildQuery("observerAppointments"));
-				console.log("result", [caretakerAppointments.getUser, observerAppointments.getUser]);
 				return [caretakerAppointments.getUser.caretakerAppointments, observerAppointments.getUser.observerAppointments];
 			}
 
@@ -282,21 +277,14 @@
 
 		fetchedData = await getAppointmentData(rangeStart, rangeEnd);
 		if (showCaredates) {
-			console.log("fetched[0]", fetchedData[0]);
-			console.log("typeof", typeof fetchedData[0]);
 			fetchedData[0].forEach((appointment) => {
 				appointment.role = "caretaker";
 			});
 			fetchedData[1].forEach((appointment) => {
 				appointment.role = "observer";
 			});
-			console.log("end of loops");
 			fetchedData = [...fetchedData[0], ...fetchedData[1]];
 		}
-		// } else {
-		// 	fetchedData = fetchedData.appointments;
-		// }
-		console.log("fetchedData after", fetchedData);
 
 		// reset the array of appointmentIds
 		apptIds = [];
@@ -696,18 +684,15 @@
 			<div in:fade class="wrapper-detailview">
 				<div class="separator" />
 				<div class="wrapper-current-selected-day">
-					<h1 class="color-dark" style="margin-left: 0">{dateFromDayId($lastSelectedDay.dayId)}</h1>
+					<h1 class="color-dark" style="margin-left: 0">{dateToString(dateFromDayId($lastSelectedDay.dayId), null, "normal")}</h1>
 				</div>
 				{#if allAppointmentsForSelectedDay.length > 0}
 					{#each allAppointmentsForSelectedDay as iteratedAppointment}
 						<div class="wrapper-appt">
 							<button class="accordion regular-text" style={`border: 2px solid ${iteratedAppointment.color}; display: flex; align-items: center`}>
 								<div>
-									{`${parseDateToString(parseInt(iteratedAppointment.start_date), false, true)} - ${parseDateToString(
-										parseInt(iteratedAppointment.end_date),
-										false,
-										true
-									)}`}
+									{dateToString(parseInt(iteratedAppointment.start_date), parseInt(iteratedAppointment.end_date))}
+									<!-- {dateToString(parseInt(iteratedAppointment.start_date))} -->
 								</div>
 								<div class="accordion-button-inner">
 									<!-- Icon "(not)Accepted" -->
@@ -964,7 +949,7 @@
 											{#each iteratedAppointment.events as event}
 												<button class="accordion regular-text" style="display:flex; align-items: center">
 													<div>
-														{parseDateToString(event.date)}
+														{dateToString(event.date, null, "long")}
 													</div>
 													<div class="accordion-button-inner" />
 												</button>

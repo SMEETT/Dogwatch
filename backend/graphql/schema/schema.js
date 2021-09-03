@@ -18,6 +18,7 @@ const UserType = new GraphQLObjectType({
 	name: "User",
 	fields: () => ({
 		id: { type: GraphQLID },
+		language: { type: GraphQLString },
 		username: { type: GraphQLString },
 		email: { type: GraphQLString },
 		// email: {
@@ -423,14 +424,16 @@ const Mutation = new GraphQLObjectType({
 				if (!user || !validatePassword(args.password, user.hash, user.salt)) {
 					return { status: 403, message: "Forbidden", node: false };
 				} else {
+					console.log("trying to log in");
+					console.log(user.language);
 					req.login(user, (error) => (error ? error : user));
 					// cookie is unsecure and only used to help the frontend routing
 					// since the auth-cookie is HTTP only
 					let cookieOptions;
 					const cookieOptionsDev = {
 						maxAge: maxSessionAge - 10000,
-						sameSite: "none",
-						secure: true,
+						sameSite: "lax",
+						secure: false,
 					};
 					const cookieOptionsProd = {
 						domain: "borisfries.dev",
@@ -442,7 +445,7 @@ const Mutation = new GraphQLObjectType({
 
 					process.env.NODE_ENV === "production" ? (cookieOptions = cookieOptionsProd) : (cookieOptions = cookieOptionsDev);
 					res.cookie("isAuthenticated", "true", cookieOptions);
-					return { status: 200, message: "OK", node: true };
+					return { status: 200, message: "OK", node: true, preferences: user.preferences };
 				}
 			},
 		},

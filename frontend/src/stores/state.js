@@ -23,6 +23,7 @@ export const usersDogsIds = writable();
 // ********************************************************
 export const isAuthenticated = writable(false);
 export const authenticating = writable(false);
+export const userLanguage = writable(null);
 
 export const user = writable({
 	username: null,
@@ -57,6 +58,14 @@ export const login = async (email, password) => {
 		if (data.loginUser.status === 200) {
 			isAuthenticated.set(true);
 			authenticating.set(false);
+			if (data.loginUser.preferences.language && data.loginUser.preferences.dateFormat) {
+				localStorage.setItem("language", data.loginUser.preferences.language);
+				localStorage.setItem("dateFormat", data.loginUser.preferences.dateFormat);
+			} else {
+				localStorage.setItem("language", "de");
+				localStorage.setItem("dateFormat", "ddmm");
+			}
+
 			console.log(JSON.stringify(data, undefined, 2));
 			return true;
 		} else {

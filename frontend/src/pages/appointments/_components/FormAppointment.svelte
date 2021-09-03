@@ -8,13 +8,18 @@
 	import { GraphQLClient, gql } from "graphql-request";
 
 	import { menuSelection, menuContext, bottomBarAction, liveValidation, statusModalMessages, lastSelectedDay } from "../../../stores/state";
-	import { leadingZero } from "../../../_helpers/helperFunctions";
+	import { dateToString, leadingZero, yyyymmddToString, ISO8601ToJSDate, JSDateToISO8601 } from "../../../_helpers/helperFunctions";
 
 	import randomColor from "randomcolor"; // import the script
 
 	let extractedYear;
 	let extractedMonth;
 	let extractedDay;
+
+	if (!$lastSelectedDay.dayId) {
+		console.log("none");
+		$goto("/appointments");
+	}
 
 	// formContext can be "add" or "edit"
 	export let formContext;
@@ -41,7 +46,7 @@
 	let selectedObserver = null;
 	let dropdownSelectObserver;
 
-	$: titleDate = renderTitleDates(appointmentData.start_date, appointmentData.end_date);
+	$: titleDate = dateToString(appointmentData.start_date, appointmentData.end_date, "noYear");
 
 	function renderTitleDates(startDate, endDate) {
 		const start_date = new Date(startDate);
@@ -74,8 +79,10 @@
 				extractedYear = parseInt($lastSelectedDay.dayId.slice(0, 4));
 				extractedMonth = parseInt($lastSelectedDay.dayId.slice(4, 6));
 				extractedDay = parseInt($lastSelectedDay.dayId.slice(6, 8));
-				startDate_date = `${extractedYear}-${leadingZero(extractedMonth)}-${extractedDay}`;
-				appointmentData.start_date = new Date(startDate_date).toISOString();
+				startDate_date = `${extractedYear}-${leadingZero(extractedMonth)}-${leadingZero(extractedDay)}`;
+				console.log("Value passed to Datepicker:-----------", startDate_date);
+				appointmentData.start_date = new Date(extractedYear, extractedMonth - 1, extractedDay).toISOString();
+				console.log("startDate on mount", appointmentData.start_date);
 			}
 			initFetch();
 		} else {
@@ -85,8 +92,9 @@
 
 	function onAppointmentDataToUpdate() {
 		appointmentData = toUpdateAppointmentData;
-		appointmentData.start_date = new Date(parseInt(appointmentData.start_date)).toISOString();
-		appointmentData.end_date = new Date(parseInt(appointmentData.end_date)).toISOString();
+		console.log(appointmentData.start_date);
+		appointmentData.start_date = new Date(parseInt(appointmentData.start_date));
+		appointmentData.end_date = new Date(parseInt(appointmentData.end_date));
 		const extracted_start_date = new Date(appointmentData.start_date);
 		const extracted_end_date = new Date(appointmentData.end_date);
 
@@ -98,11 +106,9 @@
 			hour: String(leadingZero(extracted_end_date.getHours())),
 			minute: String(leadingZero(extracted_end_date.getMinutes())),
 		};
-		function dateToYMD(date) {
-			return `${date.getFullYear()}-${leadingZero(parseInt(date.getMonth()) + 1)}-${leadingZero(date.getDate())}`;
-		}
-		endDate_date = dateToYMD(extracted_end_date);
-		startDate_date = dateToYMD(extracted_start_date);
+
+		startDate_date = JSDateToISO8601(appointmentData.start_date);
+		endDate_date = JSDateToISO8601(appointmentData.end_date);
 		if (appointmentData.caretaker) {
 			fetchedContacts = fetchedContacts.filter((element) => element.id !== appointmentData.caretaker.id);
 		}
@@ -246,7 +252,7 @@
 
 	function setStartdate() {
 		if (startDate_time.hour && startDate_time.minute && startDate_date) {
-			const date = new Date(startDate_date);
+			const date = ISO8601ToJSDate(startDate_date);
 			const year = date.getFullYear();
 			const month = date.getMonth();
 			const day = date.getDate();
@@ -264,7 +270,7 @@
 
 	function setEnddate() {
 		if (endDate_time.hour && endDate_time.minute && endDate_date) {
-			const date = new Date(endDate_date);
+			const date = ISO8601ToJSDate(endDate_date);
 			const year = date.getFullYear();
 			const month = date.getMonth();
 			const day = date.getDate();
@@ -539,7 +545,10 @@
 	<div class="wrapper">
 		<div class="headline debug-border">
 			<p class="h1 color-headline">{titleDate}</p>
-			<p class="headline-label">{$lastSelectedDay.dayId.slice(0, 4)}</p>
+			{#if $lastSelectedDay.dayId}
+				<p class="headline-label">{$lastSelectedDay.dayId.slice(0, 4)}</p>
+			{/if}
+
 			<!-- <p class="label">Termin anlegen</p> -->
 		</div>
 		<div style="margin-top: -2rem" class="separator" />
@@ -692,9 +701,7 @@
 					<div class="datepicker-toggle mr-8">
 						<div class:selected={startDate_date} class="datepicker-toggle-button">
 							{#if startDate_date}
-								{new Date(startDate_date).getDate()}.
-								{monthNames[new Date(startDate_date).getMonth()]}
-								{new Date(startDate_date).getFullYear()}
+								{dateToString(startDate_date, null, "short")}
 							{:else}
 								Datum
 							{/if}
@@ -751,9 +758,7 @@
 					<div class="datepicker-toggle mr-8">
 						<div class:selected={endDate_date} class="datepicker-toggle-button">
 							{#if endDate_date}
-								{new Date(endDate_date).getDate()}.
-								{monthNames[new Date(endDate_date).getMonth()]}
-								{new Date(endDate_date).getFullYear()}
+								{dateToString(endDate_date, null, "short")}
 							{:else}
 								Datum
 							{/if}
@@ -767,6 +772,7 @@
 									endDate.setHours(parseInt(endDate_time.hour), parseInt(endDate_time.minute));
 								}
 								appointmentData.end_date = endDate.toISOString();
+								console.log(appointmentData.end_date);
 							}}
 							type="date"
 							class="datepicker-input"

@@ -9,7 +9,6 @@
 
 	async function main() {
 		const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
-
 		const graphQLClient = new GraphQLClient(endpoint, {
 			credentials: "include",
 			mode: "cors",

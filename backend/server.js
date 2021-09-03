@@ -16,12 +16,13 @@ if (process.env.NOD_ENV !== "production") {
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const macVMURL = "http://10.0.2.2:5000";
 
 // CSP Header
 app.use(
 	expressCspHeader({
 		directives: {
-			"default-src": [SELF, process.env.FRONTEND_URL],
+			"default-src": [SELF, process.env.FRONTEND_URL, macVMURL],
 			"script-src": [SELF, INLINE, EVAL],
 			"style-src": [SELF, INLINE, "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
 			"img-src": [SELF],
@@ -29,14 +30,14 @@ app.use(
 			"block-all-mixed-content": true,
 			"font-src": ["https://fonts.googleapis.com", "https://fonts.gstatic.com"],
 			"frame-ancestors": [NONE],
-			"connect-src": [SELF, process.env.FRONTEND_URL],
+			"connect-src": [SELF, process.env.FRONTEND_URL, macVMURL],
 		},
 	})
 );
 
 console.log(process.env.FRONTEND_URL);
 
-app.use(cors({ origin: [process.env.FRONTEND_URL], credentials: true }));
+app.use(cors({ origin: [process.env.FRONTEND_URL, macVMURL], credentials: true }));
 
 // on first request attaches a cookie to the response (inside the setCookie header) and writes
 // a session ID to the database, after that the session (incl. the cookie to identify it)

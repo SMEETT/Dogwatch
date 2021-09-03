@@ -1,7 +1,6 @@
 <!-- routify:options reset -->
 <script>
 	import { metatags, goto } from "@roxi/routify";
-	import { null_to_empty } from "svelte/internal";
 	metatags.title = "Dogwatch / Registrieren";
 	metatags.description = "Description coming soon...";
 	import { isAuthenticated, authenticating, checkAuthCookie, liveValidation, statusModalMessages, newlyRegisteredEmail } from "../../stores/state";
@@ -11,10 +10,6 @@
 
 	import { login } from "../../stores/state";
 	import * as yup from "yup";
-
-	let email;
-	let password;
-	let passwordConfirmation;
 
 	const registerData = {
 		username: null,
