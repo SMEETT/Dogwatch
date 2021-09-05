@@ -19,8 +19,10 @@
 	} from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
 
-	const lang = localStorage.getItem("language");
-	const dateFormat = localStorage.getItem("dateFormat");
+	import { en } from "../../loc/en";
+	import { de } from "../../loc/de";
+	let loc;
+	navigator.language.slice(0, 2) === "de" ? (loc = de) : (loc = en);
 
 	let showCaredates = false;
 	let currentlySelectedDay = null;
@@ -61,8 +63,8 @@
 	// global variable that contains all fetched data
 	let fetchedData;
 
-	const weekdayNames = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-	const monthNames = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+	const weekdayNames = loc.globals.weekdayNames;
+	const monthNames = loc.globals.monthNames;
 
 	// ----------------------------------------------
 	// INIT, GLOBALS AND LIFECYCLE METHODS
@@ -77,7 +79,6 @@
 
 	onMount(() => {
 		console.log("onMount()");
-		console.log("lang", lang);
 		// Mark "Appointments" in Menu
 		menuSelection.set("appointments");
 		$menuContext.context = "day";
@@ -268,7 +269,7 @@
 		function getFirstDayOffset(year, month) {
 			let offset;
 			const firstDayMonth = new Date(year, month, 1).getDay();
-			firstDayMonth === 0 ? (offset = 7) : (offset = firstDayMonth);
+			firstDayMonth === 0 ? (offset = 7) : (offset = firstDayMonth - loc.globals.firstDayOffset);
 			return offset;
 		}
 		const offset = getFirstDayOffset(year, month);

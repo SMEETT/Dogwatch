@@ -8,7 +8,6 @@
 
 	import StatusModal from "../_root_components/StatusModal.svelte";
 
-	import { login } from "../../stores/state";
 	import * as yup from "yup";
 
 	const registerData = {

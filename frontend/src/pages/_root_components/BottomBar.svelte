@@ -3,6 +3,11 @@
 	import { goto } from "@roxi/routify";
 	import { fade } from "svelte/transition";
 
+	import { en } from "../../loc/en";
+	import { de } from "../../loc/de";
+	let loc;
+	navigator.language.slice(0, 2) === "de" ? (loc = de) : (loc = en);
+
 	let menuVisible = false;
 	let menuOpacity = 0;
 	let menuPointer = "none";
@@ -87,7 +92,8 @@
 			on:click={() => menuSelection.set("logout")}
 			on:click={() => $goto("/logout")}
 			class="menu-link"
-			>Logout <svg
+			>{loc.globals.menu.logout}
+			<svg
 				class="icon-menu"
 				class:icon-active={$menuSelection === "logout"}
 				width="18"
@@ -112,7 +118,8 @@
 			on:click={() => menuSelection.set("profile")}
 			on:click={() => $goto("/profile")}
 			class="menu-link"
-			>Profil <svg
+			>{loc.globals.menu.profile}
+			<svg
 				class="icon-menu"
 				class:icon-active={$menuSelection === "profile"}
 				width="18"
@@ -136,7 +143,8 @@
 			on:click={() => menuSelection.set("contacts")}
 			on:click={() => $goto("/contacts/list")}
 			class="menu-link"
-			>Kontakte <svg
+			>{loc.globals.menu.contacts}
+			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				class="icon-menu"
 				class:icon-active={$menuSelection === "profile"}
@@ -159,7 +167,8 @@
 			on:click={() => menuSelection.set("dogs")}
 			on:click={() => $goto("/dogs")}
 			class="menu-link"
-			>Hunde <svg
+			>{loc.globals.menu.dogs}
+			<svg
 				class="icon-menu"
 				class:icon-active={$menuSelection === "dogs"}
 				width="20"
@@ -183,7 +192,8 @@
 			on:click={() => menuSelection.set("appointments")}
 			on:click={() => $goto("/appointments")}
 			class="menu-link"
-			>Termine <svg
+			>{loc.globals.menu.appointments}
+			<svg
 				class="icon-menu"
 				class:icon-active={$menuSelection === "appointments"}
 				width="17"

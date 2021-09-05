@@ -4,13 +4,12 @@
 	metatags.title = "Dogwatch / Login";
 	metatags.description = "Description coming soon...";
 	import { isAuthenticated, authenticating, checkAuthCookie, liveValidation, statusModalMessages, newlyRegisteredEmail } from "../../stores/state";
+	import { GraphQLClient, gql } from "graphql-request";
 
-	import { login } from "../../stores/state";
 	import * as yup from "yup";
 
 	import { en } from "../../loc/en";
 	import { de } from "../../loc/de";
-
 	let loc;
 	navigator.language.slice(0, 2) === "de" ? (loc = de) : (loc = en);
 
@@ -42,6 +41,50 @@
 			}
 		}
 	}
+
+	const login = async (email, password) => {
+		authenticating.set(true);
+		async function loginUser() {
+			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
+			const graphQLClient = new GraphQLClient(endpoint, {
+				credentials: "include",
+				mode: "cors",
+			});
+			const mutation = gql`
+				mutation {
+					loginUser(email: "${email}", password: "${password}")
+				}
+			`;
+
+			const data = await graphQLClient.request(mutation);
+			if (data.loginUser.status === 200) {
+				isAuthenticated.set(true);
+				authenticating.set(false);
+				if (data.loginUser.preferences.language && data.loginUser.preferences.dateFormat) {
+					localStorage.setItem("language", data.loginUser.preferences.language);
+					localStorage.setItem("dateFormat", data.loginUser.preferences.dateFormat);
+				} else {
+					localStorage.setItem("language", "de");
+					localStorage.setItem("dateFormat", "ddmm");
+				}
+
+				console.log(JSON.stringify(data, undefined, 2));
+				return true;
+			} else {
+				throw new Error("Login Failed");
+			}
+		}
+
+		return loginUser()
+			.then(() => {
+				return true;
+			})
+			.catch((error) => {
+				console.log(error);
+				isAuthenticated.set(false);
+				return false;
+			});
+	};
 
 	// ********************************************************
 	// VALIDATION

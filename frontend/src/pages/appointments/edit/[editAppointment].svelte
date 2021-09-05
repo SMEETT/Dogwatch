@@ -2,23 +2,9 @@
 	import { goto, metatags, redirect, params } from "@roxi/routify";
 	metatags.title = "Dogwatch / Termine / Bearbeiten";
 	metatags.description = "Description coming soon...";
-	import { onMount, onDestroy } from "svelte";
-	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuSelection, menuContext, lastSelectedDay, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
-
 	import FormAppointment from "../_components/FormAppointment.svelte";
-
-	// ********************************************************
-	// ON MOUNT
-	// ********************************************************
-	onMount(() => {
-		// menuSelection.set("appointments");
-		// console.log("edit id", parseInt($params.editAppointment));
-		// menuContext.set({ context: "appointment", idToUse: parseInt($params.editAppointment) });
-		// liveValidation.set(false);
-	});
 
 	const fetchPromise = fetchAppointment(parseInt($params.editAppointment));
 

@@ -1,4 +1,16 @@
 export const de = {
+	globals: {
+		weekdayNames: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+		monthNames: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+		firstDayOffset: 1, // 0: first day of the week Sunday, 1: first day of the week
+		menu: {
+			logout: "Logout",
+			profile: "Profil",
+			contacts: "Kontakte",
+			dogs: "Hunde",
+			appointments: "Termine",
+		},
+	},
 	login: {
 		title: "Login",
 		email: "E-Mail",

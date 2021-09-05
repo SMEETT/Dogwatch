@@ -59,11 +59,7 @@ export function generateId(date) {
 }
 
 export function dateToString(start_date, end_date, length = "normal") {
-	let dateFormat;
 	let dateFormatter;
-
-	console.log("start_date", start_date);
-	console.log("end_date", end_date);
 
 	const dateFormatterNoYear = {
 		month: "numeric",
@@ -102,9 +98,7 @@ export function dateToString(start_date, end_date, length = "normal") {
 			dateFormatter = dateFormatterNoYear;
 	}
 
-	const mmddFormatter = new Intl.DateTimeFormat("en-US", dateFormatter);
-	const ddmmFormatter = new Intl.DateTimeFormat("de", dateFormatter);
-	!localStorage.getItem("dateFormat") ? (dateFormat = "ddmm") : (dateFormat = localStorage.getItem("dateFormat"));
+	const dateFormatterUdf = new Intl.DateTimeFormat(undefined, dateFormatter);
 
 	function convertDate(date) {
 		if (typeof date === "string" && date.length === 10) {
@@ -116,11 +110,7 @@ export function dateToString(start_date, end_date, length = "normal") {
 	}
 
 	function formatDate(date) {
-		if (dateFormat === "ddmm") {
-			return ddmmFormatter.format(date);
-		} else if (dateFormat === "mmdd") {
-			return mmddFormatter.format(date);
-		}
+		return dateFormatterUdf.format(date);
 	}
 
 	function sameDay(date1, date2) {
