@@ -38,10 +38,10 @@
 			if (await login(loginData.email, loginData.password)) {
 				$newlyRegisteredEmail = null;
 				$goto("/appointments");
-				statusModalMessages.set({ code: 200, message: loc.login.val.modalLoginSuccess });
+				statusModalMessages.set({ code: 200, message: loc.login.modal.loginSuccess });
 			} else {
 				$authenticating = false;
-				$statusModalMessages = { code: 400, message: loc.login.val.modalLoginFailed };
+				$statusModalMessages = { code: 400, message: loc.login.modal.loginFailed };
 			}
 		}
 	}
@@ -114,7 +114,7 @@
 			errors = extractErrors(err);
 			console.log(errors);
 			loginValidationErrors = errors;
-			$statusModalMessages = { code: 1, message: loc.shared.val.modalFields };
+			$statusModalMessages = { code: 1, message: loc.shared.modal.missingFields };
 			return false;
 		}
 	};
@@ -139,7 +139,7 @@
 <!-- Login Index -->
 
 <div class="headline">
-	<h1 class="color-headline" style="margin-left: 0rem">{loc.login.title}</h1>
+	<h1 class="color-headline" style="margin-left: 0rem">{loc.login.misc.title}</h1>
 </div>
 <div style="margin-top: -2rem" class="separator" />
 
@@ -155,10 +155,10 @@
 		<p class="form-validation-error">({loginValidationErrors.password})</p>
 	{/if}
 </form>
-<button on:click={handleSubmit} class="btn btn-regular">{loc.login.submit}</button>
+<button on:click={handleSubmit} class="btn btn-regular">{loc.login.misc.submit}</button>
 
 <div class="wrapper-to-register">
-	<p>{loc.login.infotext} <a class="generic" href="/register">{loc.login.regLink}</a></p>
+	<p>{loc.login.misc.infotext} <a class="generic" href="/register">{loc.login.misc.regLink}</a></p>
 </div>
 
 <style>

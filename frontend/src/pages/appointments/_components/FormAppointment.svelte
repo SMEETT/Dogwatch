@@ -7,7 +7,7 @@
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
 
-	import { menuSelection, menuContext, bottomBarAction, liveValidation, statusModalMessages, lastSelectedDay } from "../../../stores/state";
+	import { menuSelection, menuContext, bottomBarAction, liveValidation, statusModalMessages, lastSelectedDay, loadLocale } from "../../../stores/state";
 	import { dateToString, leadingZero, yyyymmddToString, ISO8601ToJSDate, JSDateToISO8601 } from "../../../_helpers/helperFunctions";
 
 	import randomColor from "randomcolor"; // import the script
@@ -15,6 +15,8 @@
 	let extractedYear;
 	let extractedMonth;
 	let extractedDay;
+
+	const loc = loadLocale();
 
 	if (!$lastSelectedDay.dayId) {
 		console.log("none");
@@ -48,21 +50,6 @@
 
 	$: titleDate = dateToString(appointmentData.start_date, appointmentData.end_date, "noYear");
 
-	function renderTitleDates(startDate, endDate) {
-		const start_date = new Date(startDate);
-		const end_date = new Date(endDate);
-		const start_date_fixed = new Date(start_date.setHours(12, 0, 0, 0));
-		const end_date_fixed = new Date(end_date.setHours(12, 0, 0, 0));
-		if (start_date_fixed.getTime() === end_date_fixed.getTime() || end_date_fixed < start_date_fixed) {
-			return `${leadingZero(start_date_fixed.getDate())}. ${monthNames[start_date_fixed.getMonth()]}`;
-		} else {
-			const end_date_day = end_date.getDate();
-			const end_date_month = monthNames[end_date.getMonth()];
-			return `${leadingZero(start_date_fixed.getDate())}. ${monthNames[start_date_fixed.getMonth()]} - ${end_date_day}. ${end_date_month}`;
-		}
-	}
-
-	const monthNames = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 	let titleDate;
 
 	// ********************************************************
@@ -311,13 +298,17 @@
 				username: yup.string().required(),
 			})
 		),
-		start_date: yup.date().required("Bitte Startdatum angeben").required(yup.ref("end_date"), "Enddatum fehlt").typeError("Bitte Ankunftszeit angeben"),
+		start_date: yup
+			.date()
+			.required(loc.appointments.val.startDateProvide)
+			.required(yup.ref("end_date"), loc.appointments.val.endDateProvide)
+			.typeError(loc.appointments.val.startDateProvide),
 		end_date: yup
 			.date()
-			.required("Bitte Enddatum angeben")
-			.required(yup.ref("start_date"), "Startddatum fehlt")
-			.typeError("Bitte Abholzeit angeben")
-			.min(yup.ref("start_date"), "Zeitpunkt der Abholung liegt vor der Ankunft"),
+			.required(loc.appointments.val.endDateProvide)
+			.required(yup.ref("start_date"), loc.appointments.val.startDateProvide)
+			.typeError(loc.appointments.val.endDateProvide)
+			.min(yup.ref("start_date"), loc.appointments.val.endDateLTstartDate),
 		notes: yup.string().nullable(),
 	});
 	// ----------------------------------------------------
@@ -333,7 +324,7 @@
 		} catch (err) {
 			errors = extractErrors(err);
 			appointmentValidationErrors = errors;
-			$statusModalMessages = { code: 1, message: "Bitte die fehlenden Felder ausfuellen" };
+			$statusModalMessages = { code: 1, message: loc.shared.modal.missingFields };
 			return false;
 		}
 	};
@@ -411,11 +402,11 @@
 			`;
 				const data = await graphQLClient.request(mutation);
 				if (data.addAppointment.status.code === 200) {
-					statusModalMessages.set({ code: 200, message: `Termin wurde erfolgreich angelegt.` });
+					statusModalMessages.set({ code: 200, message: loc.appointments.modal.addSuccess });
 				} else if (data.addAppointment.status.code === 401) {
-					statusModalMessages.set({ code: 401, message: "Benutzer nicht angemeldet." });
+					statusModalMessages.set({ code: 401, message: loc.shared.modal.notLoggedIn });
 				} else {
-					statusModalMessages.set({ code: 1, message: "Unbekannter Fehler beim hinzufuegen eines neuen Termins" });
+					statusModalMessages.set({ code: 1, message: loc.shared.modal.unknownError });
 				}
 				console.log(JSON.stringify(data, undefined, 2));
 				return data.addAppointment;
@@ -489,11 +480,11 @@
 			`;
 				const data = await graphQLClient.request(mutation);
 				if (data.updateAppointment.status.code === 200) {
-					statusModalMessages.set({ code: 200, message: `Termin wurde erfolgreich aktualisiert.` });
+					statusModalMessages.set({ code: 200, message: loc.appointments.modal.updateSuccess });
 				} else if (data.updateAppointment.status.code === 401) {
-					statusModalMessages.set({ code: 401, message: "Benutzer nicht angemeldet." });
+					statusModalMessages.set({ code: 401, message: loc.shared.modal.notLoggedIn });
 				} else {
-					statusModalMessages.set({ code: 1, message: "Unbekannter Fehler beim bearbeiten eines Termins" });
+					statusModalMessages.set({ code: 1, message: loc.shared.modal.unknownError });
 				}
 				console.log(JSON.stringify(data, undefined, 2));
 				return data.updateAppointment;
@@ -557,16 +548,16 @@
 			<!-- ******************************************************** -->
 			<!-- DOGS -->
 			<!-- ******************************************************** -->
-			<p class="label color-dark">Hunde</p>
+			<p class="label color-dark">{loc.appointments.labels.dogs}</p>
 			<div class="display-flex mt-8">
 				<!-- svelte-ignore a11y-no-onchange -->
 				<select bind:this={dropdownSelectDogs} bind:value={selectedDog} on:change={addDog} class:selected={appointmentData.dogs.length > 0}>
-					<option value="" disabled selected>Bitte auswählen</option>
+					<option value="" disabled selected>{loc.shared.misc.pleaseSelect}</option>
 					{#each fetchedDogs as dog}
 						<option value={dog}>{dog.name}</option>
 					{/each}
 				</select>
-				<button on:click={addAllDogs} class="btn btn-regular ml-8">Alle Hunde hinzufügen</button>
+				<button on:click={addAllDogs} class="btn btn-regular ml-8">{loc.appointments.misc.btnAddAllDogs}</button>
 			</div>
 			{#if appointmentValidationErrors.dogs}
 				<p class="form-validation-error mt-8">({appointmentValidationErrors.dogs})</p>
@@ -600,7 +591,7 @@
 			<!-- ******************************************************** -->
 			<!-- CARETAKER -->
 			<!-- ******************************************************** -->
-			<p class="label color-dark mt-20">Aufpasser</p>
+			<p class="label color-dark mt-20">{loc.appointments.labels.caretaker}</p>
 			<div class="display-flex mt-8">
 				<!-- svelte-ignore a11y-no-onchange -->
 				<select
@@ -609,7 +600,7 @@
 					on:change={addCaretaker}
 					class:selected={appointmentData.caretaker !== null}
 				>
-					<option value="" disabled selected>Bitte auswählen</option>
+					<option value="" disabled selected>{loc.shared.misc.pleaseSelect}</option>
 					{#each fetchedContacts as contact}
 						<option value={contact}>{contact.username}</option>
 					{/each}
@@ -647,7 +638,7 @@
 			<!-- ******************************************************** -->
 			<!-- OBSERVERS -->
 			<!-- ******************************************************** -->
-			<p class="label color-dark mt-20">Beobachter</p>
+			<p class="label color-dark mt-20">{loc.appointments.labels.observers}</p>
 			<div class="display-flex mt-8">
 				<!-- svelte-ignore a11y-no-onchange -->
 				<select
@@ -656,7 +647,7 @@
 					on:change={addObserver}
 					class:selected={appointmentData.observers.length > 0}
 				>
-					<option value="" disabled selected>Bitte auswählen</option>
+					<option value="" disabled selected>{loc.shared.misc.pleaseSelect}</option>
 					{#each fetchedContacts as contact}
 						<option value={contact}>{contact.username}</option>
 					{/each}
@@ -695,7 +686,7 @@
 			<!-- START TIME -->
 			<!-- ******************************************************** -->
 			<!-- DROPDOWN TO ADD TIME -->
-			<p class="label color-dark mt-20">Ankunft</p>
+			<p class="label color-dark mt-20">{loc.appointments.labels.arrival}</p>
 			<div style="display: flex;">
 				<div class="wrapper-selects mt-8">
 					<div class="datepicker-toggle mr-8">
@@ -724,33 +715,33 @@
 				<div class="wrapper-selects mt-8">
 					<!-- svelte-ignore a11y-no-onchange -->
 					<select bind:value={startDate_time.hour} on:change={setStartdate} class:selected={startDate_time.hour}>
-						<option value="" disabled selected>Std</option>
+						<option value="" disabled selected>{loc.appointments.labels.hoursShort}</option>
 						{#each { length: 24 } as _, i}
 							<option>{String(leadingZero(i))}</option>
 						{/each}
 					</select>
 					<!-- svelte-ignore a11y-no-onchange -->
 					<select bind:value={startDate_time.minute} on:change={setStartdate} class="ml-8" class:selected={startDate_time.minute}>
-						<option value="" disabled selected>Min</option>
+						<option value="" disabled selected>{loc.appointments.labels.minutesShort}</option>
 						<option>00</option>
 						<option>15</option>
 						<option>30</option>
 						<option>45</option>
 					</select>
-					<p class="regular-text ml-8">Uhr</p>
+					<p class="regular-text ml-8">{loc.appointments.labels.time}</p>
 				</div>
 			</div>
 
 			{#if appointmentValidationErrors.start_date}
 				<p class="form-validation-error mt-8">({appointmentValidationErrors.start_date})</p>
 			{:else if (!startDate_time.hour || !startDate_time.minute) && $liveValidation && startDate_date}
-				<p class="form-validation-error mt-8">(Bitte Uhrzeit der Ankunft angeben)</p>
+				<p class="form-validation-error mt-8">({loc.appointments.val.startDateProvide})</p>
 			{/if}
 			<!-- ******************************************************** -->
 			<!-- END TIME/DATE -->
 			<!-- ******************************************************** -->
 			<!-- DROPDOWN TO ADD TIME -->
-			<p class="label color-dark mt-20">Abholung</p>
+			<p class="label color-dark mt-20">{loc.appointments.labels.departure}</p>
 			<!-- DATE SELECT -->
 			<!-- svelte-ignore a11y-no-onchange -->
 			<div style="display: flex;">
@@ -760,7 +751,7 @@
 							{#if endDate_date}
 								{dateToString(endDate_date, null, "short")}
 							{:else}
-								Datum
+								{loc.appointments.labels.date}
 							{/if}
 						</div>
 						<input
@@ -783,32 +774,32 @@
 					<!-- svelte-ignore a11y-no-onchange -->
 
 					<select bind:value={endDate_time.hour} on:change={setEnddate} class:selected={endDate_time.hour}>
-						<option value="" disabled selected>Std</option>
+						<option value="" disabled selected>{loc.appointments.labels.hoursShort}</option>
 						{#each { length: 24 } as _, i}
 							<option>{String(leadingZero(i))}</option>
 						{/each}
 					</select>
 					<!-- svelte-ignore a11y-no-onchange -->
 					<select bind:value={endDate_time.minute} on:change={setEnddate} class="ml-8" class:selected={endDate_time.minute}>
-						<option value="" disabled selected>Min</option>
+						<option value="" disabled selected>{loc.appointments.labels.minutesShort}</option>
 						<option>00</option>
 						<option>15</option>
 						<option>30</option>
 						<option>45</option>
 					</select>
-					<p class="regular-text ml-8">Uhr</p>
+					<p class="regular-text ml-8">{loc.appointments.labels.minutesShort}</p>
 				</div>
 			</div>
 
 			{#if appointmentValidationErrors.end_date}
 				<p class="form-validation-error mt-8">({appointmentValidationErrors.end_date})</p>
 			{:else if (!endDate_time.hour || !endDate_time.minute) && $liveValidation && endDate_date}
-				<p class="form-validation-error mt-8">(Bitte Uhrzeit der Abholung angeben)</p>
+				<p class="form-validation-error mt-8">({loc.appointments.val.endDateProvide})</p>
 			{/if}
 			<!-- ******************************************************** -->
 			<!-- NOTES -->
 			<!-- ******************************************************** -->
-			<p class="label color-dark mt-32">Notizen</p>
+			<p class="label color-dark mt-32">{loc.shared.labels.notes}</p>
 			<div>
 				<textarea bind:value={appointmentData.notes} class="notes-input mt-8" cols="30" rows="10" />
 			</div>

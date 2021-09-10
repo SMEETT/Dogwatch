@@ -25,7 +25,7 @@
 
 			if (registerAttempt === true) {
 				$goto("/appointments");
-				statusModalMessages.set({ code: 200, message: loc.register.val.modalRegisterSuccess });
+				statusModalMessages.set({ code: 200, message: loc.register.modal.registerSuccess });
 			} else {
 				statusModalMessages.set({ code: 400, message: registerAttempt.message });
 			}
@@ -63,7 +63,7 @@
 		} catch (err) {
 			errors = extractErrors(err);
 			registerValidationErrors = errors;
-			$statusModalMessages = { code: 1, message: loc.shared.val.modalFields };
+			$statusModalMessages = { code: 1, message: loc.shared.modal.missingFields };
 			return false;
 		}
 	};
@@ -124,7 +124,7 @@
 <!-- Login Index -->
 
 <div class="headline">
-	<h1 class="color-headline" style="margin-left: 0rem">{loc.register.title}</h1>
+	<h1 class="color-headline" style="margin-left: 0rem">{loc.register.misc.title}</h1>
 </div>
 <div style="margin-top: -2rem" class="separator" />
 
@@ -146,7 +146,7 @@
 			({registerValidationErrors.password})
 		</p>
 	{/if}
-	<label for="password-confirmation">{loc.register.passwordConfirm}:</label>
+	<label for="password-confirmation">{loc.register.labels.passwordConfirm}:</label>
 	<input
 		class:selected={registerData.passwordConfirmation}
 		type="password"
@@ -161,7 +161,7 @@
 <button on:click={handleSubmit} class="btn btn-regular">{loc.register.submit}</button>
 
 <div class="wrapper-to-login">
-	<p>{loc.register.infotext} <a class="generic" style="text-transform: uppercase;" href="/login">{loc.register.loginLink}</a></p>
+	<p>{loc.register.misc.infotext} <a class="generic" style="text-transform: uppercase;" href="/login">{loc.register.misc.loginLink}</a></p>
 </div>
 
 <StatusModal />

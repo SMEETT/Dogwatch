@@ -3,12 +3,12 @@
 	metatags.title = "Dogwatch / Hunde";
 	metatags.description = "Description coming soon...";
 	import { onMount, onDestroy } from "svelte";
-	import { menuSelection, menuContext, userLanguage } from "../../stores/state";
+	import { menuSelection, menuContext, loadLocale } from "../../stores/state";
 	import { GraphQLClient, gql } from "graphql-request";
-	import { usersDogsIds } from "../../stores/state";
+	const loc = loadLocale();
 
-	let infoMessage = "";
-	let promise = new Promise((resolove, reject) => {});
+	let message = "";
+	let promiseDogIds = new Promise((resolove, reject) => {});
 
 	async function getDogIds() {
 		async function getDogs() {
@@ -34,23 +34,19 @@
 	}
 
 	onMount(() => {
-		console.log("userLanguage----------------", $userLanguage);
 		menuSelection.set("dogs");
-		console.log($menuContext);
 		$menuContext = { context: "dog_none" };
-		console.log($menuContext.context);
-		promise = getDogIds();
-		promise.then((data) => {
-			const dogsIds = [];
-			console.log("dataaaaaaaaaaaa", data);
+		promiseDogIds = getDogIds();
+		promiseDogIds.then((data) => {
+			const dogIds = [];
 			data.dogs.forEach((dog) => {
-				dogsIds.push(parseInt(dog.id));
+				dogIds.push(parseInt(dog.id));
 			});
-			dogsIds.sort((a, b) => a - b);
-			if (dogsIds.length > 0) {
-				$goto(`/dogs/${dogsIds[0]}`);
+			dogIds.sort((a, b) => a - b);
+			if (dogIds.length > 0) {
+				$goto(`/dogs/${dogIds[0]}`);
 			} else {
-				infoMessage = "Sie haben noch keine Hunde angelegt";
+				message = loc.dogs.misc.noDogsYet;
 			}
 		});
 	});
@@ -60,7 +56,7 @@
 	});
 </script>
 
-{#await promise}
+{#await promiseDogIds}
 	<div class="wrapper-spinner">
 		<div class="lds-ring">
 			<div />
@@ -70,7 +66,7 @@
 		</div>
 	</div>
 {:then}
-	<p class="regular-text">{infoMessage}</p>
+	<p class="regular-text">{message}</p>
 {/await}
 
 <style>

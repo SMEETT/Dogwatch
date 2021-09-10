@@ -13,8 +13,10 @@
 	import imageFileResizer from "../../../_helpers/imageResizer";
 	const resize = imageFileResizer.imageFileResizer;
 
-	import { menuSelection, menuContext, bottomBarAction, liveValidation, statusModalMessages } from "../../../stores/state";
-	import { leadingZero } from "../../../_helpers/helperFunctions";
+	const loc = loadLocale();
+
+	import { bottomBarAction, liveValidation, statusModalMessages, loadLocale } from "../../../stores/state";
+	import { leadingZero, dateToString, ISO8601ToJSDate } from "../../../_helpers/helperFunctions";
 
 	let image;
 
@@ -39,7 +41,6 @@
 	export let toUpdateDogData;
 
 	if (toUpdateDogData) {
-		console.log("incoming data for edit dog");
 		dogData = toUpdateDogData;
 		if (dogData.image === "undefined") {
 			image = null;
@@ -51,31 +52,18 @@
 	let titleFormContext;
 
 	if (formContext === "edit") {
-		titleFormContext = "Hund bearbeiten";
+		titleFormContext = loc.dogs.misc.formContextEdit;
 	} else if (formContext === "add") {
-		titleFormContext = "Hund anlegen";
+		titleFormContext = loc.dogs.misc.formContextAdd;
 	}
 
 	// ********************************************************
 	// FORM DATA
 	// ********************************************************
 	// ----------------------------------------------------
-	// BIRTHDAY
-	// ----------------------------------------------------
-	let birthday;
-	const monthNames = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
-	function convertBirthday() {
-		// birthday comes in format yyyy-mm-dd
-		// and gets split into [yyyy, mm, dd]
-		const array = birthday.split("-");
-		const bday = new Date(array[0], array[1] - 1, array[2]);
-		const ISOString = bday.toISOString();
-		dogData.birthday = ISOString;
-	}
-	// ----------------------------------------------------
 	// GENDER
 	// ----------------------------------------------------
-	const genders = ["Männlich", "Weiblich", "Divers"];
+	const genders = [loc.dogs.misc.genders.female, loc.dogs.misc.genders.male];
 
 	// ----------------------------------------------------
 	// MEDICATION
@@ -151,17 +139,17 @@
 	// NEW APPOINTMENT SCHEMA
 	// ----------------------------------------------------
 	const schema_newDog = yup.object().shape({
-		name: yup.string().required("Name fehlt").max(20, "Maximal 20 Zeichen erlaubt"),
-		birthday: yup.date().required("Geburtsdatum bitte angeben"),
-		race: yup.string().required("Rasse bitte angeben").max(60, "Maximal 40 Zeichen erlaubt"),
-		gender: yup.string().required("Bitte geben Sie das Geschlecht an"),
-		weight: yup.number().required("Gewicht bitte angeben"),
-		food_amount: yup.number().required("Futtermenge bitte angeben"),
+		name: yup.string().required(loc.dogs.val.nameProvide).max(20, loc.dogs.val.nameLength),
+		birthday: yup.date().required(loc.dogs.val.birthdayProvide),
+		race: yup.string().required(loc.dogs.val.raceProvide).max(40, loc.dogs.val.raceLength),
+		gender: yup.string().required(loc.dogs.val.genderProvide),
+		weight: yup.number().required(loc.dogs.val.weightProvide),
+		food_amount: yup.number().required(loc.dogs.val.foodAmountProvide),
 		medications: yup.array().of(yup.string()),
-		walk_duration: yup.number().required("Dauer bitte angeben"),
-		walktimes: yup.array().of(yup.date()).min(1, "Spaziergaenge fehlen"),
-		feedtimes: yup.array().of(yup.date()).min(1, "Fuetterungszeiten fehlen"),
-		notes: yup.string().nullable().max(500, "Der eingebene Text ist zu lang"),
+		walk_duration: yup.number().required(loc.dogs.val.walkDurationProvide),
+		walktimes: yup.array().of(yup.date()).min(1, loc.dogs.val.walksProvide),
+		feedtimes: yup.array().of(yup.date()).min(1, loc.dogs.val.feedsProvide),
+		notes: yup.string().nullable().max(500, loc.shared.val.notesLength),
 	});
 	// ----------------------------------------------------
 	// VALIDATION
@@ -179,7 +167,7 @@
 			console.log(errors);
 			dogValidationErrors = errors;
 			console.log(dogValidationErrors);
-			$statusModalMessages = { code: 1, message: "Bitte die fehlenden Felder ausfuellen" };
+			$statusModalMessages = { code: 1, message: loc.shared.modal.missingFields };
 			return false;
 		}
 	};
@@ -237,13 +225,13 @@
 			`;
 				const data = await graphQLClient.request(mutation);
 				if (data.addDog.status.code === 409) {
-					statusModalMessages.set({ code: 400, message: `"${dogData.name}" existiert bereits.` });
+					statusModalMessages.set({ code: 400, message: `"${dogData.name}" ${loc.dogs.modal.dogExists}` });
 				} else if (data.addDog.status.code === 200) {
-					statusModalMessages.set({ code: 200, message: `"${dogData.name}" wurde erfolgreich angelegt.` });
+					statusModalMessages.set({ code: 200, message: `"${dogData.name}" ${loc.dogs.modal.dogAdded}` });
 				} else if (data.addDog.status.code === 401) {
-					statusModalMessages.set({ code: 401, message: "Benutzer nicht angemeldet." });
+					statusModalMessages.set({ code: 401, message: loc.shared.modal.notLoggedIn });
 				} else {
-					statusModalMessages.set({ code: 1, message: "Unbekannter Fehler beim hinzufuegen eines Hundes" });
+					statusModalMessages.set({ code: 1, message: loc.shared.modal.unknownError });
 				}
 				console.log(data.addDog.status);
 				console.log(JSON.stringify(data, undefined, 2));
@@ -295,13 +283,13 @@
 				const data = await graphQLClient.request(mutation);
 				console.log("gql returned DATA after dog update", data);
 				if (data.updateDog.status.code === 409) {
-					statusModalMessages.set({ code: 400, message: `"${dogData.name}" existiert bereits.` });
+					statusModalMessages.set({ code: 400, message: `"${dogData.name}" ${loc.dogs.modal.dogExists}` });
 				} else if (data.updateDog.status.code === 200) {
-					statusModalMessages.set({ code: 200, message: `"${dogData.name}" wurde erfolgreich aktualisiert` });
+					statusModalMessages.set({ code: 200, message: `"${dogData.name}" ${loc.dogs.modal.dogUpdated}` });
 				} else if (data.updateDog.status.code === 401) {
-					statusModalMessages.set({ code: 401, message: "Benutzer nicht angemeldet." });
+					statusModalMessages.set({ code: 401, message: loc.shared.modal.notLoggedIn });
 				} else {
-					statusModalMessages.set({ code: 1, message: "Unbekannter Fehler beim aktualisieren eines Hundes" });
+					statusModalMessages.set({ code: 1, message: loc.shared.modal.unknownError });
 				}
 				console.log(data.updateDog.status);
 				console.log(JSON.stringify(data, undefined, 2));
@@ -318,7 +306,6 @@
 
 	$: {
 		if ($bottomBarAction === "dog_save") {
-			console.log("trying to write Appointment to DB...");
 			$bottomBarAction = "";
 			if (formContext === "add") {
 				writeDogToDB();
@@ -378,26 +365,6 @@
 			180,
 			180
 		);
-
-		// let base64String = null;
-		// var reader = new FileReader();
-		// reader.readAsDataURL(croppedImage);
-		// reader.onloadend = function () {
-		// 	base64String = reader.result;
-		// 	dogData.image = base64String;
-		// };
-		// fetch(croppedImage).then((res) => {
-		// 	console.log("fetch");
-		// 	croppedImage = res.blob().then((blob) => {
-		// 		let base64String = null;
-		// 		var reader = new FileReader();
-		// 		reader.readAsDataURL(blob);
-		// 		reader.onloadend = function () {
-		// 			base64String = reader.result;
-		// 			dogData.image = base64String;
-		// 		};
-		// 	});
-		// });
 	}
 
 	const createImage = (url) =>
@@ -456,23 +423,6 @@
 				resolve(file);
 			}, "image/jpeg");
 		});
-
-		// As a blob
-		// return new Promise((resolve) => {
-		// 	canvas.toBlob((file) => {
-		// 		resizeImage(file).then((resizedImg) => {
-		// 			let base64String = null;
-		// 			var reader = new FileReader();
-		// 			reader.readAsDataURL(resizedImg);
-		// 			reader.onloadend = function () {
-		// 				base64String = reader.result;
-		// 				if (base64String) {
-		// 					resolve(base64String.substr(base64String.indexOf(", ") + 1));
-		// 				}
-		// 			};
-		// 		});
-		// 	}, "image/jpeg");
-		// });
 	}
 
 	// ********************************************************
@@ -512,16 +462,16 @@
 			<img style="margin-top: 3.2rem" alt="dog profile pic" src="/images/image_profile_ph.png" />
 		{/if}
 		<div class="image-upload">
-			<label style="width: 180px; align-items: center" class="btn btn-regular" for="file-input"> Bild wählen.. </label>
+			<label style="width: 180px; align-items: center" class="btn btn-regular" for="file-input"> {loc.dogs.misc.btnSelectPicture} </label>
 			<input id="file-input" on:change={handleImage} type="file" accept="image/*" />
 		</div>
 	</div>
 	<!-- -------------------------------------- -->
 	<!-- NAME -->
 	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Name</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.name}</p>
 	<div class="mt-8">
-		<input class:selected={dogData.name} bind:value={dogData.name} placeholder="Bitte angeben" type="text" />
+		<input class:selected={dogData.name} bind:value={dogData.name} placeholder={loc.dogs.placeholders.name} type="text" />
 	</div>
 
 	{#if dogValidationErrors.name}
@@ -530,19 +480,17 @@
 	<!-- -------------------------------------- -->
 	<!-- BIRTHDAY -->
 	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Geburtstag</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.birthday}</p>
 	<div class="wrapper-selects mt-8">
 		<span class="datepicker-toggle">
-			<span class:selected={birthday} class="datepicker-toggle-button">
+			<span class:selected={dogData.birthday} class="datepicker-toggle-button">
 				{#if dogData.birthday}
-					{new Date(dogData.birthday).getDate()}.
-					{monthNames[new Date(dogData.birthday).getMonth()]}
-					{new Date(dogData.birthday).getFullYear()}
+					{dateToString(dogData.birthday, null, "short")}
 				{:else}
-					Bitte angeben
+					{loc.shared.misc.pleaseSelect}
 				{/if}
 			</span>
-			<input bind:value={birthday} on:change={convertBirthday} type="date" class="datepicker-input" />
+			<input bind:value={dogData.birthday} type="date" class="datepicker-input" />
 		</span>
 	</div>
 	{#if dogValidationErrors.birthday}
@@ -551,9 +499,9 @@
 	<!-- -------------------------------------- -->
 	<!-- RACE -->
 	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Rasse</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.race}</p>
 	<div class="mt-8">
-		<input class:selected={dogData.race} bind:value={dogData.race} placeholder="Bitte angeben" type="text" />
+		<input class:selected={dogData.race} bind:value={dogData.race} placeholder={loc.dogs.placeholders.race} type="text" />
 	</div>
 	{#if dogValidationErrors.race}
 		<p class="form-validation-error mt-8">({dogValidationErrors.race})</p>
@@ -561,10 +509,10 @@
 	<!-- -------------------------------------- -->
 	<!-- GENDER -->
 	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Geschlecht</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.gender}</p>
 	<div class="mt-8">
 		<select class:selected={dogData.gender} bind:value={dogData.gender} name="gender" id="">
-			<option value="" disabled selected>Bitte auswählen</option>
+			<option value="" disabled selected>{loc.shared.misc.pleaseSelect}</option>
 			{#each genders as gender}
 				<option name={gender}>{gender}</option>
 			{/each}
@@ -576,9 +524,17 @@
 	<!-- -------------------------------------- -->
 	<!-- WEIGHT -->
 	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Gewicht</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.weight}</p>
 	<div class="wrapper-input-w-suffix mt-8">
-		<input type="number" min="1" step="1" class:selected={dogData.weight} bind:value={dogData.weight} class="appearance-none" placeholder="Bitte angeben" />
+		<input
+			type="number"
+			min="1"
+			step="1"
+			class:selected={dogData.weight}
+			bind:value={dogData.weight}
+			class="appearance-none"
+			placeholder={loc.dogs.placeholders.weight}
+		/>
 		<p class="input-field-unit sib" class:selected={dogData.weight}>kg</p>
 	</div>
 	{#if dogValidationErrors.weight}
@@ -587,7 +543,7 @@
 	<!-- -------------------------------------- -->
 	<!-- FOOD AMOUNT -->
 	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Futtermenge</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.foodAmount}</p>
 	<div class="wrapper-input-w-suffix mt-8">
 		<input
 			type="number"
@@ -596,7 +552,7 @@
 			class:selected={dogData.food_amount}
 			bind:value={dogData.food_amount}
 			class="appearance-none"
-			placeholder="Bitte angeben"
+			placeholder={loc.dogs.placeholders.foodAmount}
 		/>
 		<p class="input-field-unit sib" class:selected={dogData.food_amount}>g</p>
 	</div>
@@ -606,7 +562,7 @@
 	<!-- -------------------------------------- -->
 	<!-- WALK DURATION -->
 	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Spaziergang Dauer</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.walkDuration}</p>
 	<div class="wrapper-input-w-suffix mt-8">
 		<input
 			type="number"
@@ -615,7 +571,7 @@
 			class:selected={dogData.walk_duration}
 			bind:value={dogData.walk_duration}
 			class="appearance-none"
-			placeholder="Bitte angeben"
+			placeholder={loc.dogs.placeholders.walkDuration}
 		/>
 		<p class="input-field-unit sib" class:selected={dogData.walk_duration}>min</p>
 	</div>
@@ -627,16 +583,16 @@
 	<!-- FEEDING -->
 	<!-- -------------------------------------- -->
 	<!-- DROPDOWN TO ADD FEEDTIME -->
-	<p class="label color-dark mt-32">Fütterungen</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.feedTimes}</p>
 	<div class="wrapper-selects mt-8">
 		<select bind:this={feedtimeHourInput} class:selected={feedtime.hour !== null} bind:value={feedtime.hour} name="age-years" id="">
-			<option value="" disabled selected>Stunde</option>
+			<option value="" disabled selected>{loc.shared.labels.hoursShort}</option>
 			{#each { length: 24 } as _, i}
 				<option>{leadingZero(i)}</option>
 			{/each}
 		</select>
 		<select bind:this={feedtimeMinuteInput} class="ml-16" class:selected={feedtime.minute !== null} bind:value={feedtime.minute} name="age-months" id="">
-			<option value="" disabled selected>Minute</option>
+			<option value="" disabled selected>{loc.shared.labels.minutesShort}</option>
 			<option>00</option>
 			<option>15</option>
 			<option>30</option>
@@ -674,16 +630,16 @@
 	<!-- WALKS -->
 	<!-- -------------------------------------- -->
 	<!-- DROPDOWN TO ADD TIME -->
-	<p class="label color-dark mt-32">Spaziergänge</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.walkTimes}</p>
 	<div class="wrapper-selects mt-8">
 		<select bind:this={walktimeHourInput} class:selected={walktime.hour !== null} bind:value={walktime.hour} name="age-years" id="">
-			<option value="" disabled selected>Stunde</option>
+			<option value="" disabled selected>{loc.shared.labels.hoursShort}</option>
 			{#each { length: 24 } as _, i}
 				<option>{leadingZero(i)}</option>
 			{/each}
 		</select>
 		<select bind:this={walktimeMinuteInput} class="ml-16" class:selected={walktime.minute !== null} bind:value={walktime.minute} name="age-months" id="">
-			<option value="" disabled selected>Minute</option>
+			<option value="" disabled selected>{loc.shared.labels.minutesShort}</option>
 			<option>00</option>
 			<option>15</option>
 			<option>30</option>
@@ -694,7 +650,8 @@
 	<div class="wrapper-list">
 		{#each dogData.walktimes as walktime}
 			<div class="list-item mt-8 regular-text">
-				{leadingZero(new Date(walktime).getHours())} : {leadingZero(new Date(walktime).getMinutes())} Uhr
+				{leadingZero(new Date(walktime).getHours())} : {leadingZero(new Date(walktime).getMinutes())}
+				{loc.shared.labels.time}
 				<button on:click={() => removeWalktime(walktime)} class="btn btn-w-icon">
 					<svg width="16" height="16" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path
@@ -722,9 +679,9 @@
 	<!-- MEDICATION -->
 	<!-- -------------------------------------- -->
 	<!-- TEXTFIELD TO ADD MED -->
-	<p class="label color-dark mt-32">Medikamente</p>
+	<p class="label color-dark mt-32">{loc.dogs.labels.medication}</p>
 	<div class="wrapper-input-w-suffix mt-8">
-		<input bind:this={medicationInput} type="text" class:selected={medication} bind:value={medication} placeholder="Bitte angeben" />
+		<input bind:this={medicationInput} type="text" class:selected={medication} bind:value={medication} placeholder={loc.dogs.placeholders.medication} />
 		<button on:click={addMedication} class:selected={medication} class="button-add-medication sib">
 			<svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path
@@ -773,11 +730,11 @@
 	<!-- -------------------------------------- -->
 	<!-- NOTES -->
 	<!-- -------------------------------------- -->
-	<p class="label color-dark mt-32">Notizen</p>
+	<p class="label color-dark mt-32">{loc.shared.labels.notes}</p>
 	<div>
 		<textarea bind:value={dogData.notes} class="notes-input mt-8" cols="30" rows="10" />
 	</div>
-	<p class="regular-text mt-8">{dogData.notes.length}/500 Zeichen</p>
+	<p class="regular-text mt-8">{dogData.notes.length}/500 {loc.shared.labels.chars}</p>
 	{#if dogValidationErrors.notes}
 		<p class="form-validation-error mt-8">({dogValidationErrors.notes})</p>
 	{/if}

@@ -31,7 +31,6 @@
 		}
 	};
 	const firstDayOfWeek = getFirstDayOfWeek();
-	console.log(firstDayOfWeek);
 
 	let showCaredates = false;
 	let currentlySelectedDay = null;
@@ -73,8 +72,6 @@
 	let fetchedData;
 
 	const weekdayNames = offsetArray(parseInt(firstDayOfWeek), [...loc.globals.weekdayNames]);
-	console.log(loc.globals.weekdayNames);
-	console.log(weekdayNames);
 	const monthNames = loc.globals.monthNames;
 
 	// ----------------------------------------------
@@ -661,11 +658,11 @@
 					if ($menuContext.context === "day") {
 						$menuContext.context = "caretaker";
 						localStorage.setItem("appointmentSwitchStatus", "caretaker");
-						$statusModalMessages = { code: 200, message: "Angezeigte Termine: Aufpasser" };
+						$statusModalMessages = { code: 200, message: loc.appointments.modal.showCaretakerAppointments };
 					} else if ($menuContext.context === "caretaker") {
 						$menuContext.context = "day";
 						localStorage.setItem("appointmentSwitchStatus", "creator");
-						$statusModalMessages = { code: 200, message: "Angezeigte Termine: Ersteller" };
+						$statusModalMessages = { code: 200, message: loc.appointments.modal.showCreatorAppointments };
 					}
 				}}
 			/>
@@ -770,23 +767,29 @@
 												updateAppointmentStatus(iteratedAppointment);
 											}}
 										>
-											<option value="1" selected={iteratedAppointment.status === 1}>Offen</option>
-											<option value="2" selected={iteratedAppointment.status === 2}>Bestätigt</option>
-											<option value="0" selected={iteratedAppointment.status === 0}>Abgelehnt</option>
+											<option value="1" selected={iteratedAppointment.status === 1}
+												>{loc.appointments.misc.appointmentStatus.pending}</option
+											>
+											<option value="2" selected={iteratedAppointment.status === 2}
+												>{loc.appointments.misc.appointmentStatus.accepted}</option
+											>
+											<option value="0" selected={iteratedAppointment.status === 0}
+												>{loc.appointments.misc.appointmentStatus.denied}</option
+											>
 										</select>
 									</div>
 									<!-- <p use:setAcceptSwitchStatus={iteratedAppointment.accepted} /> -->
 								{/if}
 								<div class="wrapper-fields mt-16">
 									<div>
-										<p class="label mb-8">Ersteller</p>
+										<p class="label mb-8">{loc.appointments.labels.creator}</p>
 										<p class="regular-text mb-8">
 											{iteratedAppointment.creator.username}
 										</p>
 									</div>
 
 									<div>
-										<p class="label mb-8">Aufpasser</p>
+										<p class="label mb-8">{loc.appointments.labels.caretaker}</p>
 										{#if !iteratedAppointment.caretaker}
 											<p class="regular-text">-</p>
 										{:else}
@@ -796,7 +799,7 @@
 										{/if}
 									</div>
 									<div>
-										<p class="label mb-8">Beobachter</p>
+										<p class="label mb-8">{loc.appointments.labels.observers}</p>
 										{#if iteratedAppointment.observers.length === 0}
 											<p class="regular-text">-</p>
 										{:else}
@@ -810,15 +813,15 @@
 									<div>
 										<p class="label mb-8">Termin Status</p>
 										{#if iteratedAppointment.status === 0}
-											<p class="regular-text mb-8">Abgelehnt</p>
+											<p class="regular-text mb-8">{loc.appointments.misc.appointmentStatus.denied}</p>
 										{:else if iteratedAppointment.status === 1}
-											<p class="regular-text mb-8">Offen</p>
+											<p class="regular-text mb-8">{loc.appointments.misc.appointmentStatus.pending}</p>
 										{:else if iteratedAppointment.status === 2}
-											<p class="regular-text mb-8">Bestätigt</p>
+											<p class="regular-text mb-8">{loc.appointments.misc.appointmentStatus.accepted}</p>
 										{/if}
 									</div>
 									<div>
-										<p class="label mb-8">Ankunft</p>
+										<p class="label mb-8">{loc.appointments.labels.arrival}</p>
 										<p class="regular-text" style="display: flex; align-items: center">
 											<svg xmlns="http://www.w3.org/2000/svg" width="18" height="5" fill="none" style="margin-right: 0.5rem"
 												><path
@@ -830,7 +833,7 @@
 										</p>
 									</div>
 									<div>
-										<p class="label mb-8">Abholung</p>
+										<p class="label mb-8">{loc.appointments.labels.departure}</p>
 										<p class="regular-text" style="display: flex; align-items: center">
 											<svg xmlns="http://www.w3.org/2000/svg" width="18" height="5" fill="none" style="margin-right: 0.5rem"
 												><path
@@ -842,7 +845,7 @@
 										</p>
 									</div>
 									<div class="wrapper-events">
-										<p class="label mb-8">Hunde</p>
+										<p class="label mb-8">{loc.appointments.labels.dogs}</p>
 										{#if iteratedAppointment.dogs.length === 0}
 											<p class="regular-text">-</p>
 										{/if}
@@ -864,32 +867,32 @@
 													</div>
 													<div class="wrapper-fields">
 														<div>
-															<p class="label mb-8">Alter</p>
+															<p class="label mb-8">{loc.dogs.labels.age}</p>
 															<p class="regular-text mb-8">{calculateAge(currentDog.birthday)} Tage</p>
 														</div>
 
 														<div>
-															<p class="label mb-8">Rasse</p>
+															<p class="label mb-8">{loc.dogs.labels.race}</p>
 															<p class="regular-text mb-8 line-height-125">{currentDog.race}</p>
 														</div>
 														<div>
-															<p class="label mb-8">Geschlecht</p>
+															<p class="label mb-8">{loc.dogs.labels.gender}</p>
 															<p class="regular-text mb-8">{currentDog.gender}</p>
 														</div>
 														<div>
-															<p class="label mb-8">Gewicht</p>
+															<p class="label mb-8">{loc.dogs.labels.weight}</p>
 															<p class="regular-text mb-8">
 																{currentDog.weight} kg
 															</p>
 														</div>
 														<div>
-															<p class="label mb-8">Futtermenge</p>
+															<p class="label mb-8">{loc.dogs.labels.foodAmount}</p>
 															<p class="regular-text mb-8">
 																{currentDog.food_amount} g
 															</p>
 														</div>
 														<div>
-															<p class="label mb-8">Medikamente</p>
+															<p class="label mb-8">{loc.dogs.labels.medication}</p>
 															{#each currentDog.medications as medication}
 																<p class="regular-text mb-8">
 																	{medication}
@@ -900,7 +903,7 @@
 															{/if}
 														</div>
 														<div>
-															<p class="label mb-8">Fütterungen</p>
+															<p class="label mb-8">{loc.dogs.labels.feedTimes}</p>
 															{#each currentDog.feedtimes as feedtime}
 																<p class="regular-text mb-8" style="display: flex; align-items: center">
 																	<svg
@@ -922,7 +925,7 @@
 															{/each}
 														</div>
 														<div>
-															<p class="label mb-8">Spaziergänge</p>
+															<p class="label mb-8">{loc.dogs.labels.walkTimes}</p>
 															{#each currentDog.walktimes as walktime}
 																<p class="regular-text mb-8" style="display: flex; align-items: center">
 																	<svg
@@ -945,13 +948,13 @@
 														</div>
 
 														<div>
-															<p class="label mb-8">Spaziergang Dauer</p>
+															<p class="label mb-8">{loc.dogs.labels.walkDuration}</p>
 															<p class="regular-text mb-8">
 																{currentDog.walk_duration} min
 															</p>
 														</div>
 														<div class="notes mb-8">
-															<p class="label mb-8">Notizen</p>
+															<p class="label mb-8">{loc.shared.labels.notes}</p>
 															{#if currentDog.notes}
 																<p class="regular-text mb-8 line-height-125">
 																	{currentDog.notes}
@@ -967,7 +970,7 @@
 										<p use:handleAccordion />
 									</div>
 									<div class="wrapper-events">
-										<p class="label mb-8">Ablauf</p>
+										<p class="label mb-8">{loc.appointments.labels.events}</p>
 										{#if iteratedAppointment.events.length === 0}
 											<p class="regular-text">-</p>
 										{:else}
@@ -1005,7 +1008,7 @@
 										{/if}
 									</div>
 									<div style="margin-bottom: 5rem;">
-										<p class="label mb-8">Notizen</p>
+										<p class="label mb-8">{loc.shared.labels.notes}</p>
 										{#if iteratedAppointment.notes !== ""}
 											<p class="regular-text line-height-125">
 												{iteratedAppointment.notes}
@@ -1019,7 +1022,7 @@
 						</div>
 					{/each}
 				{:else}
-					<p class="regular-text">Noch keine Termine an diesem Tag</p>
+					<p class="regular-text">{loc.appointments.misc.noAppointments}</p>
 				{/if}
 			</div>
 			<p use:handleLastSelectedDayAppointments />

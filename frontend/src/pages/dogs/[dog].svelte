@@ -1,13 +1,15 @@
 <script>
 	import { params, redirect } from "@roxi/routify";
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuSelection, menuContext, bottomBarAction } from "../../stores/state";
+	import { menuSelection, menuContext, bottomBarAction, loadLocale } from "../../stores/state";
 	import { onDestroy, onMount } from "svelte";
 	import { metatags, goto, url } from "@roxi/routify";
 	import { fade } from "svelte/transition";
 
 	import { extractTimeOfDay, calculateAge } from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
+
+	const loc = loadLocale();
 
 	// call function "main" when the parameter 'dog' changes (on visiting another route /dogs/[dog])
 	$: main($params.dog);
@@ -28,9 +30,7 @@
 	async function main() {
 		// only fetch when there is a parameter present
 		if ($params.dog) {
-			console.log("called...... DOG MAIN!!");
 			menuContext.set({ context: "dog", idToUse: $params.dog });
-			console.log($menuContext);
 			async function getDogData() {
 				async function getDogs() {
 					const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
@@ -106,7 +106,6 @@
 	}
 
 	async function handleDeleteDog() {
-		console.log("handle Delete Dog");
 		async function deleteDog() {
 			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
 			const graphQLClient = new GraphQLClient(endpoint, {
@@ -178,39 +177,39 @@
 			<div class="separator" />
 			<div class="wrapper-fields">
 				<div>
-					<p class="label mb-8">Alter</p>
+					<p class="label mb-8">{loc.dogs.labels.age}</p>
 					<p class="regular-text mb-8">{calculateAge(currentDog.birthday)} Tage</p>
 				</div>
 
 				<div>
-					<p class="label mb-8">Rasse</p>
+					<p class="label mb-8">{loc.dogs.labels.race}</p>
 					<p class="regular-text mb-8 line-height-125">{currentDog.race}</p>
 				</div>
 				<div>
-					<p class="label mb-8">Geschlecht</p>
+					<p class="label mb-8">{loc.dogs.labels.gender}</p>
 					<p class="regular-text mb-8">{currentDog.gender}</p>
 				</div>
 				<div>
-					<p class="label mb-8">Gewicht</p>
+					<p class="label mb-8">{loc.dogs.labels.weight}</p>
 					<p class="regular-text mb-8">
 						{currentDog.weight} kg
 					</p>
 				</div>
 				<div>
-					<p class="label mb-8">Futtermenge</p>
+					<p class="label mb-8">{loc.dogs.labels.foodAmount}</p>
 					<p class="regular-text mb-8">
 						{currentDog.food_amount} g
 					</p>
 				</div>
 				<div>
-					<p class="label mb-8">Spaziergang Dauer</p>
+					<p class="label mb-8">{loc.dogs.labels.walkDuration}</p>
 					<p class="regular-text mb-8">
 						{currentDog.walk_duration} min
 					</p>
 				</div>
 
 				<div>
-					<p class="label mb-8">Fütterungen</p>
+					<p class="label mb-8">{loc.dogs.labels.feedTimes}</p>
 					{#each currentDog.feedtimes as feedtime}
 						<p class="regular-text mb-8" style="display: flex; align-items: center">
 							<svg
@@ -229,7 +228,7 @@
 					{/each}
 				</div>
 				<div>
-					<p class="label mb-8">Spaziergänge</p>
+					<p class="label mb-8">{loc.dogs.labels.walkTimes}</p>
 					{#each currentDog.walktimes as walktime}
 						<p class="regular-text mb-8" style="display: flex; align-items: center">
 							<svg
@@ -248,7 +247,7 @@
 					{/each}
 				</div>
 				<div>
-					<p class="label mb-8">Medikamente</p>
+					<p class="label mb-8">{loc.dogs.labels.medication}</p>
 					{#each currentDog.medications as medication}
 						<p class="regular-text mb-8">
 							{medication}
@@ -259,7 +258,7 @@
 					{/if}
 				</div>
 				<div class="notes">
-					<p class="label mb-8">Notizen</p>
+					<p class="label mb-8">{loc.shared.labels.notes}</p>
 					{#if currentDog.notes}
 						<p class="regular-text mb-8 line-height-125">
 							{currentDog.notes}
@@ -270,18 +269,6 @@
 				</div>
 			</div>
 		</div>
-		<!-- <div class="test-wrapper">
-			<button class="btn" on:click|stopPropagation={prevDog}>
-				<svg width="30" height="48" viewBox="0 0 36 58" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M4 29L34 5V53L4 29Z" stroke="var(--dark)" stroke-width="4" />
-				</svg>
-			</button>
-			<button class="ml-16 mr-8 btn" on:click|stopPropagation={nextDog}>
-				<svg width="30" height="48" viewBox="0 0 36 58" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M32 29L2 5V53L32 29Z" stroke="var(--dark)" stroke-width="4" />
-				</svg>
-			</button>
-		</div> -->
 	</div>
 	{#if $bottomBarAction === "dog_delete"}
 		<DeleteModal on:deleteEntity={handleDeleteDog}>
