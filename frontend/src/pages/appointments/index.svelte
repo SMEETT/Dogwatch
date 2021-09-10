@@ -6,7 +6,7 @@
 	import { onMount, createEventDispatcher, onDestroy } from "svelte";
 	import { fade } from "svelte/transition";
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuSelection, menuContext, bottomBarAction, lastSelectedDay, statusModalMessages, userLanguage } from "../../stores/state";
+	import { menuSelection, menuContext, bottomBarAction, lastSelectedDay, statusModalMessages, loadLocale, requestUserPreference } from "../../stores/state";
 	import {
 		leadingZero,
 		extractTimeOfDay,
@@ -16,13 +16,22 @@
 		dayIdFromDate,
 		generateId,
 		dateToString,
+		offsetArray,
 	} from "../../_helpers/helperFunctions";
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
 
-	import { en } from "../../loc/en";
-	import { de } from "../../loc/de";
-	let loc;
-	navigator.language.slice(0, 2) === "de" ? (loc = de) : (loc = en);
+	const loc = loadLocale();
+
+	const getFirstDayOfWeek = () => {
+		if (localStorage.getItem("firstDayOfWeek")) {
+			console.log("found first day");
+			return parseInt(localStorage.getItem("firstDayOfWeek"));
+		} else {
+			return requestUserPreferences("firstDayOfWeek");
+		}
+	};
+	const firstDayOfWeek = getFirstDayOfWeek();
+	console.log(firstDayOfWeek);
 
 	let showCaredates = false;
 	let currentlySelectedDay = null;
@@ -63,7 +72,9 @@
 	// global variable that contains all fetched data
 	let fetchedData;
 
-	const weekdayNames = loc.globals.weekdayNames;
+	const weekdayNames = offsetArray(parseInt(firstDayOfWeek), [...loc.globals.weekdayNames]);
+	console.log(loc.globals.weekdayNames);
+	console.log(weekdayNames);
 	const monthNames = loc.globals.monthNames;
 
 	// ----------------------------------------------
@@ -79,6 +90,7 @@
 
 	onMount(() => {
 		console.log("onMount()");
+
 		// Mark "Appointments" in Menu
 		menuSelection.set("appointments");
 		$menuContext.context = "day";
@@ -269,10 +281,22 @@
 		function getFirstDayOffset(year, month) {
 			let offset;
 			const firstDayMonth = new Date(year, month, 1).getDay();
-			firstDayMonth === 0 ? (offset = 7) : (offset = firstDayMonth - loc.globals.firstDayOffset);
+			console.log("first day of the month", firstDayMonth);
+			console.log("first day of the week", parseInt(firstDayOfWeek));
+			// firstDayMonth === parseInt(firstDayOfWeek) ? (offset = 7) : (offset = 7 - firstDayMonth);
+
+			if (firstDayMonth === firstDayOfWeek) {
+				offset = 7;
+			} else if (firstDayMonth > firstDayOfWeek) {
+				offset = firstDayMonth - firstDayOfWeek;
+			} else {
+				offset = 7 - (firstDayOfWeek - firstDayMonth);
+			}
+
 			return offset;
 		}
 		const offset = getFirstDayOffset(year, month);
+		console.log("OFFSET", offset);
 		const rangeStart = new Date(year, month, -offset + 1);
 		const rangeEnd = new Date(year, month, -offset + 42);
 

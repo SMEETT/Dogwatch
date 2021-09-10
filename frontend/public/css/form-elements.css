@@ -81,7 +81,7 @@ select {
 	border-radius: 5px;
 	appearance: none;
 	-webkit-appearance: none;
-	-moz-appearance: textfield;
+	-moz-appearance: none;
 	/* color: var(--light); */
 }
 

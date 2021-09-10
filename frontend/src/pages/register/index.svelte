@@ -3,12 +3,14 @@
 	import { metatags, goto } from "@roxi/routify";
 	metatags.title = "Dogwatch / Registrieren";
 	metatags.description = "Description coming soon...";
-	import { isAuthenticated, authenticating, checkAuthCookie, liveValidation, statusModalMessages, newlyRegisteredEmail } from "../../stores/state";
+	import { liveValidation, statusModalMessages, newlyRegisteredEmail, loadLocale } from "../../stores/state";
 	import { GraphQLClient, gql } from "graphql-request";
 
 	import StatusModal from "../_root_components/StatusModal.svelte";
 
 	import * as yup from "yup";
+
+	const loc = loadLocale();
 
 	const registerData = {
 		username: null,
@@ -23,40 +25,29 @@
 
 			if (registerAttempt === true) {
 				$goto("/appointments");
-				statusModalMessages.set({ code: 200, message: "Erfolgreich registriert" });
+				statusModalMessages.set({ code: 200, message: loc.register.val.modalRegisterSuccess });
 			} else {
 				statusModalMessages.set({ code: 400, message: registerAttempt.message });
-				console.log(registerAttempt.message);
 			}
-
-			// if (await register(registerData.username, registerData.email, registerData.password) === ) {
-
-			// } else {
-			// 	console.log("registration failed");
-			// 	$statusModalMessages = { code: 400, message: "Felder bitte korrekt ausfuellen" };
-			// }
 		}
 	}
 
 	// ********************************************************
 	// VALIDATION
 	// ********************************************************
-
-	// errors Frontend-Validation
 	let registerValidationErrors = {};
-
 	// ----------------------------------------------------
 	// NEW APPOINTMENT SCHEMA
 	// ----------------------------------------------------
 	const schema_register = yup.object().shape({
-		username: yup.string().required("Bitte Benutzername angeben").typeError("Bitte Benutzername angeben"),
-		email: yup.string().email("Ungueltige E-Mail Adresse").required("Bitte E-Mail angeben").typeError("Bitte E-Mail angeben"),
-		password: yup.string().required("Passwort bitte angeben").typeError("Bitte Passwort angeben"),
+		username: yup.string().required(loc.register.val.userProvide).typeError(loc.register.val.userProvide),
+		email: yup.string().email(loc.shared.val.emailInvalid).required(loc.shared.val.emailProvide).typeError(loc.shared.val.emailProvide),
+		password: yup.string().required(loc.shared.val.pwdProvide).typeError(loc.shared.val.pwdProvide),
 		passwordConfirmation: yup
 			.string()
-			.required("Passwort bitte bestaetigen")
-			.typeError("Bitte Passwort bestaetigen")
-			.oneOf([yup.ref("password"), null], "Passwoerter muessen identisch sein"),
+			.required(loc.register.val.pwdConfirm)
+			.typeError(loc.register.val.pwdConfirm)
+			.oneOf([yup.ref("password"), null], loc.register.val.pwdNoMatch),
 	});
 
 	// ----------------------------------------------------
@@ -72,7 +63,7 @@
 		} catch (err) {
 			errors = extractErrors(err);
 			registerValidationErrors = errors;
-			$statusModalMessages = { code: 1, message: "Felder bitte korrekt ausfuellen" };
+			$statusModalMessages = { code: 1, message: loc.shared.val.modalFields };
 			return false;
 		}
 	};
@@ -112,9 +103,10 @@
 				$newlyRegisteredEmail = data.registerUser.email;
 				return true;
 			} else if (data.registerUser.status === 409) {
-				throw new Error("Diese E-Mail Adresse wird bereits verwendet");
+				console.log(data.registerUser.status);
+				throw new Error(loc.register.val.userExists);
 			} else {
-				throw new Error("Registrierung fehlgeschlagen (unbekannter Fehler)");
+				throw new Error(loc.register.val.modalRegisterFailed);
 			}
 		}
 
@@ -132,27 +124,29 @@
 <!-- Login Index -->
 
 <div class="headline">
-	<h1 class="color-headline" style="margin-left: 0rem">Registrieren</h1>
+	<h1 class="color-headline" style="margin-left: 0rem">{loc.register.title}</h1>
 </div>
 <div style="margin-top: -2rem" class="separator" />
 
 <form form>
-	<label for="username">Benuztername:</label><br />
+	<label for="username">{loc.shared.labels.username}:</label><br />
 	<input class:selected={registerData.username} type="text" id="username" name="username" bind:value={registerData.username} />
 	{#if registerValidationErrors.username}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.username})</p>
 	{/if}
-	<label for="email">E-Mail:</label><br />
+	<label for="email">{loc.shared.labels.email}:</label><br />
 	<input class:selected={registerData.email} type="text" id="email" name="email" bind:value={registerData.email} />
 	{#if registerValidationErrors.email}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.email})</p>
 	{/if}
-	<label for="password">Passwort:</label><br />
+	<label for="password">{loc.shared.labels.password}:</label><br />
 	<input class:selected={registerData.password} type="password" id="password" name="password" bind:value={registerData.password} />
 	{#if registerValidationErrors.password}
-		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.password})</p>
+		<p class="form-validation-error" style="margin-bottom: 2rem">
+			({registerValidationErrors.password})
+		</p>
 	{/if}
-	<label for="password-confirmation">Passwort bestaetigen:</label><br />
+	<label for="password-confirmation">{loc.register.passwordConfirm}:</label>
 	<input
 		class:selected={registerData.passwordConfirmation}
 		type="password"
@@ -164,10 +158,10 @@
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.passwordConfirmation})</p>
 	{/if}
 </form>
-<button on:click={handleSubmit} class="btn btn-regular">Registrieren</button>
+<button on:click={handleSubmit} class="btn btn-regular">{loc.register.submit}</button>
 
 <div class="wrapper-to-login">
-	<p>Sie haben bereits einen Account? <a class="generic" href="/login">EINLOGGEN</a></p>
+	<p>{loc.register.infotext} <a class="generic" style="text-transform: uppercase;" href="/login">{loc.register.loginLink}</a></p>
 </div>
 
 <StatusModal />

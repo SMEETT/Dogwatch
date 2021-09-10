@@ -147,3 +147,10 @@ export function ISO8601ToJSDate(datestring) {
 export function JSDateToISO8601(dateobject) {
 	return `${dateobject.getFullYear()}-${leadingZero(parseInt(dateobject.getMonth()) + 1)}-${leadingZero(dateobject.getDate())}`;
 }
+
+export function offsetArray(offset, array) {
+	for (let i = 0; i < offset; i++) {
+		array.push(array.shift());
+	}
+	return array;
+}

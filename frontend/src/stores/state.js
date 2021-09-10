@@ -39,3 +39,44 @@ export const checkAuthCookie = () => {
 		isAuthenticated.set(false);
 	}
 };
+
+export function requestUserPreference(preference) {
+	async function fetchUser() {
+		const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
+		const graphQLClient = new GraphQLClient(endpoint, {
+			credentials: "include",
+			mode: "cors",
+		});
+		const query = gql`
+			query {
+				getUser {
+					preferences
+				}
+			}
+		`;
+		const data = await graphQLClient.request(query);
+		console.log(JSON.stringify(data, undefined, 2));
+		localStorage.setItem(`${preference}`, data.getUser.preferences[`${preference}`]);
+		return data.getUser.preferences[`${preference}`];
+	}
+	return fetchUser();
+}
+
+// load locales
+import { en } from "../loc/en";
+import { de } from "../loc/de";
+import { ru } from "../loc/ru";
+export function loadLocale() {
+	let loc;
+	switch (navigator.language.slice(0, 2)) {
+		case "de":
+			loc = de;
+			break;
+		case "ru":
+			loc = ru;
+			break;
+		default:
+			loc = en;
+	}
+	return loc;
+}

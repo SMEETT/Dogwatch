@@ -18,7 +18,6 @@ const UserType = new GraphQLObjectType({
 	name: "User",
 	fields: () => ({
 		id: { type: GraphQLID },
-		language: { type: GraphQLString },
 		username: { type: GraphQLString },
 		email: { type: GraphQLString },
 		// email: {
@@ -42,7 +41,7 @@ const UserType = new GraphQLObjectType({
 			},
 		},
 		preferences: {
-			type: GraphQLJSONObject,
+			type: GraphQLJSON,
 			resolve(parent, args, { req, res }) {
 				if (req.user.id === parent.id) {
 					return parent.preferences;
@@ -299,36 +298,6 @@ const RootQuery = new GraphQLObjectType({
 				return await Appointment.findOne({ where: { creatorId: req.user.id, id: args.id } });
 			},
 		},
-		// getAppointments: {
-		// 	type: GraphQLList(AppointmentType),
-		// 	args: {
-		// 		start_of_range: { type: GraphQLString },
-		// 		end_of_range: { type: GraphQLString },
-		// 	},
-		// 	async resolve(parent, args, { req, res }) {
-		// 		// if (!req.isAuthenticated()) {
-		// 		// 	return { status: 401, message: "Unauthorized", node: null };
-		// 		// }
-		// 		return await Appointment.findAll({
-		// 			where: {
-		// 				[Op.not]: {
-		// 					[Op.or]: [
-		// 						{
-		// 							start_date: {
-		// 								[Op.gt]: args.end_of_range,
-		// 							},
-		// 						},
-		// 						{
-		// 							end_date: {
-		// 								[Op.lt]: args.start_of_range,
-		// 							},
-		// 						},
-		// 					],
-		// 				},
-		// 			},
-		// 		});
-		// 	},
-		// },
 		getAuthStatus: {
 			type: GraphQLBoolean,
 			resolve(parent, args, { req, res }) {
@@ -396,6 +365,7 @@ const Mutation = new GraphQLObjectType({
 					metadata: {
 						calendarLastViewed: { year: 2021, month: 0 },
 					},
+					preferences: { firstDayOfWeek: 1, color: "blue" },
 					hash: hash,
 					salt: salt,
 				});
@@ -446,6 +416,23 @@ const Mutation = new GraphQLObjectType({
 					process.env.NODE_ENV === "production" ? (cookieOptions = cookieOptionsProd) : (cookieOptions = cookieOptionsDev);
 					res.cookie("isAuthenticated", "true", cookieOptions);
 					return { status: 200, message: "OK", node: true, preferences: user.preferences };
+				}
+			},
+		},
+		updateUserPreferences: {
+			type: UserType,
+			args: {
+				preferences: { type: GraphQLJSON },
+			},
+			async resolve(parent, args, { req, res, maxSessionAge }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					console.log(args.preferences);
+					const user = await User.findOne({ where: { id: req.user.id } });
+					user.preferences = args.preferences;
+					await user.save();
+					return user;
 				}
 			},
 		},
@@ -620,6 +607,24 @@ const Mutation = new GraphQLObjectType({
 				}
 			},
 		},
+		updateAppointmentStatus: {
+			type: AppointmentType,
+			args: {
+				status: { type: GraphQLInt },
+				caretakerId: { type: GraphQLInt },
+				appointmentId: { type: GraphQLInt },
+			},
+			async resolve(parent, args, { req, res }) {
+				if (!req.isAuthenticated()) {
+					return { status: { code: 401, message: "Unauthorized" } };
+				} else {
+					const appointmentToUpdate = await Appointment.findOne({ where: { id: args.appointmentId, caretakerId: req.user.id } });
+					appointmentToUpdate.status = args.status;
+					await appointmentToUpdate.save();
+					return appointmentToUpdate;
+				}
+			},
+		},
 		// ----------------------------------------------------
 		// DELETE APPOINTMENT
 		// ----------------------------------------------------
@@ -643,24 +648,6 @@ const Mutation = new GraphQLObjectType({
 							console.log("Error: couldn't delete Appointment from DB", err);
 							return;
 						});
-				}
-			},
-		},
-		updateAppointmentStatus: {
-			type: AppointmentType,
-			args: {
-				status: { type: GraphQLInt },
-				caretakerId: { type: GraphQLInt },
-				appointmentId: { type: GraphQLInt },
-			},
-			async resolve(parent, args, { req, res }) {
-				if (!req.isAuthenticated()) {
-					return { status: { code: 401, message: "Unauthorized" } };
-				} else {
-					const appointmentToUpdate = await Appointment.findOne({ where: { id: args.appointmentId, caretakerId: req.user.id } });
-					appointmentToUpdate.status = args.status;
-					await appointmentToUpdate.save();
-					return appointmentToUpdate;
 				}
 			},
 		},

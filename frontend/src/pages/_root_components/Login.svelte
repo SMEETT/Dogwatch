@@ -3,15 +3,20 @@
 	import { metatags, goto } from "@roxi/routify";
 	metatags.title = "Dogwatch / Login";
 	metatags.description = "Description coming soon...";
-	import { isAuthenticated, authenticating, checkAuthCookie, liveValidation, statusModalMessages, newlyRegisteredEmail } from "../../stores/state";
+	import {
+		isAuthenticated,
+		authenticating,
+		checkAuthCookie,
+		liveValidation,
+		statusModalMessages,
+		newlyRegisteredEmail,
+		loadLocale,
+	} from "../../stores/state";
 	import { GraphQLClient, gql } from "graphql-request";
 
 	import * as yup from "yup";
 
-	import { en } from "../../loc/en";
-	import { de } from "../../loc/de";
-	let loc;
-	navigator.language.slice(0, 2) === "de" ? (loc = de) : (loc = en);
+	const loc = loadLocale();
 
 	const loginData = {
 		email: null,
@@ -36,7 +41,6 @@
 				statusModalMessages.set({ code: 200, message: loc.login.val.modalLoginSuccess });
 			} else {
 				$authenticating = false;
-				console.log("login failed");
 				$statusModalMessages = { code: 400, message: loc.login.val.modalLoginFailed };
 			}
 		}
@@ -60,14 +64,8 @@
 			if (data.loginUser.status === 200) {
 				isAuthenticated.set(true);
 				authenticating.set(false);
-				if (data.loginUser.preferences.language && data.loginUser.preferences.dateFormat) {
-					localStorage.setItem("language", data.loginUser.preferences.language);
-					localStorage.setItem("dateFormat", data.loginUser.preferences.dateFormat);
-				} else {
-					localStorage.setItem("language", "de");
-					localStorage.setItem("dateFormat", "ddmm");
-				}
-
+				console.log(data.loginUser);
+				localStorage.setItem("firstDayOfWeek", data.loginUser.preferences.firstDayOfWeek);
 				console.log(JSON.stringify(data, undefined, 2));
 				return true;
 			} else {
@@ -97,8 +95,8 @@
 	// NEW APPOINTMENT SCHEMA
 	// ----------------------------------------------------
 	const schema_login = yup.object().shape({
-		email: yup.string().email(loc.login.val.emailInvalid).required(loc.login.val.emailProvide).typeError(loc.login.val.emailProvide),
-		password: yup.string().required(loc.login.val.pwdProvide).typeError(loc.login.val.pwdProvide),
+		email: yup.string().email(loc.shared.val.emailInvalid).required(loc.shared.val.emailProvide).typeError(loc.shared.val.emailProvide),
+		password: yup.string().required(loc.shared.val.pwdProvide).typeError(loc.shared.val.pwdProvide),
 	});
 
 	// ----------------------------------------------------
@@ -116,7 +114,7 @@
 			errors = extractErrors(err);
 			console.log(errors);
 			loginValidationErrors = errors;
-			$statusModalMessages = { code: 1, message: loc.login.val.modalFields };
+			$statusModalMessages = { code: 1, message: loc.shared.val.modalFields };
 			return false;
 		}
 	};
@@ -146,12 +144,12 @@
 <div style="margin-top: -2rem" class="separator" />
 
 <form>
-	<label for="email">{loc.login.email}</label><br />
+	<label for="email">{loc.shared.labels.email}</label><br />
 	<input class:selected={loginData.email} type="text" id="email" name="email" bind:value={loginData.email} />
 	{#if loginValidationErrors.email}
 		<p class="form-validation-error" style="margin-bottom: 2rem">({loginValidationErrors.email})</p>
 	{/if}
-	<label for="password">{loc.login.password}</label><br />
+	<label for="password">{loc.shared.labels.password}</label><br />
 	<input class:selected={loginData.password} type="password" id="password" name="password" bind:value={loginData.password} on:keypress={handleKeyPress} />
 	{#if loginValidationErrors.password}
 		<p class="form-validation-error">({loginValidationErrors.password})</p>
