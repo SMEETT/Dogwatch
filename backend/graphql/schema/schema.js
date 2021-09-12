@@ -321,8 +321,14 @@ const RootQuery = new GraphQLObjectType({
 				if (!req.isAuthenticated()) {
 					return { status: { code: 401, message: "Unauthorized" } };
 				} else {
-					const user = await User.findOne({ where: { [Op.or]: [{ email: args.searchterm }, { username: args.searchterm }] } });
-					return user;
+					const user = await User.findOne({
+						where: { [Op.or]: [{ email: { [Op.iLike]: args.searchterm } }, { username: { [Op.iLike]: args.searchterm } }] },
+					});
+					if (user.id === req.user.id) {
+						return null;
+					} else {
+						return user;
+					}
 				}
 			},
 		},
@@ -465,7 +471,7 @@ const Mutation = new GraphQLObjectType({
 		// ADD CONTACT
 		// ----------------------------------------------------
 		addContact: {
-			type: GraphQLString,
+			type: UserType,
 			args: {
 				contactId: { type: new GraphQLNonNull(GraphQLInt) },
 			},
@@ -479,7 +485,7 @@ const Mutation = new GraphQLObjectType({
 					await user.addContact(userToAdd);
 					await userToAdd.addContact(user);
 
-					return `User with Id ${req.user.id} added User Id ${args.contactId} as a contact`;
+					return userToAdd;
 				}
 			},
 		},

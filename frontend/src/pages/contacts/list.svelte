@@ -10,6 +10,28 @@
 	let contactFetchPromise = new Promise((resolve, reject) => {});
 
 	let showDeleteModal = false;
+	let searchResultPromise = new Promise((resolve, reject) => {});
+
+	import { quintOut } from "svelte/easing";
+	import { crossfade } from "svelte/transition";
+
+	const [send, receive] = crossfade({
+		duration: (d) => Math.sqrt(d * 200),
+
+		fallback(node, params) {
+			const style = getComputedStyle(node);
+			const transform = style.transform === "none" ? "" : style.transform;
+
+			return {
+				duration: 600,
+				easing: quintOut,
+				css: (t) => `
+					transform: ${transform} scale(${t});
+					opacity: ${t}
+				`,
+			};
+		},
+	});
 
 	onMount(() => {
 		menuSelection.set("contacts");
@@ -39,10 +61,6 @@
 
 	fetchContacts();
 
-	function viewSearch() {
-		$goto("/contacts/search");
-	}
-
 	let contactToDelete = null;
 	function removeContactThroughModal(contact) {
 		showDeleteModal = true;
@@ -66,38 +84,136 @@
 		showDeleteModal = false;
 	}
 
+	// SEARCH
+
+	let searchterm = null;
+	let noResult = false;
+
+	async function search() {
+		if (searchterm) {
+			searchterm = searchterm.trim();
+			console.log(searchterm);
+			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
+			const graphQLClient = new GraphQLClient(endpoint, {
+				credentials: "include",
+				mode: "cors",
+			});
+			const query = gql`
+			query {
+				findContact (searchterm: "${searchterm}" )
+					{
+						id
+						username
+						email
+					}
+				}
+
+		`;
+			const data = await graphQLClient.request(query);
+			console.log("search-result-data", data);
+			// console.log(JSON.stringify(data.contacts, undefined, 2));
+			if (data.findContact) {
+				searchResultPromise = data.findContact;
+				console.log(searchResultPromise);
+				noResult = false;
+			} else {
+				noResult = true;
+			}
+		}
+	}
+
+	function handleKeyPress(e) {
+		if (e.charCode === 13) {
+			console.log("enter pressed");
+			search();
+		}
+	}
+
+	async function addContact(id) {
+		console.log(searchterm);
+		const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
+		const graphQLClient = new GraphQLClient(endpoint, {
+			credentials: "include",
+			mode: "cors",
+		});
+		const mutation = gql`
+			mutation {
+				addContact (contactId: ${id}) {
+                    id
+                    username
+                    email
+                    }
+				}
+
+		`;
+		const data = await graphQLClient.request(mutation);
+		$statusModalMessages = { code: 200, message: "Kontakt erfolgreich hinzugefuegt" };
+		console.log("search Result data", data);
+		// console.log(JSON.stringify(data.contacts, undefined, 2));
+		console.log("dataaaa", data.addContact);
+		console.log("contacts", contactFetchPromise);
+		console.log(searchResultPromise);
+		if (
+			contactFetchPromise.find((el) => {
+				return el.id === data.addContact.id;
+			})
+		) {
+			$statusModalMessages = { code: 400, message: "Sie haben diesen Kontakt bereits hinzugefuegt" };
+			// searchResultPromise = new Promise((resolve, reject) => {});
+		} else {
+			contactFetchPromise = [...contactFetchPromise, data.addContact];
+			searchResultPromise = new Promise((resolve, reject) => {});
+			searchterm = "";
+		}
+	}
+
 	onDestroy(() => {});
 </script>
 
 <div class="wrapper regular-text">
 	<div class="headline debug-border">
-		<div class="wrapper-switcher debug-border">
-			<button class="btn" on:click|stopPropagation={viewSearch}>
-				<svg width="26" height="40" viewBox="0 0 30 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M2 22L28 2V42L2 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
-				</svg>
-			</button>
-			<button class="ml-16 btn" on:click|stopPropagation={viewSearch}>
-				<svg width="26" height="40" viewBox="0 0 30 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M28 22L2 2V42L28 22Z" stroke="var(--color-headline)" stroke-width="4" stroke-linejoin="round" />
-				</svg>
-			</button>
-			<h1 class="color-headline">Liste</h1>
-		</div>
-		<p class="label">Kontakte</p>
+		<h1 style="margin-left: -0.5rem" class="color-headline">Kontakte</h1>
 	</div>
 	<div style="margin-top: -2rem" class="separator" />
-	{#await contactFetchPromise}
-		...fetching contacts
-	{:then contacts}
-		{#each contacts as contact}
-			<div class="wrapper-contact">
-				<p class="name">{contact.username}</p>
-				<p class="email">{contact.email}</p>
-				<button on:click={removeContactThroughModal(contact)} class="btn btn-regular mt-8">Entfernen</button>
-			</div>
-		{/each}
-	{/await}
+	<div in:fade>
+		<p class="label mb-16">Suche</p>
+		<div class="search-bar">
+			<input
+				bind:value={searchterm}
+				on:keypress={handleKeyPress}
+				class="searchfield"
+				class:selected={searchterm}
+				placeholder="E-Mail oder Benutzername"
+				type="text"
+			/>
+			<button class="btn" on:click={search}><span class="icon-search ml-8" /></button>
+		</div>
+		{#if noResult}
+			<p>No Result</p>
+		{:else}
+			{#await searchResultPromise then result}
+				<p class="label mt-16" in:fade>Suchergebnis</p>
+				<div class="wrapper-contact mt-16" in:receive|local={{ key: result.id }} out:send|local={{ key: result.id }}>
+					<p class="name">{result.username}</p>
+					<p class="email">{result.email}</p>
+					<button on:click={addContact(result.id)} class="btn btn-regular mt-8">Hinzufügen</button>
+				</div>
+				<!-- <div class="separator" style="margin-top: 1rem" /> -->
+			{/await}
+		{/if}
+		{#await contactFetchPromise}
+			...fetching contacts
+		{:then contacts}
+			<p class="label mb-16 mt-16">Kontaktliste</p>
+			{#each contacts as contact}
+				<div class="wrapper-contact" in:receive|local={{ key: contact.id }} out:send|local={{ key: contact.id }}>
+					<p class="name">{contact.username}</p>
+					<p class="email">{contact.email}</p>
+					<button on:click={removeContactThroughModal(contact)} class="btn btn-regular mt-8">Entfernen</button>
+				</div>
+			{/each}
+		{/await}
+	</div>
 </div>
 
 {#if showDeleteModal}
@@ -119,6 +235,7 @@
 		border: 1px solid var(--dark);
 		padding: 1rem;
 		margin-bottom: 2rem;
+		border-radius: 5px;
 	}
 
 	.name {
@@ -127,5 +244,34 @@
 
 	.email {
 		font-size: 1.2rem;
+	}
+
+	.search-bar {
+		display: flex;
+	}
+
+	.searchfield {
+		background-color: transparent;
+		border-radius: 5px;
+	}
+
+	.icon-search {
+		display: flex;
+		background: url("/images/icons/icon_search.svg") no-repeat center center;
+		width: 3.2rem;
+		height: 100%;
+		border: 1px solid var(--dark);
+		border-radius: 5px;
+	}
+
+	.icon-search:hover {
+		background: url("/images/icons/icon_search_white.svg") no-repeat center center;
+		background-color: var(--dark);
+		cursor: pointer;
+	}
+
+	input {
+		border: 1px solid var(--dark);
+		padding-left: 1rem;
 	}
 </style>
