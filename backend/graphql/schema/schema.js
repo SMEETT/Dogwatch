@@ -348,7 +348,7 @@ const Mutation = new GraphQLObjectType({
 	name: "Mutation",
 	fields: {
 		// ----------------------------------------------------
-		// REGISTER
+		// REGISTER-
 		// ----------------------------------------------------
 		registerUser: {
 			type: GraphQLJSON,
