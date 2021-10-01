@@ -1,6 +1,6 @@
 <script>
 	import { GraphQLClient, gql } from "graphql-request";
-	import { menuSelection, menuContext, statusModalMessages } from "../../stores/state";
+	import { menuSelection, menuContext, statusModalMessages, checkAuthCookie, loadLocale } from "../../stores/state";
 	import { onDestroy, onMount } from "svelte";
 	import { metatags, goto, url } from "@roxi/routify";
 	import { fade } from "svelte/transition";
@@ -11,6 +11,8 @@
 
 	let showDeleteModal = false;
 	let searchResultPromise = new Promise((resolve, reject) => {});
+
+	const loc = loadLocale();
 
 	import { quintOut } from "svelte/easing";
 	import { crossfade } from "svelte/transition";
@@ -56,16 +58,26 @@
 			}
 		`;
 		const data = await graphQLClient.request(query);
-		contactFetchPromise = data.getUser.contacts;
+		if (data.getUser.contacts) {
+			console.log("got data", data);
+			contactFetchPromise = data.getUser.contacts;
+		} else {
+			$goto("/login");
+		}
 	}
 
 	fetchContacts();
 
 	let contactToDelete = null;
 	function removeContactThroughModal(contact) {
-		showDeleteModal = true;
-		contactToDelete = contact;
-		console.log("toDelete", contactToDelete);
+		if (!checkAuthCookie()) {
+			console.log("no auth to delete contact, redirecting...");
+			$goto("/login");
+		} else {
+			showDeleteModal = true;
+			contactToDelete = contact;
+			console.log("toDelete", contactToDelete);
+		}
 	}
 
 	async function handleDeleteContact() {
@@ -80,7 +92,7 @@
 		const data = await graphQLClient.request(mutation);
 		console.log(JSON.stringify(data, undefined, 2));
 		fetchContacts();
-		$statusModalMessages = { code: 200, message: "Kontakt erfolgreich entfernt" };
+		$statusModalMessages = { code: 200, message: loc.contacts.modal.deleteSuccess };
 		showDeleteModal = false;
 	}
 
@@ -90,15 +102,18 @@
 	let noResult = false;
 
 	async function search() {
-		if (searchterm) {
-			searchterm = searchterm.trim();
-			console.log(searchterm);
-			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
-			const graphQLClient = new GraphQLClient(endpoint, {
-				credentials: "include",
-				mode: "cors",
-			});
-			const query = gql`
+		if (!checkAuthCookie()) {
+			$goto("/login");
+		} else {
+			if (searchterm) {
+				searchterm = searchterm.trim();
+				console.log(searchterm);
+				const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
+				const graphQLClient = new GraphQLClient(endpoint, {
+					credentials: "include",
+					mode: "cors",
+				});
+				const query = gql`
 			query {
 				findContact (searchterm: "${searchterm}" )
 					{
@@ -109,15 +124,16 @@
 				}
 
 		`;
-			const data = await graphQLClient.request(query);
-			console.log("search-result-data", data);
-			// console.log(JSON.stringify(data.contacts, undefined, 2));
-			if (data.findContact) {
-				searchResultPromise = data.findContact;
-				console.log(searchResultPromise);
-				noResult = false;
-			} else {
-				noResult = true;
+				const data = await graphQLClient.request(query);
+				console.log("search-result-data", data);
+				// console.log(JSON.stringify(data.contacts, undefined, 2));
+				if (data.findContact) {
+					searchResultPromise = data.findContact;
+					console.log(searchResultPromise);
+					noResult = false;
+				} else {
+					noResult = true;
+				}
 			}
 		}
 	}
@@ -130,13 +146,16 @@
 	}
 
 	async function addContact(id) {
-		console.log(searchterm);
-		const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
-		const graphQLClient = new GraphQLClient(endpoint, {
-			credentials: "include",
-			mode: "cors",
-		});
-		const mutation = gql`
+		if (!checkAuthCookie()) {
+			$goto("/login");
+		} else {
+			console.log(searchterm);
+			const endpoint = import.meta.env.VITE_GQL_ENDPOINT_URL;
+			const graphQLClient = new GraphQLClient(endpoint, {
+				credentials: "include",
+				mode: "cors",
+			});
+			const mutation = gql`
 			mutation {
 				addContact (contactId: ${id}) {
                     id
@@ -146,24 +165,25 @@
 				}
 
 		`;
-		const data = await graphQLClient.request(mutation);
-		$statusModalMessages = { code: 200, message: "Kontakt erfolgreich hinzugefuegt" };
-		console.log("search Result data", data);
-		// console.log(JSON.stringify(data.contacts, undefined, 2));
-		console.log("dataaaa", data.addContact);
-		console.log("contacts", contactFetchPromise);
-		console.log(searchResultPromise);
-		if (
-			contactFetchPromise.find((el) => {
-				return el.id === data.addContact.id;
-			})
-		) {
-			$statusModalMessages = { code: 400, message: "Sie haben diesen Kontakt bereits hinzugefuegt" };
-			// searchResultPromise = new Promise((resolve, reject) => {});
-		} else {
-			contactFetchPromise = [...contactFetchPromise, data.addContact];
-			searchResultPromise = new Promise((resolve, reject) => {});
-			searchterm = "";
+			const data = await graphQLClient.request(mutation);
+			$statusModalMessages = { code: 200, message: loc.contacts.modal.addSuccess };
+			console.log("search Result data", data);
+			// console.log(JSON.stringify(data.contacts, undefined, 2));
+			console.log("dataaaa", data.addContact);
+			console.log("contacts", contactFetchPromise);
+			console.log(searchResultPromise);
+			if (
+				contactFetchPromise.find((el) => {
+					return el.id === data.addContact.id;
+				})
+			) {
+				$statusModalMessages = { code: 400, message: loc.contacts.modal.alreadyExists };
+				// searchResultPromise = new Promise((resolve, reject) => {});
+			} else {
+				contactFetchPromise = [...contactFetchPromise, data.addContact];
+				searchResultPromise = new Promise((resolve, reject) => {});
+				searchterm = "";
+			}
 		}
 	}
 
@@ -172,31 +192,31 @@
 
 <div class="wrapper regular-text">
 	<div class="headline debug-border">
-		<h1 style="margin-left: -0.5rem" class="color-headline">Kontakte</h1>
+		<h1 style="margin-left: -0.5rem" class="color-headline">{loc.contacts.labels.contacts}</h1>
 	</div>
 	<div style="margin-top: -2rem" class="separator" />
 	<div in:fade>
-		<p class="label mb-16">Suche</p>
+		<p class="label mb-16">{loc.contacts.labels.search}</p>
 		<div class="search-bar">
 			<input
 				bind:value={searchterm}
 				on:keypress={handleKeyPress}
 				class="searchfield"
 				class:selected={searchterm}
-				placeholder="E-Mail oder Benutzername"
+				placeholder={loc.contacts.placeholders.search}
 				type="text"
 			/>
 			<button class="btn" on:click={search}><span class="icon-search ml-8" /></button>
 		</div>
 		{#if noResult}
-			<p>No Result</p>
+			<p class="mt-16 mb-16 ml-8">{loc.contacts.misc.noResult}</p>
 		{:else}
 			{#await searchResultPromise then result}
-				<p class="label mt-16" in:fade>Suchergebnis</p>
+				<p class="label mt-16" in:fade>{loc.contacts.labels.searchResults}</p>
 				<div class="wrapper-contact mt-16" in:receive|local={{ key: result.id }} out:send|local={{ key: result.id }}>
 					<p class="name">{result.username}</p>
 					<p class="email">{result.email}</p>
-					<button on:click={addContact(result.id)} class="btn btn-regular mt-8">Hinzufügen</button>
+					<button on:click={addContact(result.id)} class="btn btn-regular mt-8">{loc.contacts.misc.btnAdd}</button>
 				</div>
 				<!-- <div class="separator" style="margin-top: 1rem" /> -->
 			{/await}
@@ -204,12 +224,14 @@
 		{#await contactFetchPromise}
 			...fetching contacts
 		{:then contacts}
-			<p class="label mb-16 mt-16">Kontaktliste</p>
+			{#if contacts.length > 0}
+				<p class="label mb-16 mt-16">{loc.contacts.labels.contactList}</p>
+			{/if}
 			{#each contacts as contact}
 				<div class="wrapper-contact" in:receive|local={{ key: contact.id }} out:send|local={{ key: contact.id }}>
 					<p class="name">{contact.username}</p>
 					<p class="email">{contact.email}</p>
-					<button on:click={removeContactThroughModal(contact)} class="btn btn-regular mt-8">Entfernen</button>
+					<button on:click={removeContactThroughModal(contact)} class="btn btn-regular mt-8">{loc.contacts.misc.btnDelete}</button>
 				</div>
 			{/each}
 		{/await}

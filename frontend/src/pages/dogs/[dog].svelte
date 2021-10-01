@@ -63,26 +63,37 @@
 					// console.log(JSON.stringify(data, undefined, 2));
 					return data.getUser.dogs;
 				}
-				return await getDogs().catch((error) => console.error(error));
+				return await getDogs()
+					.then((data) => {
+						if (data === null) {
+							console.log("we should redirect in this case");
+							$goto("/login");
+						} else {
+							return data;
+						}
+					})
+					.catch((error) => console.error(error));
 			}
 
 			// if 'currentDog' resolves we can render the data in template
 			currentDog = new Promise((resolve, reject) => {
 				getDogData().then((dogs) => {
-					let currDog = dogs.find((dog) => $params.dog === dog.id);
-					const ids = [];
-					dogs.forEach((dog) => {
-						ids.push(parseInt(dog.id));
-					});
-					ids.sort((a, b) => a - b);
-					dogsIds = ids;
-					currentDogsIndex = ids.indexOf(parseInt($params.dog));
-					if (currDog) {
-						resolve(currDog);
-					} else {
-						// reject leads to a catch in template (where we redirect to '/dogs')
-						// cause it indicates that a dog with the requested Id doesn't exist
-						reject();
+					if (dogs) {
+						let currDog = dogs.find((dog) => $params.dog === dog.id);
+						const ids = [];
+						dogs.forEach((dog) => {
+							ids.push(parseInt(dog.id));
+						});
+						ids.sort((a, b) => a - b);
+						dogsIds = ids;
+						currentDogsIndex = ids.indexOf(parseInt($params.dog));
+						if (currDog) {
+							resolve(currDog);
+						} else {
+							// reject leads to a catch in template (where we redirect to '/dogs')
+							// cause it indicates that a dog with the requested Id doesn't exist
+							reject();
+						}
 					}
 				});
 			});

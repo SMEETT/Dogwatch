@@ -1,7 +1,7 @@
 <!-- routify:options preload="proximity" -->
 <script>
 	import Serviceworker from "../Serviceworker.svelte";
-	import { onDestroy } from "svelte";
+	import { onDestroy, onMount } from "svelte";
 	import { goto } from "@roxi/routify";
 	import { isAuthenticated, authenticating, checkAuthCookie } from "../stores/state";
 	import Login from "./_root_components/Login.svelte";
@@ -14,9 +14,13 @@
 	metatags.title = "Dogwatch / Login";
 	metatags.description = "Description coming soon...";
 
-	// onDestroy(() => {
-	//     $isAuthenticated = false;
-	// })
+	onDestroy(() => {
+		console.log("layout destroyed");
+	});
+
+	onMount(() => {
+		console.log("layout mounted");
+	});
 </script>
 
 <!-- Servicworker, disabled for now -->
@@ -24,11 +28,13 @@
 
 {#if $authenticating}
 	authenticating...
-{:else if $isAuthenticated || checkAuthCookie()}
+{:else if checkAuthCookie()}
 	<slot />
 	<BottomBar />
 {:else}
-	<Login />
+	{(() => {
+		$goto("/login");
+	})()}
 {/if}
 
 <StatusModal />

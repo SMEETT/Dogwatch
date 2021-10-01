@@ -27,6 +27,7 @@
 		loginData.email = $newlyRegisteredEmail;
 	}
 
+	// charCode 13 (Enter/Return)
 	function handleKeyPress(e) {
 		if (e.charCode === 13) {
 			handleSubmit();
@@ -37,6 +38,7 @@
 		if (await validate(schema_login, loginData, loginValidationErrors)) {
 			if (await login(loginData.email, loginData.password)) {
 				$newlyRegisteredEmail = null;
+				console.log("Login validation and Login process successful, we are about to redirect to /appointments...");
 				$goto("/appointments");
 				statusModalMessages.set({ code: 200, message: loc.login.modal.loginSuccess });
 			} else {

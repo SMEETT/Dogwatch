@@ -54,7 +54,17 @@
 			// console.log(JSON.stringify(data, undefined, 2));
 			return data.getDog;
 		}
-		return await getDog().catch((error) => console.error(error));
+		return await getDog()
+			.then((data) => {
+				console.log("dog edit data", data);
+				if (!data.id) {
+					console.log("we should redirect in this case");
+					$goto("/login");
+				} else {
+					return data;
+				}
+			})
+			.catch((error) => console.error(error));
 	}
 </script>
 

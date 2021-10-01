@@ -34,9 +34,12 @@ export const user = writable({
 export const checkAuthCookie = () => {
 	const cookies = Object.fromEntries(document.cookie.split("; ").map((x) => x.split("=")));
 	if (cookies.isAuthenticated === "true") {
-		isAuthenticated.set(true);
+		console.log("cookie found");
+		return true;
+		// isAuthenticated.set(true);
 	} else {
-		isAuthenticated.set(false);
+		return false;
+		// isAuthenticated.set(false);
 	}
 };
 

@@ -15,10 +15,16 @@
 
 	const loc = loadLocale();
 
-	import { bottomBarAction, liveValidation, statusModalMessages, loadLocale } from "../../../stores/state";
+	import { bottomBarAction, liveValidation, statusModalMessages, loadLocale, checkAuthCookie } from "../../../stores/state";
 	import { leadingZero, dateToString, ISO8601ToJSDate } from "../../../_helpers/helperFunctions";
 
 	let image;
+
+	onMount(() => {
+		if (!checkAuthCookie()) {
+			$goto("/login");
+		}
+	});
 
 	let dogData = {
 		medications: [],

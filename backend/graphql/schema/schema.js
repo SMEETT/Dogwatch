@@ -33,7 +33,7 @@ const UserType = new GraphQLObjectType({
 		metadata: {
 			type: GraphQLJSONObject,
 			resolve(parent, args, { req, res }) {
-				if (req.user.id === parent.id) {
+				if (req.user && req.user.id === parent.id) {
 					return parent.metadata;
 				} else {
 					return null;
@@ -43,7 +43,7 @@ const UserType = new GraphQLObjectType({
 		preferences: {
 			type: GraphQLJSON,
 			resolve(parent, args, { req, res }) {
-				if (req.user.id === parent.id) {
+				if (req.user && req.user.id === parent.id) {
 					return parent.preferences;
 				} else {
 					return null;
@@ -53,7 +53,7 @@ const UserType = new GraphQLObjectType({
 		dogs: {
 			type: new GraphQLList(DogType),
 			async resolve(parent, args, { req, res }) {
-				if (req.user.id === parent.id) {
+				if (req.user && req.user.id === parent.id) {
 					return await Dog.findAll({ where: { userId: req.user.id } });
 				} else {
 					return null;
@@ -63,7 +63,7 @@ const UserType = new GraphQLObjectType({
 		contacts: {
 			type: new GraphQLList(UserType),
 			async resolve(parent, args, { req, res }) {
-				if (req.user.id === parent.id) {
+				if (req.user && req.user.id === parent.id) {
 					const user = await User.findOne({ where: { id: req.user.id } });
 					const users = await user.getUsers({});
 					const contacts = await user.getContacts({});
@@ -99,7 +99,7 @@ const UserType = new GraphQLObjectType({
 			},
 			type: new GraphQLList(AppointmentType),
 			async resolve(parent, args, { req, res }) {
-				if (req.user.id === parent.id) {
+				if (req.user && req.user.id === parent.id) {
 					const createdAppointments = await parent.getCreatedAppointments({
 						where: {
 							[Op.not]: {
@@ -120,6 +120,7 @@ const UserType = new GraphQLObjectType({
 					});
 					return createdAppointments;
 				} else {
+					console.log("we are down here. returning null");
 					return null;
 				}
 			},
@@ -131,7 +132,7 @@ const UserType = new GraphQLObjectType({
 			},
 			type: new GraphQLList(AppointmentType),
 			async resolve(parent, args, { req, res }) {
-				if (req.user.id === parent.id) {
+				if (req.user && req.user.id === parent.id) {
 					const caretakerAppointments = await parent.getCaretakerAppointments({
 						where: {
 							[Op.not]: {
@@ -163,7 +164,7 @@ const UserType = new GraphQLObjectType({
 			},
 			type: new GraphQLList(AppointmentType),
 			async resolve(parent, args, { req, res }) {
-				if (req.user.id === parent.id) {
+				if (req.user && req.user.id === parent.id) {
 					const observerAppointments = await parent.getObserverAppointments({
 						where: {
 							[Op.not]: {
@@ -241,6 +242,8 @@ const AppointmentType = new GraphQLObjectType({
 		dogs: {
 			type: new GraphQLList(DogType),
 			async resolve(parent, args) {
+				console.log("fetching appointents.dogs");
+				console.log("parent.getDogs /n", parent);
 				return await parent.getDogs();
 			},
 		},
@@ -292,10 +295,12 @@ const RootQuery = new GraphQLObjectType({
 				id: { type: GraphQLInt },
 			},
 			async resolve(parent, args, { req, res }) {
-				if (!req.isAuthenticated()) {
-					return { status: 401, message: "Unauthorized", node: null };
+				if (!req.user || !req.isAuthenticated()) {
+					console.log("this is an unauthorized appointment request!");
+					return null;
+				} else {
+					return await Appointment.findOne({ where: { creatorId: req.user.id, id: args.id } });
 				}
-				return await Appointment.findOne({ where: { creatorId: req.user.id, id: args.id } });
 			},
 		},
 		getAuthStatus: {
@@ -324,7 +329,7 @@ const RootQuery = new GraphQLObjectType({
 					const user = await User.findOne({
 						where: { [Op.or]: [{ email: { [Op.iLike]: args.searchterm } }, { username: { [Op.iLike]: args.searchterm } }] },
 					});
-					if (user.id === req.user.id) {
+					if (!user || user.id === req.user.id) {
 						return null;
 					} else {
 						return user;

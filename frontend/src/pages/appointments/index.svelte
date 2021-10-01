@@ -234,7 +234,17 @@
 
 			// console.log(JSON.stringify(data, undefined, 2));
 		}
-		return await getUser().catch((error) => console.error(error));
+		return await getUser()
+			.then((data) => {
+				if (data === null) {
+					console.log("we should redirect in this case");
+					$goto("/login");
+				} else {
+					return data;
+				}
+			})
+			.catch((error) => console.error(error));
+		// return await getUser().catch((error) => console.error(error));
 	}
 
 	// ----------------------------------------------

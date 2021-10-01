@@ -171,4 +171,25 @@ export const de = {
 			medication: "Bitte Medikamente angeben",
 		},
 	},
+	contacts: {
+		misc: {
+			btnAdd: "Hinzufügen",
+			btnDelete: "Entfernen",
+			noResult: "Ihre Suche ergab keine Treffer :/",
+		},
+		labels: {
+			contacts: "Kontakte",
+			search: "Suche",
+			searchResults: "Suchergebnisse",
+			contactList: "Kontaktliste",
+		},
+		modal: {
+			addSuccess: "Kontakt wurde erfolgreich hinzugefügt",
+			deleteSuccess: "Kontakt wurde erfolgreich entfernt",
+			alreadyExists: "Sie haben diesen Kontakt bereits hinzugefügt",
+		},
+		placeholders: {
+			search: "E-Mail oder Benutzername",
+		},
+	},
 };

@@ -3,8 +3,9 @@
 	metatags.title = "Dogwatch / Hunde / Hinzufügen";
 	metatags.description = "Description coming soon...";
 	import { onMount } from "svelte";
+	import { goto } from "@roxi/routify";
 
-	import { menuSelection, menuContext, liveValidation } from "../../stores/state";
+	import { menuSelection, menuContext, liveValidation, checkAuthCookie } from "../../stores/state";
 
 	import FormDog from "./_components/FormDog.svelte";
 
@@ -15,6 +16,9 @@
 		menuSelection.set("dogs");
 		menuContext.set({ context: "dog_add" });
 		liveValidation.set(false);
+		if (!checkAuthCookie()) {
+			$goto("/login");
+		}
 	});
 
 	// ********************************************************

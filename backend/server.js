@@ -42,7 +42,7 @@ app.use(cors({ origin: [process.env.FRONTEND_URL, macVMURL], credentials: true }
 // on first request attaches a cookie to the response (inside the setCookie header) and writes
 // a session ID to the database, after that the session (incl. the cookie to identify it)
 // is send (by the browser) on each request and is then available via 'req.session' inside Express
-const maxSessionAge = 1000 * 60 * 60 * 2;
+const maxSessionAge = 1000 * 60 * 60;
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
@@ -58,8 +58,8 @@ app.use(
 		cookie: {
 			maxAge: maxSessionAge,
 			// sameSite: "none",
-			secure: process.env.NODE_ENV === "production",
 			// (requires HTTPS or the cookie won't be set)
+			secure: process.env.NODE_ENV === "production",
 		},
 	})
 );

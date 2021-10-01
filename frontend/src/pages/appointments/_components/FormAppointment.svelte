@@ -114,9 +114,10 @@
 	// used as proxy so we can call this onMount() and await in markup
 	async function initFetch() {
 		const data = await getData();
-		fetchedDogs = data.dogs;
-		fetchedContacts = data.contacts;
-
+		if (data) {
+			fetchedDogs = data.dogs;
+			fetchedContacts = data.contacts;
+		}
 		if (toUpdateAppointmentData) {
 			onAppointmentDataToUpdate();
 		}
@@ -151,7 +152,20 @@
 			console.log(JSON.stringify(data, undefined, 2));
 			return data.getUser;
 		}
-		return await getUser().catch((error) => console.error(error));
+		return await getUser()
+			.then((data) => {
+				console.log("form appointment data", data);
+				if (!data.dogs && !data.contacts) {
+					//// TODO!!!!!  redirect not working!!!
+
+					console.log("we got no data, we redirect");
+					$goto("/login");
+				} else {
+					console.log("FormAppointment got data", data.dogs);
+					return data;
+				}
+			})
+			.catch((error) => console.error(error));
 	}
 
 	// ********************************************************
@@ -715,20 +729,20 @@
 				<div class="wrapper-selects mt-8">
 					<!-- svelte-ignore a11y-no-onchange -->
 					<select bind:value={startDate_time.hour} on:change={setStartdate} class:selected={startDate_time.hour}>
-						<option value="" disabled selected>{loc.appointments.labels.hoursShort}</option>
+						<option value="" disabled selected>{loc.shared.labels.hoursShort}</option>
 						{#each { length: 24 } as _, i}
 							<option>{String(leadingZero(i))}</option>
 						{/each}
 					</select>
 					<!-- svelte-ignore a11y-no-onchange -->
 					<select bind:value={startDate_time.minute} on:change={setStartdate} class="ml-8" class:selected={startDate_time.minute}>
-						<option value="" disabled selected>{loc.appointments.labels.minutesShort}</option>
+						<option value="" disabled selected>{loc.shared.labels.minutesShort}</option>
 						<option>00</option>
 						<option>15</option>
 						<option>30</option>
 						<option>45</option>
 					</select>
-					<p class="regular-text ml-8">{loc.appointments.labels.time}</p>
+					<p class="regular-text ml-8">{loc.shared.labels.time}</p>
 				</div>
 			</div>
 
@@ -751,7 +765,7 @@
 							{#if endDate_date}
 								{dateToString(endDate_date, null, "short")}
 							{:else}
-								{loc.appointments.labels.date}
+								{loc.shared.labels.date}
 							{/if}
 						</div>
 						<input
@@ -774,20 +788,20 @@
 					<!-- svelte-ignore a11y-no-onchange -->
 
 					<select bind:value={endDate_time.hour} on:change={setEnddate} class:selected={endDate_time.hour}>
-						<option value="" disabled selected>{loc.appointments.labels.hoursShort}</option>
+						<option value="" disabled selected>{loc.shared.labels.hoursShort}</option>
 						{#each { length: 24 } as _, i}
 							<option>{String(leadingZero(i))}</option>
 						{/each}
 					</select>
 					<!-- svelte-ignore a11y-no-onchange -->
 					<select bind:value={endDate_time.minute} on:change={setEnddate} class="ml-8" class:selected={endDate_time.minute}>
-						<option value="" disabled selected>{loc.appointments.labels.minutesShort}</option>
+						<option value="" disabled selected>{loc.shared.labels.minutesShort}</option>
 						<option>00</option>
 						<option>15</option>
 						<option>30</option>
 						<option>45</option>
 					</select>
-					<p class="regular-text ml-8">{loc.appointments.labels.minutesShort}</p>
+					<p class="regular-text ml-8">{loc.shared.labels.time}</p>
 				</div>
 			</div>
 

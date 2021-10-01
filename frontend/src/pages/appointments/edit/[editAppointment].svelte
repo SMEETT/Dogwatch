@@ -41,7 +41,17 @@
 			console.log("Edit Appointment Data", JSON.stringify(data, undefined, 2));
 			return data.getAppointment;
 		}
-		return await getAppointment().catch((error) => console.error(error));
+		return await getAppointment()
+			.then((data) => {
+				console.log("edit appointment data", data);
+				if (data === null) {
+					console.log("401!");
+					$goto("/login");
+				} else {
+					return data;
+				}
+			})
+			.catch((error) => console.error(error));
 	}
 </script>
 
