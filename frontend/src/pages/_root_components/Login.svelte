@@ -67,7 +67,11 @@
 				isAuthenticated.set(true);
 				authenticating.set(false);
 				console.log(data.loginUser);
-				localStorage.setItem("firstDayOfWeek", data.loginUser.preferences.firstDayOfWeek);
+				if (data.loginUser.preferences.firstDayOfWeek) {
+					localStorage.setItem("firstDayOfWeek", data.loginUser.preferences.firstDayOfWeek);
+				} else {
+					localStorage.setItem("firstDayOfWeek", 1);
+				}
 				console.log(JSON.stringify(data, undefined, 2));
 				return true;
 			} else {
