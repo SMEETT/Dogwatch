@@ -45,7 +45,8 @@ export const de = {
 	// ********************************************************
 	register: {
 		misc: {
-			title: "Registrieren",
+			headline: "Registrieren",
+			pageTitle: "Dogwatch / Registrieren",
 			submit: "Registrieren",
 			infotext: "Sie haben bereits einen Account?",
 			loginLink: "Login",
@@ -69,7 +70,8 @@ export const de = {
 	// ********************************************************
 	login: {
 		misc: {
-			title: "Login",
+			headline: "Login",
+			pageTitle: "Dogwatch / Login",
 			submit: "Login",
 			infotext: "Sie haben noch keinen Account?",
 			regLink: "Registrieren",
@@ -84,6 +86,7 @@ export const de = {
 	// ********************************************************
 	appointments: {
 		misc: {
+			pageTitle: "Dogwatch / Termine",
 			noAppointments: "Noch keine Termine an diesem Tag.",
 			btnAddAllDogs: "Alle Hunde hinzufügen",
 			appointmentStatus: {
@@ -122,6 +125,7 @@ export const de = {
 	// ********************************************************
 	dogs: {
 		misc: {
+			pageTitle: "Dogwatch / Hunde",
 			noDogsYet: "Sie haben bisher noch keine Hunde angelegt.",
 			formContextAdd: "Hund anlegen",
 			formContextEdit: "Hund bearbeiten",
@@ -173,6 +177,7 @@ export const de = {
 	},
 	contacts: {
 		misc: {
+			pageTitle: "Dogwatch / Kontakte",
 			btnAdd: "Hinzufügen",
 			btnDelete: "Entfernen",
 			noResult: "Ihre Suche ergab keine Treffer :/",
@@ -190,6 +195,19 @@ export const de = {
 		},
 		placeholders: {
 			search: "E-Mail oder Benutzername",
+		},
+	},
+	profile: {
+		misc: {
+			headline: "Profil",
+			pageTitle: "Dogwatch / Profil",
+			btnSaveSettings: "Einstellungen speichern",
+		},
+		labels: {
+			firstDayOfWeek: "Erster Tag der Woche",
+		},
+		modal: {
+			saveSuccess: "Einstellungen wurden erfolgreich gespeichert",
 		},
 	},
 };

@@ -20,16 +20,6 @@ const UserType = new GraphQLObjectType({
 		id: { type: GraphQLID },
 		username: { type: GraphQLString },
 		email: { type: GraphQLString },
-		// email: {
-		// 	type: GraphQLString,
-		// 	resolve(parent, args, { req, res }) {
-		// 		if (req.user.id === parent.id) {
-		// 			return parent.email;
-		// 		} else {
-		// 			return null;
-		// 		}
-		// 	},
-		// },
 		metadata: {
 			type: GraphQLJSONObject,
 			resolve(parent, args, { req, res }) {
@@ -376,7 +366,7 @@ const Mutation = new GraphQLObjectType({
 					metadata: {
 						calendarLastViewed: { year: 2021, month: 0 },
 					},
-					preferences: { firstDayOfWeek: 1, color: "blue" },
+					preferences: { firstDayOfWeek: 1 },
 					hash: hash,
 					salt: salt,
 				});

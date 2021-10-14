@@ -1,7 +1,6 @@
 <script>
 	import { goto, metatags, redirect } from "@roxi/routify";
-	metatags.title = "Dogwatch / Hunde / Hinzufügen";
-	metatags.description = "Description coming soon...";
+
 	import { onMount, onDestroy } from "svelte";
 	import * as yup from "yup";
 	import { GraphQLClient, gql } from "graphql-request";
@@ -14,7 +13,8 @@
 	const resize = imageFileResizer.imageFileResizer;
 
 	const loc = loadLocale();
-
+	metatags.title = loc.dogs.misc.pageTitle;
+	metatags.description = "Description coming soon...";
 	import { bottomBarAction, liveValidation, statusModalMessages, loadLocale, checkAuthCookie } from "../../../stores/state";
 	import { leadingZero, dateToString, ISO8601ToJSDate } from "../../../_helpers/helperFunctions";
 

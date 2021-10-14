@@ -1,11 +1,13 @@
 <script>
 	import { metatags } from "@roxi/routify";
-	metatags.title = "Dogwatch / Hunde / Hinzufügen";
-	metatags.description = "Description coming soon...";
 	import { onMount } from "svelte";
 	import { goto } from "@roxi/routify";
 
-	import { menuSelection, menuContext, liveValidation, checkAuthCookie } from "../../stores/state";
+	import { menuSelection, menuContext, liveValidation, checkAuthCookie, loadLocale } from "../../stores/state";
+
+	const loc = loadLocale();
+	metatags.title = loc.dogs.misc.pageTitle;
+	metatags.description = "Description coming soon...";
 
 	import FormDog from "./_components/FormDog.svelte";
 

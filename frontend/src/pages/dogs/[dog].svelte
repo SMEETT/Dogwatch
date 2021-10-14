@@ -10,7 +10,8 @@
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
 
 	const loc = loadLocale();
-
+	metatags.title = loc.dogs.misc.pageTitle;
+	metatags.description = "Description coming soon...";
 	// call function "main" when the parameter 'dog' changes (on visiting another route /dogs/[dog])
 	$: main($params.dog);
 

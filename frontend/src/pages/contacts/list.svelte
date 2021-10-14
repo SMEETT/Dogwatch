@@ -13,7 +13,8 @@
 	let searchResultPromise = new Promise((resolve, reject) => {});
 
 	const loc = loadLocale();
-
+	metatags.title = loc.contacts.misc.pageTitle;
+	metatags.description = "Description coming soon...";
 	import { quintOut } from "svelte/easing";
 	import { crossfade } from "svelte/transition";
 

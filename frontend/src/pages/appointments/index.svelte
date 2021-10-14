@@ -1,8 +1,7 @@
 <!-- TERMINE index -->
 <script>
 	import { goto, metatags, redirect } from "@roxi/routify";
-	metatags.title = "Dogwatch / Termine";
-	metatags.description = "Description coming soon...";
+
 	import { onMount, createEventDispatcher, onDestroy } from "svelte";
 	import { fade } from "svelte/transition";
 	import { GraphQLClient, gql } from "graphql-request";
@@ -21,7 +20,8 @@
 	import DeleteModal from "../_root_components/DeleteModal.svelte";
 
 	const loc = loadLocale();
-
+	metatags.title = loc.appointments.misc.pageTitle;
+	metatags.description = "Description coming soon...";
 	const getFirstDayOfWeek = () => {
 		if (localStorage.getItem("firstDayOfWeek")) {
 			console.log("found first day");

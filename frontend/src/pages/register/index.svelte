@@ -1,8 +1,7 @@
 <!-- routify:options reset -->
 <script>
 	import { metatags, goto } from "@roxi/routify";
-	metatags.title = "Dogwatch / Registrieren";
-	metatags.description = "Description coming soon...";
+
 	import { liveValidation, statusModalMessages, newlyRegisteredEmail, loadLocale } from "../../stores/state";
 	import { GraphQLClient, gql } from "graphql-request";
 
@@ -11,6 +10,8 @@
 	import * as yup from "yup";
 
 	const loc = loadLocale();
+	metatags.title = loc.register.misc.pageTitle;
+	metatags.description = "Description coming soon...";
 
 	const registerData = {
 		username: null,
@@ -124,7 +125,7 @@
 <!-- Login Index -->
 
 <div class="headline">
-	<h1 class="color-headline" style="margin-left: 0rem">{loc.register.misc.title}</h1>
+	<h1 class="color-headline" style="margin-left: 0rem">{loc.register.misc.headline}</h1>
 </div>
 <div style="margin-top: -2rem" class="separator" />
 
@@ -158,7 +159,7 @@
 		<p class="form-validation-error" style="margin-bottom: 2rem">({registerValidationErrors.passwordConfirmation})</p>
 	{/if}
 </form>
-<button on:click={handleSubmit} class="btn btn-regular">{loc.register.submit}</button>
+<button on:click={handleSubmit} class="btn btn-regular">{loc.register.misc.submit}</button>
 
 <div class="wrapper-to-login">
 	<p>{loc.register.misc.infotext} <a class="generic" style="text-transform: uppercase;" href="/login">{loc.register.misc.loginLink}</a></p>

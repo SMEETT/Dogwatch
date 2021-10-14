@@ -2,39 +2,16 @@
 	import { GraphQLClient, gql } from "graphql-request";
 	import { menuSelection, menuContext, statusModalMessages, loadLocale, user } from "../../stores/state";
 	import { onDestroy, onMount } from "svelte";
-	import { metatags, goto, url } from "@roxi/routify";
-	import { fade } from "svelte/transition";
 
-	import DeleteModal from "../_root_components/DeleteModal.svelte";
+	import { metatags, redirect, url } from "@roxi/routify";
+	const loc = loadLocale();
+
+	metatags.title = loc.profile.misc.pageTitle;
 
 	// promise we await in template
 	let userFetchPromise = new Promise((resolve, reject) => {});
-	const loc = loadLocale();
 
-	let showDeleteModal = false;
-
-	let preferences = { firstDayOfWeek: null, color: null };
-
-	/// U S E L E S S !!
-	$: updatePreferences(preferences);
-	function updatePreferences(preferences) {
-		const mutation = gql`
-			mutation { 
-                updateUserPreferences (preferences: { firstDayOfWeek: ${preferences.firstDayOfWeek}, color: "${preferences.color}" })
-                    {
-                        id
-                        username
-                        preferences
-                    }
-            }
-		`;
-		// console.log(mutation);
-		// console.log(JSON.stringify(preferences));
-		// const json = JSON.stringify(preferences);
-		// console.log("this", json);
-		// console.log("updatePreferences()");
-		// console.log(preferences);
-	}
+	let preferences = { firstDayOfWeek: null, measurement: null };
 
 	onMount(() => {
 		menuSelection.set("profile");
@@ -61,15 +38,8 @@
 		console.log(JSON.stringify(data, undefined, 2));
 		userFetchPromise = data.getUser;
 		console.log(data.getUser.preferences);
-		// only used in development, makes sure that we always have
-		// the full skeleton of the "preferences"-object for each user
-		if (data.getUser.preferences.firstDayOfWeek === undefined) {
-			preferences = { firstDayOfWeek: 1, color: "red" };
-			updateUserPreferences();
-		} else {
-			preferences = data.getUser.preferences;
-			console.log("fetched preferences", data.getUser.preferences);
-		}
+		preferences = data.getUser.preferences;
+		console.log("fetched preferences", data.getUser.preferences);
 	}
 
 	fetchUser();
@@ -82,7 +52,7 @@
 		});
 		const mutation = gql`
 			mutation { 
-                updateUserPreferences (preferences: { firstDayOfWeek: ${preferences.firstDayOfWeek}, color: "${preferences.color}" })
+                updateUserPreferences (preferences: { firstDayOfWeek: ${preferences.firstDayOfWeek}, measurement: "${preferences.measurement}" })
                     {
                         id
                         username
@@ -91,9 +61,10 @@
             }
 		`;
 		localStorage.setItem("firstDayOfWeek", preferences.firstDayOfWeek);
+		localStorage.setItem("measurement", preferences.measurement);
 		const data = await graphQLClient.request(mutation);
 		console.log(JSON.stringify(data, undefined, 2));
-		$statusModalMessages = { code: 200, message: "Einstellungen erfolgreich aktualisiert" };
+		$statusModalMessages = { code: 200, message: loc.profile.modal.saveSuccess };
 	}
 
 	onDestroy(() => {});
@@ -101,19 +72,18 @@
 
 <div class="wrapper regular-text">
 	<div class="headline">
-		<h1 class="color-headline" style="margin-left: 0rem">Profil</h1>
+		<h1 class="color-headline" style="margin-left: 0rem">{loc.profile.misc.headline}</h1>
 	</div>
 	<div style="margin-top: -2rem" class="separator" />
 	{#await userFetchPromise}
 		...fetching preferences
 	{:then user}
 		<div class="wrapper">
-			<p>{user.username}</p>
+			<p class="username">{user.username}</p>
 			<p>{user.email}</p>
-			<p>{user.preferences.language}</p>
 		</div>
 
-		<p class="label color-dark mt-32">Erster Tag der Woche</p>
+		<p class="label color-dark mt-32">{loc.profile.labels.firstDayOfWeek}</p>
 		<div class="mt-8">
 			<!-- svelte-ignore a11y-no-onchange -->
 			<select class:selected={preferences.firstDayOfWeek !== null} bind:value={preferences.firstDayOfWeek}>
@@ -122,17 +92,8 @@
 				{/each}
 			</select>
 		</div>
-		<p class="label color-dark mt-32">Lieblingsfarbe</p>
-		<div class="mt-8">
-			<!-- svelte-ignore a11y-no-onchange -->
-			<select class:selected={preferences.color} bind:value={preferences.color}>
-				<option value="red">Rot</option>
-				<option value="blue">Blau</option>
-				<option value="green">Gruen</option>
-			</select>
-		</div>
 	{/await}
-	<button on:click={updateUserPreferences} class="btn btn-regular mt-16">Einstellungen Speichern</button>
+	<button on:click={updateUserPreferences} class="btn btn-regular mt-16">{loc.profile.misc.btnSaveSettings}</button>
 </div>
 
 <style>
@@ -142,11 +103,8 @@
 		height: 100%;
 	}
 
-	.name {
+	.username {
+		font-size: 2rem;
 		margin-bottom: 1rem;
-	}
-
-	.email {
-		font-size: 1.2rem;
 	}
 </style>

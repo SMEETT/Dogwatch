@@ -1,8 +1,7 @@
 <!-- routify:options reset -->
 <script>
 	import { metatags, goto } from "@roxi/routify";
-	metatags.title = "Dogwatch / Login";
-	metatags.description = "Description coming soon...";
+
 	import {
 		isAuthenticated,
 		authenticating,
@@ -12,11 +11,12 @@
 		newlyRegisteredEmail,
 		loadLocale,
 	} from "../../stores/state";
+	const loc = loadLocale();
+	metatags.title = loc.login.misc.pageTitle;
+	metatags.description = "Description coming soon...";
 	import { GraphQLClient, gql } from "graphql-request";
 
 	import * as yup from "yup";
-
-	const loc = loadLocale();
 
 	const loginData = {
 		email: null,
@@ -67,11 +67,7 @@
 				isAuthenticated.set(true);
 				authenticating.set(false);
 				console.log(data.loginUser);
-				if (data.loginUser.preferences.firstDayOfWeek) {
-					localStorage.setItem("firstDayOfWeek", data.loginUser.preferences.firstDayOfWeek);
-				} else {
-					localStorage.setItem("firstDayOfWeek", 1);
-				}
+				localStorage.setItem("firstDayOfWeek", data.loginUser.preferences.firstDayOfWeek);
 				console.log(JSON.stringify(data, undefined, 2));
 				return true;
 			} else {
@@ -145,7 +141,7 @@
 <!-- Login Index -->
 
 <div class="headline">
-	<h1 class="color-headline" style="margin-left: 0rem">{loc.login.misc.title}</h1>
+	<h1 class="color-headline" style="margin-left: 0rem">{loc.login.misc.headline}</h1>
 </div>
 <div style="margin-top: -2rem" class="separator" />
 
