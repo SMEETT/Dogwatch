@@ -23,14 +23,14 @@ export const en = {
 			password: "Password",
 			notes: "Notes",
 			date: "Date",
-			time: "h",
+			time: "",
 			minutesShort: "min",
 			hoursShort: "hour",
 			chars: "characters",
 		},
 		modal: {
 			missingFields: "Please fill out all fields correctly",
-			notLoggedIn: "User not logged in.",
+			notLoggedIn: "You are not logged in.",
 			unknownError: "An unknown error occured.",
 		},
 		val: {
@@ -115,8 +115,8 @@ export const en = {
 		val: {
 			arrivalProvide: "Please provide time of arrival",
 			departureProvide: "Please provide time of departure",
-			startDateProvide: "Please provide startdate",
-			endDateProvide: "Please provide enddate",
+			startDateProvide: "Please provide start date",
+			endDateProvide: "Please provide end date",
 			endDateLTstartDate: "Time of departure before time of arrival",
 		},
 	},
@@ -137,15 +137,15 @@ export const en = {
 		},
 		labels: {
 			name: "Name",
-			birthday: "Birthday",
+			birthday: "Birth date",
 			age: "Age",
 			race: "Race",
 			gender: "Gender",
 			weight: "Weight",
 			foodAmount: "Food amount",
 			medication: "Medication",
-			feedTimes: "Feedtimes",
-			walkTimes: "Walktimes",
+			feedTimes: "Feed time(s)",
+			walkTimes: "Walk time(s)",
 			walkDuration: "Walk duration",
 		},
 		modal: {
@@ -163,8 +163,8 @@ export const en = {
 			weightProvide: "Please provide weight",
 			foodAmountProvide: "Please provide the food amount",
 			walkDurationProvide: "Please provide the duration",
-			walksProvide: "Please provide the walktime(s)",
-			feedsProvide: "Please provide the feedtime(s)",
+			walksProvide: "Please provide the walk time(s)",
+			feedsProvide: "Please provide the feed time(s)",
 		},
 		placeholders: {
 			name: "Please provide name",
@@ -185,8 +185,8 @@ export const en = {
 		labels: {
 			contacts: "Contacts",
 			search: "Search",
-			searchResults: "Searchresults",
-			contactList: "Contactlist",
+			searchResults: "Search results",
+			contactList: "Contact list",
 		},
 		modal: {
 			addSuccess: "Contact was added successfully",

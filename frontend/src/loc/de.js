@@ -23,14 +23,14 @@ export const de = {
 			password: "Passwort",
 			notes: "Notizen",
 			date: "Datum",
-			time: "Uhr",
+			time: "",
 			minutesShort: "Min",
 			hoursShort: "Std",
 			chars: "Zeichen",
 		},
 		modal: {
 			missingFields: "Bitte füllen Sie alle Felder korrekt aus",
-			notLoggedIn: "Benutzer ist nicht angemeldet.",
+			notLoggedIn: "Sie sind nicht eingeloggt.",
 			unknownError: "Ein ubekannter Fehler ist aufgetreten.",
 		},
 		val: {
@@ -137,7 +137,7 @@ export const de = {
 		},
 		labels: {
 			name: "Name",
-			birthday: "Geburtstag",
+			birthday: "Geburtsdatum",
 			age: "Alter",
 			race: "Rasse",
 			gender: "Geschlecht",
