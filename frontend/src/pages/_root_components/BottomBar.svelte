@@ -1,12 +1,9 @@
 <script>
-	import { menuContext, menuSelection, bottomBarAction, liveValidation } from "../../stores/state";
+	import { menuContext, menuSelection, bottomBarAction, liveValidation, loadLocale } from "../../stores/state";
 	import { goto } from "@roxi/routify";
 	import { fade } from "svelte/transition";
 
-	import { en } from "../../loc/en";
-	import { de } from "../../loc/de";
-	let loc;
-	navigator.language.slice(0, 2) === "de" ? (loc = de) : (loc = en);
+	const loc = loadLocale();
 
 	let menuVisible = false;
 	let menuOpacity = 0;
