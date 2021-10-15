@@ -40,7 +40,7 @@ VITE_GQL_ENDPOINT_URL="http://localhost:3001/gql"
 
 For more information about the use of environment variables in Vite please refer to the official documentation. The prefix `VITE_` is mandatory for them to work, though.
 
-There's also a deploy script `/dogwatch/deploy_script.sh` and a config file for PM2 `/dogwatch/ecosystem.config.js` - both are worth checking out to get a better idea how the automatic deployment is set up.
+There's also a deploy script `/dogwatch/deploy_script.sh` and a config file for PM2 `/dogwatch/ecosystem.config.js` - both are worth checking out to get a better idea of how the automatic deployment is set up.
 
 ## **DB Schema**
 

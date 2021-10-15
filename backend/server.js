@@ -76,7 +76,7 @@ require("./sequelize/models/_relations");
 async function syncDB() {
 	console.log("Syncing Database...");
 	// await db.sync({ force: true });
-	await db.sync({ force: true, alter: true });
+	await db.sync({ force: false, alter: true });
 	// require("./misc/initialData");
 }
 syncDB();
